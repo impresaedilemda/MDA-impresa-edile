@@ -114,61 +114,9 @@ const ogImage = new URL(image, Astro.site).href
       }
     </script>
 
-    <script>
-      // Scorrimento morbido della rotella (solo desktop con mouse).
-      // Interpola la posizione verso il bersaglio a ogni frame: niente
-      // salti bruschi. Difensivo per progettazione:
-      //  - touch, tastiera e barra di scorrimento restano nativi;
-      //  - lo scorrimento orizzontale (carosello recensioni) resta nativo;
-      //  - ctrl+rotella (zoom) resta nativo;
-      //  - disattivato con prefers-reduced-motion.
-      const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-      const ridotto = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-      if (fine && !ridotto) {
-        let bersaglio = window.scrollY
-        let attuale = window.scrollY
-        let attivo = false
-
-        const massimo = () => document.documentElement.scrollHeight - window.innerHeight
-
-        const anima = () => {
-          attuale += (bersaglio - attuale) * 0.12
-          if (Math.abs(bersaglio - attuale) < 0.5) {
-            attuale = bersaglio
-            attivo = false
-          }
-          window.scrollTo(0, attuale)
-          if (attivo) requestAnimationFrame(anima)
-        }
-
-        window.addEventListener(
-          'wheel',
-          (e) => {
-            // Zoom, scorrimento orizzontale o zone con scorrimento proprio
-            if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-            const dentro = (e.target as Element)?.closest?.('[data-scroll-nativo], textarea, select')
-            if (dentro) return
-
-            e.preventDefault()
-
-            // Se l'utente ha scrollato con altri mezzi, riparti da li
-            if (!attivo) {
-              attuale = window.scrollY
-              bersaglio = window.scrollY
-            }
-
-            const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY
-            bersaglio = Math.max(0, Math.min(bersaglio + delta, massimo()))
-
-            if (!attivo) {
-              attivo = true
-              requestAnimationFrame(anima)
-            }
-          },
-          { passive: false },
-        )
-      }
-    </script>
+    <!-- Scorrimento: nativo, di proposito. Come fanno i siti Apple: nessun
+         motore sopra la rotella, solo gli anchor del menu scorrono morbidi
+         via CSS (scroll-behavior: smooth). Il custom smooth-scroll provato
+         qui e stato rimosso su richiesta: dava una sensazione di ritardo. -->
   </body>
 </html>
