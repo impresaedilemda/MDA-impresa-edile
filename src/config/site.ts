@@ -49,7 +49,7 @@ export const site = {
   phone: '+39 389 999 7498',
   phoneHref: '+393899997498',
   whatsapp: '393899997498', // TODO CLIENTE: confermare che questo numero ha WhatsApp attivo
-  email: 'info@mdaimpresaedile.it', // TODO CLIENTE: email
+  email: 'impresaedilemda@gmail.com',
 
   /* --- Orari (usati anche nello schema JSON-LD) ------------------------- */
   hours: {

@@ -5,7 +5,7 @@ import Icona from './Icona.astro'
 import FormRapido from './FormRapido.astro'
 ---
 
-<section id="top" class="relative isolate overflow-hidden bg-nero text-white">
+<section id="top" class="relative isolate flex min-h-[calc(100svh-70px)] flex-col justify-center overflow-hidden bg-nero text-white lg:min-h-[calc(100svh-90px)]">
   <!-- Foto di sfondo: ritaglio verticale su mobile, orizzontale da md in su.
        Il leggero parallax e gestito dallo script in fondo. -->
   <div class="absolute inset-0 -z-10 overflow-hidden">
@@ -28,7 +28,7 @@ import FormRapido from './FormRapido.astro'
   </div>
 
   <!-- Corpo: titolo a sinistra, modulo rapido a destra -->
-  <div class="contenitore grid items-center gap-10 py-16 md:py-24 lg:grid-cols-[1fr_minmax(0,390px)] lg:gap-16 lg:py-32">
+  <div class="contenitore grid w-full items-center gap-10 py-12 md:py-16 lg:grid-cols-[1fr_minmax(0,390px)] lg:gap-16">
     <div>
       <h1 class="font-display text-[2.5rem] font-light leading-[1.08] md:text-[3.5rem] lg:text-[4.25rem]">
         {hero.headlinePlain}

@@ -4,10 +4,10 @@ import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
 const nav = [
-  { label: 'I Nostri Servizi', href: '#servizi' },
-  { label: 'Come Lavoriamo', href: '#processo' },
-  { label: 'Portfolio', href: '#lavori' },
-  { label: 'FAQ', href: '#domande' },
+  { label: 'I Nostri Servizi', href: '/#servizi' },
+  { label: 'Come Lavoriamo', href: '/#processo' },
+  { label: 'Portfolio', href: '/#lavori' },
+  { label: 'FAQ', href: '/#domande' },
 ]
 ---
 
@@ -16,7 +16,7 @@ const nav = [
   class="sticky top-0 z-50 border-b border-nero/8 bg-crema/95 backdrop-blur-md transition-shadow"
 >
   <div class="contenitore flex h-[70px] items-center justify-between gap-4 lg:h-[90px]">
-    <a href="#top" aria-label={`${site.name}, torna in cima`} class="shrink-0">
+    <a href="/" aria-label={`${site.name}, torna in cima`} class="shrink-0">
       <Logo class="h-11 w-auto lg:h-[58px]" />
     </a>
 
@@ -42,7 +42,7 @@ const nav = [
         {site.phone}
       </a>
 
-      <a href="#preventivo" class="btn btn-nero hidden sm:inline-flex">Preventivo Gratuito</a>
+      <a href="/#preventivo" class="btn btn-nero hidden sm:inline-flex">Preventivo Gratuito</a>
 
       <!-- Hamburger, solo mobile: quadrato scuro 36px come nel design -->
       <button
@@ -70,7 +70,7 @@ const nav = [
           </a>
         ))
       }
-      <a href="#preventivo" class="btn btn-nero mt-3 sm:hidden">Preventivo Gratuito</a>
+      <a href="/#preventivo" class="btn btn-nero mt-3 sm:hidden">Preventivo Gratuito</a>
       <a href={`tel:${site.phoneHref}`} class="mt-3 flex items-center gap-2.5 py-2 font-sans font-bold text-nero">
         <Icona nome="header-phone-call" class="size-4 text-taupe" />
         {site.phone}

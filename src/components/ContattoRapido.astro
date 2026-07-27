@@ -1,6 +1,6 @@
 ---
 /**
- * Pulsante fisso in basso a sinistra: apre un pannello con i canali di
+ * Pulsante fisso in basso a destra: apre un pannello con i canali di
  * contatto diretto. Solo da desktop, perche su mobile lo stesso lavoro
  * lo fa gia la barra fissa in fondo (BarraMobile).
  */
@@ -8,12 +8,12 @@ import { site, waLink } from '../config/site'
 import Icona from './Icona.astro'
 ---
 
-<div class="fixed bottom-7 left-7 z-40 hidden lg:block">
+<div class="fixed bottom-7 right-7 z-40 hidden lg:block">
   <!-- Pannello -->
   <div
     id="pannello-rapido"
     hidden
-    class="mb-3 w-[268px] origin-bottom-left overflow-hidden rounded-xl bg-crema shadow-[0_20px_50px_rgba(0,0,0,0.25)]"
+    class="mb-3 w-[268px] origin-bottom-right overflow-hidden rounded-xl bg-crema shadow-[0_20px_50px_rgba(0,0,0,0.25)]"
   >
     <div class="border-b border-nero/8 px-5 py-4">
       <p class="font-display text-lg font-normal text-nero">Contatto rapido</p>
@@ -70,7 +70,7 @@ import Icona from './Icona.astro'
       </a>
 
       <a
-        href="#preventivo"
+        href="/#preventivo"
         data-azione="preventivo"
         class="mt-1 flex items-center justify-center rounded-lg bg-nero px-3 py-3 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-white transition-colors hover:bg-nero-2"
       >

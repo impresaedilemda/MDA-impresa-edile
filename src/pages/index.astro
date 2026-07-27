@@ -13,8 +13,11 @@ import Domande from '../components/Domande.astro'
 import Footer from '../components/Footer.astro'
 import BarraMobile from '../components/BarraMobile.astro'
 import ContattoRapido from '../components/ContattoRapido.astro'
-import ControlloLegale from '../components/ControlloLegale.astro'
 import { site } from '../config/site'
+import { avvisaSeIncompleto } from '../config/legale'
+
+/* Promemoria dati mancanti: solo nel terminale a ogni build, niente pannelli. */
+avvisaSeIncompleto()
 
 /* Title sotto i 60 caratteri, description fra 140 e 158: è la finestra
    in cui Google non tronca il risultato. La città e in entrambi. */
@@ -40,5 +43,4 @@ const description = `Rifacimento, manutenzione e impermeabilizzazione tetti a ${
   <Footer />
   <BarraMobile />
   <ContattoRapido />
-  <ControlloLegale />
 </Base>
