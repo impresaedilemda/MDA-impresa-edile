@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { site } from '../config/site'
+---
+
+<Base
+  title={`Pagina non trovata | ${site.name}`}
+  description={`La pagina che cercavi non esiste. Torna alla home di ${site.name} o chiamaci per un sopralluogo gratuito.`}
+>
+  <Header />
+
+  <main id="contenuto" class="flex min-h-[60vh] items-center bg-crema py-20 md:py-[120px]">
+    <div class="contenitore">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="occhiello">Errore 404</p>
+        <h1 class="titolo-sezione mt-4">
+          Questa pagina non c'è più,
+          <span class="italic">il tetto invece resta.</span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-lg font-sans leading-relaxed text-nero/70">
+          Il collegamento che hai seguito non esiste o è stato spostato. Torna alla pagina
+          principale, oppure chiamaci direttamente: rispondiamo entro {site.responseHours} ore.
+        </p>
+
+        <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+          <a href="/" class="btn btn-nero !px-7 !py-4">Torna alla home</a>
+          <a href={`tel:${site.phoneHref}`} class="btn !px-7 !py-4 border border-nero/20 text-nero hover:bg-nero hover:text-white">
+            {site.phone}
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

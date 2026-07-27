@@ -1,0 +1,48 @@
+---
+/**
+ * Inlina un'icona SVG esportata da Figma (public/images/figma/) sostituendo
+ * i colori fissi con currentColor: la stessa icona funziona su fondo chiaro
+ * e scuro e cambia colore col testo che la circonda.
+ */
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+interface Props {
+  /** Nome file senza estensione, es. "trust-users-2" */
+  nome: string
+  /** Classi tailwind per dimensione e colore */
+  class?: string
+}
+
+const { nome, class: classe = 'size-5' } = Astro.props
+
+const percorso = join(process.cwd(), 'public', 'images', 'figma', `${nome}.svg`)
+
+let svg = readFileSync(percorso, 'utf8')
+  // Colori fissi -> currentColor (stroke e fill, qualsiasi esadecimale o white).
+  // I fill dentro <clipPath> sono irrilevanti per la resa, sostituirli non nuoce.
+  .replace(/stroke="#[0-9a-fA-F]{3,8}"/g, 'stroke="currentColor"')
+  .replace(/stroke="white"/g, 'stroke="currentColor"')
+  .replace(/fill="#[0-9a-fA-F]{3,8}"/g, 'fill="currentColor"')
+  .replace(/fill="white"/g, 'fill="currentColor"')
+  // Pulizia SOLO del tag radice: dimensioni fisse e attributi di export.
+  // Mai globale: un width/height dentro <clipPath> o <mask> e parte del
+  // disegno e azzerarlo rende l'icona invisibile.
+  .replace(/<svg[^>]*>/, (radice) =>
+    radice
+      .replace(/\s(width|height)="\d+(\.\d+)?"/g, '')
+      .replace(/\sstyle="[^"]*"/, '')
+      .replace(/\spreserveAspectRatio="none"/, ''),
+  )
+  // ID interni univoci per icona: due icone diverse esportate da Figma
+  // possono condividere lo stesso id di clipPath e tagliarsi a vicenda
+  .replace(/id="(clip[^"]*)"/g, `id="${nome}-$1"`)
+  .replace(/url\(#(clip[^)]*)\)/g, `url(#${nome}-$1)`)
+  // Classi + accessibilita sull'elemento radice
+  .replace('<svg', `<svg class="${classe}" aria-hidden="true"`)
+
+// fill="none" sul radice va preservato: le icone sono a tratto
+if (!svg.includes('fill="none"')) svg = svg.replace('<svg', '<svg fill="none"')
+---
+
+<Fragment set:html={svg} />

@@ -1,0 +1,44 @@
+---
+/**
+ * FAQ: carte #F1ECE0 con domanda serif e icona piu/meno, come nel design.
+ */
+import { faqs, faqSection } from '../config/content'
+---
+
+<section id="domande" class="scroll-mt-24 bg-crema py-16 md:py-[120px]">
+  <div class="contenitore flex flex-col gap-12 md:gap-20">
+    <div class="rivela flex max-w-[800px] flex-col gap-4">
+      <p class="occhiello">{faqSection.eyebrow}</p>
+      <h2 class="titolo-sezione">{faqSection.title}</h2>
+    </div>
+
+    <div class="rivela-fila flex flex-col gap-5">
+      {
+        faqs.map((faq, i) => (
+          <details class="group rounded-lg bg-carta" name="faq" open={i === 0}>
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-6 px-8 py-6 font-display text-[1.375rem] font-semibold text-nero transition-colors hover:text-taupe">
+              <h3 class="text-[1.375rem] font-semibold leading-snug">{faq.q}</h3>
+              <span class="relative flex size-5 shrink-0 items-center justify-center" aria-hidden="true">
+                {/* Meno (stato aperto, dal design) + tratto verticale che lo
+                    trasforma in piu quando la carta e chiusa */}
+                <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M4 10h12" />
+                  <path class="transition-transform duration-300 [transform-origin:center] group-open:scale-y-0" d="M10 4v12" />
+                </svg>
+              </span>
+            </summary>
+            <div class="px-8 pb-7 pt-0">
+              <p class="max-w-[1100px] font-sans text-[15px] leading-relaxed text-nero/80">{faq.a}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

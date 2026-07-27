@@ -1,0 +1,94 @@
+---
+/**
+ * Servizi: quattro carte con foto a sinistra + pannello scuro di
+ * approfondimento verniciatura con i 4 passaggi numerati, come nel design.
+ */
+import { services, servicesSection, verniciatura } from '../config/content'
+import Icona from './Icona.astro'
+---
+
+<section id="servizi" class="scroll-mt-24 bg-crema py-16 md:py-[120px]">
+  <div class="contenitore flex flex-col gap-12 md:gap-16">
+    <!-- Intestazione -->
+    <div class="rivela flex max-w-[800px] flex-col gap-4">
+      <p class="occhiello">{servicesSection.eyebrow}</p>
+      <h2 class="titolo-sezione">{servicesSection.title}</h2>
+    </div>
+
+    <!-- Griglia 2x2 -->
+    <ul class="rivela-fila grid gap-6 lg:grid-cols-2 lg:gap-8">
+      {
+        services.map((servizio) => (
+          <li
+            id={servizio.id}
+            class="solleva zoom-foto scroll-mt-28 flex min-h-[320px] flex-col overflow-hidden rounded-lg border border-nero/8 bg-white sm:flex-row"
+          >
+            <img
+              src={servizio.image}
+              alt={servizio.alt}
+              width="480"
+              height="640"
+              loading="lazy"
+              decoding="async"
+              class="h-48 w-full shrink-0 object-cover sm:h-auto sm:w-[240px]"
+            />
+            <div class="flex flex-1 flex-col justify-between gap-6 p-7 md:p-8">
+              <div class="flex flex-col gap-3">
+                <h3 class="font-display text-[1.75rem] font-normal leading-tight text-nero">{servizio.title}</h3>
+                <p class="font-sans text-[15px] leading-relaxed text-nero/80">{servizio.text}</p>
+              </div>
+              <a
+                href="#preventivo"
+                class="group inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe transition-colors hover:text-nero"
+              >
+                Richiedi Info
+                <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Approfondimento verniciatura -->
+    <article
+      id={verniciatura.id}
+      class="rivela scroll-mt-28 flex flex-col overflow-hidden rounded-xl bg-nero text-white lg:flex-row"
+    >
+      <img
+        src={verniciatura.image}
+        alt={verniciatura.alt}
+        width="800"
+        height="1200"
+        loading="lazy"
+        decoding="async"
+        class="h-64 w-full shrink-0 object-cover lg:h-auto lg:w-[400px]"
+      />
+
+      <div class="flex flex-1 flex-col gap-7 p-7 md:p-14">
+        <span class="self-start rounded-[4px] bg-white/8 px-3 py-1.5 font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-white">
+          {verniciatura.badge}
+        </span>
+
+        <h3 class="max-w-[700px] font-display text-3xl font-light leading-tight md:text-[2.75rem]">
+          {verniciatura.titlePlain}
+          <span class="text-sabbia">{verniciatura.titleAccent}</span>
+        </h3>
+
+        <p class="max-w-[640px] font-sans text-[15px] leading-relaxed text-white/85">{verniciatura.intro}</p>
+
+        <ol class="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {
+            verniciatura.steps.map((passo) => (
+              <li class="flex flex-col gap-3 rounded-md border border-white/6 bg-nero-2 p-6">
+                <span class="font-display text-[1.75rem] font-normal leading-none text-taupe">{passo.n}</span>
+                <h4 class="font-sans text-[15px] font-bold leading-snug">{passo.title}</h4>
+                <p class="font-sans text-[13px] leading-relaxed text-white/70">{passo.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { site } from '../config/site'
+---
+
+<Base
+  title={`Privacy Policy | ${site.name}`}
+  description={`Informativa sul trattamento dei dati personali di ${site.legalName} ai sensi del Regolamento UE 2016/679.`}
+>
+  <Header />
+
+  <main id="contenuto" class="bg-sabbia-50 py-20 md:py-24">
+    <div class="contenitore max-w-3xl">
+      <p class="occhiello">Note legali</p>
+      <h1 class="mt-5 text-4xl md:text-5xl">Privacy Policy</h1>
+      <p class="mt-5 text-grafite">
+        Informativa resa ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679 (GDPR).
+      </p>
+
+      <div class="prose-legale mt-12">
+        <h2>1. Titolare del trattamento</h2>
+        <p>
+          Il titolare del trattamento e {site.legalName}, con sede in {site.street}, {site.postalCode}
+          {site.city} ({site.province}), partita IVA {site.vat}. Per qualsiasi questione relativa ai
+          dati personali potete scrivere a <a href={`mailto:${site.email}`}>{site.email}</a> o
+          telefonare al {site.phone}.
+        </p>
+
+        <h2>2. Quali dati raccogliamo</h2>
+        <p>Attraverso questo sito raccogliamo esclusivamente i dati che ci fornite volontariamente:</p>
+        <ul>
+          <li>
+            <strong>Dati del modulo di richiesta preventivo:</strong> nome e cognome, numero di
+            telefono, indirizzo email se lo indicate, comune e CAP dell'immobile, tipo di intervento
+            richiesto, tipo di edificio, superficie approssimativa, tempistica desiderata ed eventuali
+            note che scegliete di aggiungere.
+          </li>
+          <li>
+            <strong>Dati di navigazione:</strong> il sito non utilizza cookie di profilazione. Vedi la
+            <a href="/cookie">Cookie Policy</a> per il dettaglio.
+          </li>
+        </ul>
+
+        <h2>3. Perché li trattiamo e su quale base giuridica</h2>
+        <ul>
+          <li>
+            <strong>Rispondere alla vostra richiesta di preventivo</strong> e fissare il sopralluogo.
+            Base giuridica: esecuzione di misure precontrattuali adottate su vostra richiesta, articolo
+            6, paragrafo 1, lettera b del GDPR.
+          </li>
+          <li>
+            <strong>Adempiere agli obblighi di legge</strong> di natura contabile e fiscale, qualora la
+            richiesta si trasformi in un incarico. Base giuridica: articolo 6, paragrafo 1, lettera c.
+          </li>
+        </ul>
+        <p>
+          Non utilizziamo i vostri dati per invii commerciali non richiesti e non li cediamo a terzi
+          per finalità di marketing.
+        </p>
+
+        <h2>4. A chi possono essere comunicati</h2>
+        <p>
+          I dati possono essere trattati da personale autorizzato e da fornitori di servizi che
+          agiscono come responsabili del trattamento, in particolare il fornitore dell'hosting del
+          sito e il servizio di inoltro dei moduli. Non trasferiamo dati al di fuori dello Spazio
+          Economico Europeo, salvo verso fornitori che garantiscono un livello di protezione adeguato
+          ai sensi degli articoli 44 e seguenti del GDPR.
+        </p>
+
+        <h2>5. Per quanto tempo li conserviamo</h2>
+        <p>
+          Le richieste di preventivo non seguite da un incarico vengono conservate per un massimo di
+          24 mesi dall'ultimo contatto. In caso di incarico, i dati sono conservati per la durata del
+          rapporto e per i successivi 10 anni, come previsto dagli obblighi civilistici e fiscali.
+        </p>
+
+        <h2>6. I vostri diritti</h2>
+        <p>
+          Potete in ogni momento chiedere l'accesso ai vostri dati, la loro rettifica o cancellazione,
+          la limitazione del trattamento, la portabilità, e opporvi al trattamento. Potete inoltre
+          revocare il consenso prestato, senza che ciò pregiudichi la liceità del trattamento svolto
+          in precedenza. Per esercitare questi diritti scrivete a
+          <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+        <p>
+          Se ritenete che il trattamento violi la normativa, avete diritto di proporre reclamo al
+          Garante per la protezione dei dati personali (<a
+            href="https://www.garanteprivacy.it"
+            target="_blank"
+            rel="noopener">www.garanteprivacy.it</a
+          >).
+        </p>
+
+        <h2>7. Natura del conferimento</h2>
+        <p>
+          Il conferimento di nome e numero di telefono è necessario per poter dare seguito alla
+          richiesta di preventivo: senza questi dati non siamo in grado di ricontattarvi. Gli altri
+          campi sono facoltativi e servono solo a rendere più accurata la nostra valutazione.
+        </p>
+
+        <p class="nota">Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}</p>
+      </div>
+
+      <a href="/" class="btn btn-contorno mt-12">Torna alla home</a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

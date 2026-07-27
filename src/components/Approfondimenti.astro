@@ -1,0 +1,77 @@
+---
+/**
+ * Sezione di approfondimento in fondo alla pagina, scritta per la SEO:
+ * ogni blocco copre un gruppo di ricerche reali del settore coperture in
+ * Italia (costi al mq, tetto ventilato, coibentazione, amianto, lattoneria,
+ * infiltrazioni) con testo utile, non un elenco di parole chiave.
+ * I titoli sono H3 sotto un unico H2: gerarchia pulita per i motori.
+ */
+import { site } from '../config/site'
+
+const blocchi = [
+  {
+    titolo: 'Quanto costa rifare un tetto al metro quadro',
+    testo:
+      'Il costo del rifacimento di un tetto in Italia varia in genere fra 150 e 300 euro al metro quadro, in base a struttura portante, tipo di manto (tegole portoghesi, coppi, ardesia o lamiera aggraffata), isolamento scelto e accessibilità del cantiere. Un preventivo serio parte sempre da un sopralluogo sulla copertura: le cifre date al telefono senza aver visto lo stato di travi, tavolato e guaina lasciano il tempo che trovano. Il nostro computo metrico è analitico, voce per voce, con prezzo bloccato alla firma.',
+  },
+  {
+    titolo: 'Tetto ventilato e coibentazione: perché conviene',
+    testo:
+      'Un tetto ventilato crea una camera d’aria fra isolante e manto che d’estate smaltisce il calore e d’inverno evita condensa e muffe nel sottotetto. Abbinato a una coibentazione in lana di roccia o fibra di legno ad alta densità, riduce sensibilmente i consumi di riscaldamento e climatizzazione. Nei climi umidi del Nord-Est, fra Veneto e Friuli-Venezia Giulia, la ventilazione della copertura fa spesso la differenza fra un sottotetto abitabile e uno inutilizzabile.',
+  },
+  {
+    titolo: 'Infiltrazioni d’acqua dal tetto: cosa fare subito',
+    testo:
+      'Una macchia di umidità sul soffitto raramente nasce dove la vedete: l’acqua entra da una tegola rotta, da una scossalina scollata o da una guaina invecchiata e scorre lungo la struttura prima di affiorare. Intervenire alle prime avvisaglie costa poche centinaia di euro; aspettare due inverni può significare travi marcite e tavolato da rifare. Facciamo ricerca infiltrazioni con ispezione diretta della copertura e riparazioni mirate, senza smontare più del necessario.',
+  },
+  {
+    titolo: 'Rimozione amianto ed eternit dalle coperture',
+    testo:
+      'Molti capannoni e case degli anni Sessanta e Settanta hanno ancora coperture in cemento-amianto. La rimozione va eseguita da personale abilitato, con piano di lavoro approvato, incapsulamento, smaltimento tracciato in discarica autorizzata e sostituzione con pannelli coibentati o lamiera. Gestiamo l’intera pratica, dalla notifica agli enti alla certificazione finale di avvenuta bonifica.',
+  },
+  {
+    titolo: 'Lattoneria su misura: rame, alluminio e zinco titanio',
+    testo:
+      'Grondaie, pluviali, scossaline, converse e copertine sono la difesa perimetrale del tetto: se sbagliano pendenza o sezione, l’acqua torna verso la muratura. Pieghiamo la lattoneria in cantiere, su misura, in rame, alluminio preverniciato o zinco titanio. Meno giunti significa meno punti deboli, e un canale dimensionato bene regge anche i temporali estivi sempre più violenti del Nord-Est.',
+  },
+  {
+    titolo: 'Manutenzione programmata: il tetto che dura di più',
+    testo:
+      'Un controllo annuale della copertura, meglio in autunno prima delle piogge, intercetta tegole spostate, muschio, sigillature secche e canali ostruiti quando sistemarli costa poco. Per condomini e aziende proponiamo contratti di manutenzione programmata con report fotografico a ogni visita: chi amministra ha la documentazione, chi abita ha un tetto che non fa sorprese.',
+  },
+]
+---
+
+<section id="approfondimenti" class="scroll-mt-24 bg-carta py-16 md:py-[120px]">
+  <div class="contenitore flex flex-col gap-12 md:gap-16">
+    <div class="rivela flex max-w-[800px] flex-col gap-4">
+      <p class="occhiello">Guida alle coperture</p>
+      <h2 class="titolo-sezione">Le cose da sapere prima di mettere mano al tetto</h2>
+      <p class="max-w-[640px] font-sans leading-relaxed text-nero/75">
+        Risposte chiare alle domande che riceviamo ogni settimana da proprietari e amministratori fra
+        Veneto e Friuli-Venezia Giulia. Per tutto il resto c'è il sopralluogo gratuito.
+      </p>
+    </div>
+
+    <div class="rivela-fila grid gap-x-12 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+      {
+        blocchi.map((blocco) => (
+          <article class="flex flex-col gap-3 border-t border-nero/12 pt-6">
+            <h3 class="font-display text-[1.4rem] font-semibold leading-snug text-nero">{blocco.titolo}</h3>
+            <p class="font-sans text-[14px] leading-relaxed text-nero/75">{blocco.testo}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="rivela flex flex-col items-start justify-between gap-5 rounded-xl bg-nero p-8 text-white sm:flex-row sm:items-center md:p-10">
+      <div class="flex flex-col gap-1.5">
+        <p class="font-display text-2xl font-normal md:text-[1.75rem]">Un dubbio sul vostro tetto?</p>
+        <p class="font-sans text-[15px] text-sabbia/80">
+          Sopralluogo e preventivo scritto gratuiti in tutta l'area fra {site.regions[0]} e {site.regions[1]}.
+        </p>
+      </div>
+      <a href="#preventivo" class="btn btn-bianco shrink-0 !px-7 !py-4">Preventivo gratuito</a>
+    </div>
+  </div>
+</section>

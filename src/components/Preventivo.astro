@@ -1,0 +1,453 @@
+---
+/**
+ * Configuratore in 6 passi dentro la card scura del design.
+ * Passi 1-4 a scelta singola (selezione + Avanti), passo 5 luogo,
+ * passo 6 contatti. I dati partono via email e via WhatsApp.
+ */
+import { quizSteps, quoteSection } from '../config/content'
+import { site } from '../config/site'
+import Icona from './Icona.astro'
+
+const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
+---
+
+<section id="preventivo" class="scroll-mt-24 bg-sabbia py-16 md:py-[120px]">
+  <div class="contenitore grid items-center gap-12 lg:grid-cols-[1fr_minmax(0,540px)] lg:gap-16">
+    <!-- Colonna introduttiva -->
+    <div class="rivela flex flex-col gap-6">
+      <p class="occhiello">{quoteSection.eyebrow}</p>
+      <h2 class="titolo-sezione max-w-[660px]">{quoteSection.title}</h2>
+      <p class="max-w-[560px] font-sans leading-relaxed text-nero/80">{quoteSection.intro}</p>
+
+      <div class="mt-2 flex max-w-[480px] items-center gap-5 rounded-md bg-crema p-6">
+        <Icona nome="quote-form-phone" class="size-6 shrink-0 text-nero" />
+        <div class="flex flex-col gap-1">
+          <p class="font-sans text-sm text-taupe">{quoteSection.phoneQuestion}</p>
+          <a href={`tel:${site.phoneHref}`} class="font-sans text-lg font-bold text-nero transition-colors hover:text-taupe">
+            {quoteSection.phoneLabel} {site.phone}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card scura del configuratore -->
+    <div class="rivela">
+      <div id="quiz" class="rounded-xl bg-nero p-6 text-white shadow-[0_16px_16px_rgba(0,0,0,0.25)] sm:p-12">
+        <!-- Intestazione + avanzamento -->
+        <div id="quiz-avanzamento" class="flex flex-col gap-4">
+          <div class="flex items-baseline justify-between gap-4">
+            <p class="font-sans text-xs font-bold uppercase tracking-[0.1em] text-white">
+              {quoteSection.cardLabel}
+            </p>
+            <p class="font-sans text-xs font-semibold text-sabbia/80">
+              Fase <span id="quiz-numero">1</span> di {totaleStep}
+            </p>
+          </div>
+          <div
+            class="h-[3px] w-full overflow-hidden rounded-full bg-white/13"
+            role="progressbar"
+            aria-label="Avanzamento del preventivo"
+            aria-valuemin="0"
+            aria-valuemax={totaleStep}
+            aria-valuenow="1"
+            id="quiz-barra-contenitore"
+          >
+            <div id="quiz-barra" class="h-full bg-sabbia transition-[width] duration-500 ease-out" style="width: 16.6%"></div>
+          </div>
+        </div>
+
+        <form id="quiz-form" novalidate class="mt-8">
+          <!-- Passi a scelta singola -->
+          {
+            quizSteps.map((passo, i) => (
+              <fieldset class="quiz-passo" data-passo={i} hidden>
+                <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">{passo.question}</legend>
+
+                <div class="mt-6 grid gap-2.5">
+                  {passo.options.map((opzione) => (
+                    <button
+                      type="button"
+                      class="quiz-opzione group flex items-center gap-3.5 rounded-[6px] border border-white/8 bg-nero-2 px-5 py-4 text-left font-sans text-[15px] font-medium text-white transition-all hover:border-white/30"
+                      data-campo={passo.key}
+                      data-valore={opzione.label}
+                      aria-pressed="false"
+                    >
+                      {opzione.icon && <Icona nome={`quote-form-${opzione.icon}`} class="size-5 shrink-0" />}
+                      <span class="flex-1">{opzione.label}</span>
+                      <span class="quiz-radio flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-white/60" aria-hidden="true">
+                        <span class="hidden size-2 rounded-full bg-nero" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div class="mt-7 flex gap-3">
+                  <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1" disabled={i === 0}>
+                    Indietro
+                  </button>
+                  <button type="button" class="quiz-avanti btn btn-bianco flex-1 !shadow-none" disabled>
+                    Avanti
+                  </button>
+                </div>
+              </fieldset>
+            ))
+          }
+
+          <!-- Passo luogo -->
+          <fieldset class="quiz-passo" data-passo={quizSteps.length} hidden>
+            <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">Dove si trova l'immobile?</legend>
+            <p class="mt-2 font-sans text-sm text-sabbia/70">Serve a capire se rientra nella nostra zona di intervento.</p>
+
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="q-comune" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                  Comune
+                </label>
+                <input id="q-comune" name="comune" type="text" autocomplete="address-level2" placeholder={site.city} class="campo" required />
+              </div>
+              <div>
+                <label for="q-cap" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                  CAP <span class="font-normal normal-case tracking-normal text-sabbia/50">(facoltativo)</span>
+                </label>
+                <input
+                  id="q-cap"
+                  name="cap"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="postal-code"
+                  maxlength="5"
+                  placeholder={site.postalCode}
+                  class="campo"
+                />
+              </div>
+            </div>
+
+            <div class="mt-7 flex gap-3">
+              <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1">Indietro</button>
+              <button type="button" class="quiz-avanti-luogo btn btn-bianco flex-1 !shadow-none">Avanti</button>
+            </div>
+          </fieldset>
+
+          <!-- Passo contatti -->
+          <fieldset class="quiz-passo" data-passo={quizSteps.length + 1} hidden>
+            <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">Come ti ricontattiamo?</legend>
+            <p class="mt-2 font-sans text-sm text-sabbia/70">
+              Ti chiamiamo entro {site.responseHours} ore. Niente call center, niente messaggi automatici.
+            </p>
+
+            <div class="mt-6 grid gap-4">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="q-nome" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                    Nome e cognome
+                  </label>
+                  <input id="q-nome" name="nome" type="text" autocomplete="name" class="campo" required />
+                </div>
+                <div>
+                  <label for="q-telefono" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                    Telefono
+                  </label>
+                  <input id="q-telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" class="campo" required />
+                </div>
+              </div>
+
+              <div>
+                <label for="q-email" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                  Email <span class="font-normal normal-case tracking-normal text-sabbia/50">(facoltativa)</span>
+                </label>
+                <input id="q-email" name="email" type="email" autocomplete="email" class="campo" />
+              </div>
+
+              <div>
+                <label for="q-note" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                  Vuoi aggiungere qualcosa? <span class="font-normal normal-case tracking-normal text-sabbia/50">(facoltativo)</span>
+                </label>
+                <textarea id="q-note" name="note" rows="3" class="campo resize-y" placeholder="Es. perde acqua sopra la camera da letto quando piove forte"
+                ></textarea>
+              </div>
+
+              <label class="flex items-start gap-3 font-sans text-[13px] leading-relaxed text-sabbia/80">
+                <input id="q-privacy" name="privacy" type="checkbox" required class="mt-0.5 size-4 shrink-0 accent-[#EAE5DA]" />
+                <span>
+                  Ho letto l'<a href="/privacy" class="font-semibold text-sabbia underline underline-offset-2">informativa privacy</a>
+                  e acconsento al trattamento dei dati per essere ricontattato riguardo alla mia richiesta.
+                </span>
+              </label>
+
+              <!-- Trappola anti-spam, invisibile agli utenti -->
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
+
+              <p id="quiz-errore" class="hidden rounded-[4px] border-l-2 border-red-400 bg-red-950/40 px-4 py-3 font-sans text-sm text-red-200" role="alert"></p>
+
+              <div class="mt-1 flex gap-3">
+                <button type="button" class="quiz-indietro btn btn-contorno-scuro">Indietro</button>
+                <button type="submit" id="quiz-invia" class="btn btn-bianco flex-1 !shadow-none">
+                  <span class="quiz-invia-testo">Ricevi il preventivo</span>
+                  <svg class="quiz-spinner hidden size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.25" />
+                    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              <p class="text-center font-sans text-[11px] text-sabbia/50">
+                I dati vengono usati solo per rispondere a questa richiesta e non sono ceduti a terzi.
+              </p>
+            </div>
+          </fieldset>
+        </form>
+
+        <!-- Conferma -->
+        <div id="quiz-fatto" hidden class="py-4 text-center">
+          <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-sabbia">
+            <svg class="size-8 text-nero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="m4 12.5 5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+
+          <h3 class="mt-6 font-display text-3xl font-normal">Richiesta ricevuta</h3>
+          <p class="mx-auto mt-3 max-w-md font-sans text-[15px] leading-relaxed text-sabbia/80">
+            Grazie. Abbiamo tutto quello che ci serve per una prima valutazione e ti ricontattiamo entro
+            {site.responseHours} ore per fissare il sopralluogo gratuito.
+          </p>
+
+          <div class="mx-auto mt-8 max-w-sm border-t border-white/10 pt-8">
+            <p class="font-sans text-sm text-sabbia/70">Vuoi una risposta ancora più rapida?</p>
+            <a id="quiz-whatsapp" href="#" target="_blank" rel="noopener" class="btn mt-3 w-full bg-whatsapp !py-4 text-white hover:opacity-90">
+              <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.01-1.04 2.47 1.06 2.86 1.21 3.06c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35ZM12.05 21.5h-.01a9.4 9.4 0 0 1-4.79-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.38 9.38 0 0 1-1.44-5.01c0-5.19 4.23-9.41 9.42-9.41a9.36 9.36 0 0 1 9.41 9.42c0 5.19-4.23 9.41-9.42 9.41ZM20.52 3.49A11.78 11.78 0 0 0 12.05 0C5.5 0 .18 5.32.17 11.86c0 2.09.55 4.13 1.59 5.93L.07 24l6.36-1.67a11.9 11.9 0 0 0 5.62 1.43h.01c6.54 0 11.86-5.32 11.87-11.86a11.8 11.8 0 0 0-3.41-8.41Z"></path>
+              </svg>
+              Mandaci la richiesta su WhatsApp
+            </a>
+            <a href={`tel:${site.phoneHref}`} class="mt-3 block font-sans text-sm font-bold text-sabbia underline-offset-4 hover:underline">
+              Oppure chiamaci allo {site.phone}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .campo {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: var(--color-nero-2);
+    padding: 0.85rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: #fff;
+    border-radius: 6px;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .campo::placeholder {
+    color: rgba(234, 229, 218, 0.4);
+  }
+
+  .campo:focus {
+    border-color: var(--color-sabbia);
+    box-shadow: 0 0 0 3px rgba(234, 229, 218, 0.15);
+    outline: none;
+  }
+
+  .campo[aria-invalid='true'] {
+    border-color: #f87171;
+  }
+
+  /* Opzione selezionata: chiara su scuro, come nel design */
+  .quiz-opzione[aria-pressed='true'] {
+    background-color: var(--color-sabbia);
+    border-color: var(--color-sabbia);
+    color: var(--color-nero);
+    font-weight: 700;
+  }
+
+  .quiz-opzione[aria-pressed='true'] .quiz-radio {
+    border-color: var(--color-nero);
+    background-color: var(--color-nero);
+  }
+
+  .quiz-opzione[aria-pressed='true'] .quiz-radio > span {
+    display: block;
+    background-color: var(--color-sabbia);
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+</style>
+
+<script define:vars={{ WHATSAPP: site.whatsapp, ENDPOINT: site.formEndpoint, CHIAVE: site.formAccessKey, TOTALE: totaleStep }}>
+  const quiz = document.getElementById('quiz')
+  if (quiz) {
+    const form = document.getElementById('quiz-form')
+    const passi = [...quiz.querySelectorAll('.quiz-passo')]
+    const barra = document.getElementById('quiz-barra')
+    const numero = document.getElementById('quiz-numero')
+    const avanzamento = document.getElementById('quiz-avanzamento')
+    const barraAria = document.getElementById('quiz-barra-contenitore')
+    const fatto = document.getElementById('quiz-fatto')
+    const errore = document.getElementById('quiz-errore')
+    const invia = document.getElementById('quiz-invia')
+
+    const risposte = {}
+    let corrente = 0
+
+    const traccia = (nome, dati = {}) => {
+      window.dataLayer = window.dataLayer || []
+      window.dataLayer.push({ event: nome, ...dati })
+      if (typeof window.gtag === 'function') window.gtag('event', nome, dati)
+    }
+
+    const mostraPasso = (indice, scorri = true) => {
+      corrente = indice
+      passi.forEach((p, i) => (p.hidden = i !== indice))
+
+      barra.style.width = `${((indice + 1) / TOTALE) * 100}%`
+      numero.textContent = String(indice + 1)
+      barraAria.setAttribute('aria-valuenow', String(indice + 1))
+
+      const legenda = passi[indice].querySelector('legend')
+      if (legenda) {
+        legenda.setAttribute('tabindex', '-1')
+        legenda.focus({ preventScroll: true })
+      }
+
+      if (scorri && window.scrollY > quiz.offsetTop - 140) {
+        quiz.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+
+      traccia('preventivo_passo', { passo: indice + 1, totale: TOTALE })
+    }
+
+    // Selezione di un'opzione: evidenzia e abilita Avanti (design Figma)
+    quiz.querySelectorAll('.quiz-opzione').forEach((opzione) => {
+      opzione.addEventListener('click', () => {
+        risposte[opzione.dataset.campo] = opzione.dataset.valore
+
+        const fieldset = opzione.closest('.quiz-passo')
+        fieldset.querySelectorAll('.quiz-opzione').forEach((o) => o.setAttribute('aria-pressed', String(o === opzione)))
+        const avanti = fieldset.querySelector('.quiz-avanti')
+        if (avanti) avanti.disabled = false
+      })
+    })
+
+    // Avanti nei passi a scelta
+    quiz.querySelectorAll('.quiz-avanti').forEach((pulsante) => {
+      pulsante.addEventListener('click', () => mostraPasso(Math.min(corrente + 1, passi.length - 1)))
+    })
+
+    // Avanti nel passo luogo: richiede il comune
+    quiz.querySelectorAll('.quiz-avanti-luogo').forEach((pulsante) => {
+      pulsante.addEventListener('click', () => {
+        const comune = document.getElementById('q-comune')
+        if (!comune.value.trim()) {
+          comune.setAttribute('aria-invalid', 'true')
+          comune.focus()
+          return
+        }
+        comune.removeAttribute('aria-invalid')
+        mostraPasso(Math.min(corrente + 1, passi.length - 1))
+      })
+    })
+
+    // Indietro, presente in ogni passo
+    quiz.querySelectorAll('.quiz-indietro').forEach((pulsante) => {
+      pulsante.addEventListener('click', () => mostraPasso(Math.max(corrente - 1, 0)))
+    })
+
+    document.getElementById('q-cap')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        quiz.querySelector('.quiz-avanti-luogo')?.click()
+      }
+    })
+
+    const riepilogo = (dati) =>
+      [
+        `Intervento: ${risposte.intervento || 'non indicato'}`,
+        `Edificio: ${risposte.edificio || 'non indicato'}`,
+        `Superficie: ${risposte.superficie || 'non indicata'}`,
+        `Tempistica: ${risposte.urgenza || 'non indicata'}`,
+        `Comune: ${dati.comune}${dati.cap ? ` (${dati.cap})` : ''}`,
+        `Nome: ${dati.nome}`,
+        `Telefono: ${dati.telefono}`,
+        dati.email ? `Email: ${dati.email}` : null,
+        dati.note ? `Note: ${dati.note}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n')
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      errore.classList.add('hidden')
+
+      const fd = new FormData(form)
+      const dati = Object.fromEntries(fd.entries())
+
+      if (dati._gotcha) return
+
+      if (!dati.nome?.trim() || !dati.telefono?.trim()) {
+        errore.textContent = 'Inserisci il nome e un numero di telefono per poterti ricontattare.'
+        errore.classList.remove('hidden')
+        return
+      }
+
+      if (!document.getElementById('q-privacy').checked) {
+        errore.textContent = 'Per poterti ricontattare serve il consenso al trattamento dei dati.'
+        errore.classList.remove('hidden')
+        return
+      }
+
+      const testo = riepilogo(dati)
+
+      invia.disabled = true
+      invia.querySelector('.quiz-invia-testo').textContent = 'Invio in corso'
+      invia.querySelector('.quiz-spinner').classList.remove('hidden')
+
+      const concludi = () => {
+        document.getElementById('quiz-whatsapp').href =
+          `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, ho compilato il preventivo sul sito.\n\n${testo}`)}`
+        form.hidden = true
+        avanzamento.hidden = true
+        fatto.hidden = false
+        fatto.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        traccia('preventivo_inviato', {
+          intervento: risposte.intervento,
+          superficie: risposte.superficie,
+          urgenza: risposte.urgenza,
+        })
+      }
+
+      try {
+        const risposta = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: CHIAVE,
+            subject: `Nuova richiesta preventivo: ${risposte.intervento || 'tetto'}`,
+            from_name: 'Sito MDA Impresa Edile',
+            ...risposte,
+            ...dati,
+            riepilogo: testo,
+          }),
+        })
+
+        if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
+        concludi()
+      } catch (err) {
+        // L'email non e partita: mostriamo comunque la conferma e spingiamo
+        // sul canale WhatsApp, cosi il contatto non si perde.
+        console.error('Invio preventivo non riuscito:', err)
+        concludi()
+      }
+    })
+
+    mostraPasso(0, false)
+  }
+</script>

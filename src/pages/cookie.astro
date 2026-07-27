@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { site } from '../config/site'
+---
+
+<Base
+  title={`Cookie Policy | ${site.name}`}
+  description={`Informativa sull'uso dei cookie e delle tecnologie simili sul sito di ${site.legalName}.`}
+>
+  <Header />
+
+  <main id="contenuto" class="bg-sabbia-50 py-20 md:py-24">
+    <div class="contenitore max-w-3xl">
+      <p class="occhiello">Note legali</p>
+      <h1 class="mt-5 text-4xl md:text-5xl">Cookie Policy</h1>
+      <p class="mt-5 text-grafite">
+        Come questo sito utilizza i cookie e le tecnologie di tracciamento.
+      </p>
+
+      <div class="prose-legale mt-12">
+        <h2>1. In breve</h2>
+        <p>
+          Questo sito è stato costruito per funzionare <strong>senza cookie di profilazione</strong>.
+          Non usiamo pixel pubblicitari, non condividiamo la vostra navigazione con reti di
+          advertising e non è presente alcun banner di consenso perché, allo stato attuale, non
+          installiamo cookie che lo richiedano.
+        </p>
+
+        <h2>2. Cosa sono i cookie</h2>
+        <p>
+          I cookie sono piccoli file di testo che i siti salvano sul dispositivo di chi naviga. Servono
+          a far funzionare il sito, a ricordare preferenze o, nel caso dei cookie di profilazione, a
+          seguire il comportamento dell'utente a fini pubblicitari.
+        </p>
+
+        <h2>3. Cookie utilizzati da questo sito</h2>
+        <p>
+          Nella configurazione attuale il sito non installa cookie propri né di terze parti. I font
+          sono ospitati direttamente sul nostro server e non vengono caricati da servizi esterni,
+          quindi la semplice visita non comporta alcuna richiesta verso domini di terzi.
+        </p>
+
+        <h2>4. Servizi esterni attivati da voi</h2>
+        <p>
+          Alcuni collegamenti portano a servizi esterni, e vengono aperti solo se cliccate voi:
+        </p>
+        <ul>
+          <li>
+            <strong>WhatsApp</strong>, quando scegliete di scriverci tramite l'apposito pulsante. Si
+            applica l'informativa privacy di WhatsApp.
+          </li>
+          <li>
+            <strong>Google Maps</strong>, quando aprite la posizione della nostra sede. La mappa non è
+            incorporata nella pagina proprio per evitare richieste a Google senza il vostro consenso.
+          </li>
+          <li>
+            <strong>Instagram e Facebook</strong>, tramite i collegamenti ai nostri profili nel pie di
+            pagina.
+          </li>
+        </ul>
+
+        <h2>5. Se in futuro attiveremo statistiche o pubblicità</h2>
+        <p>
+          Qualora venissero attivati strumenti di analisi del traffico o campagne pubblicitarie che
+          richiedono cookie, questa pagina verrà aggiornata e comparirà un banner che vi permetterà di
+          accettare o rifiutare il consenso in modo granulare, prima dell'installazione di qualsiasi
+          cookie non tecnico.
+        </p>
+
+        <h2>6. Come gestire i cookie dal browser</h2>
+        <p>
+          Indipendentemente da questo sito, potete bloccare o cancellare i cookie dalle impostazioni
+          del vostro browser, nelle sezioni dedicate alla privacy. Il blocco dei cookie tecnici può
+          compromettere il funzionamento di alcuni siti.
+        </p>
+
+        <h2>7. Contatti</h2>
+        <p>
+          Per qualsiasi domanda su questa informativa scrivete a
+          <a href={`mailto:${site.email}`}>{site.email}</a>. Per il trattamento dei dati personali in
+          generale, consultate la <a href="/privacy">Privacy Policy</a>.
+        </p>
+
+        <p class="nota">Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}</p>
+      </div>
+
+      <a href="/" class="btn btn-contorno mt-12">Torna alla home</a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

@@ -1,0 +1,122 @@
+---
+import { site, yearsActive } from '../config/site'
+import { services, verniciatura, faqs, reviews, reviewsArePlaceholder } from '../config/content'
+
+/* La verniciatura nel design e un pannello di approfondimento, ma per lo
+   schema resta un servizio a pieno titolo. */
+const tuttiIServizi = [
+  ...services.map((s) => ({ title: s.title, description: s.text, keyword: s.keyword })),
+  { title: 'Verniciatura Tetto', description: verniciatura.intro, keyword: verniciatura.keyword },
+]
+
+const base = site.url
+const idAzienda = `${base}/#organizzazione`
+
+/**
+ * RoofingContractor e il tipo più specifico disponibile per un'impresa
+ * di coperture ed eredita da LocalBusiness: è ciò che serve per comparire
+ * nei risultati locali e nelle mappe.
+ */
+const azienda = {
+  '@type': ['RoofingContractor', 'GeneralContractor'],
+  '@id': idAzienda,
+  name: site.name,
+  legalName: site.legalName,
+  description: `Impresa edile specializzata in rifacimento, manutenzione, impermeabilizzazione e verniciatura di tetti a ${site.city} e provincia di ${site.province}.`,
+  url: base,
+  telephone: site.phoneHref,
+  email: site.email,
+  image: `${base}/images/og-image.jpg`,
+  logo: `${base}/images/logo-mda.png`,
+  foundingDate: String(site.foundedYear),
+  vatID: site.vat,
+  priceRange: '$$',
+  currenciesAccepted: 'EUR',
+  paymentAccepted: 'Bonifico bancario, Contanti',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.street,
+    addressLocality: site.city,
+    addressRegion: site.province,
+    postalCode: site.postalCode,
+    addressCountry: 'IT',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: site.geo.lat,
+    longitude: site.geo.lng,
+  },
+  areaServed: [
+    ...site.regions.map((regione) => ({ '@type': 'AdministrativeArea', name: regione })),
+    ...site.areaServed.map((comune) => ({ '@type': 'City', name: comune })),
+  ],
+  openingHoursSpecification: site.hours.schema.map((fascia) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: fascia.days,
+    opens: fascia.opens,
+    closes: fascia.closes,
+  })),
+  sameAs: [site.social.instagram, site.social.facebook],
+  slogan: site.tagline,
+  knowsAbout: tuttiIServizi.map((s) => s.keyword),
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servizi di copertura e lattoneria',
+    itemListElement: tuttiIServizi.map((s) => ({
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: s.title,
+        description: s.description,
+        serviceType: s.keyword,
+        provider: { '@id': idAzienda },
+        areaServed: { '@type': 'AdministrativeArea', name: `Provincia di ${site.province}` },
+      },
+    })),
+  },
+  // NOTA: aggregateRating e review vengono dichiarati solo quando le
+  // recensioni sono reali. Dichiarare valutazioni inventate viola le
+  // linee guida di Google e può portare a una penalizzazione manuale.
+  ...(reviewsArePlaceholder
+    ? {}
+    : {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '5',
+          reviewCount: String(reviews.length),
+        },
+        review: reviews.map((r) => ({
+          '@type': 'Review',
+          author: { '@type': 'Person', name: r.name },
+          reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+          reviewBody: r.text,
+        })),
+      }),
+}
+
+const sitoWeb = {
+  '@type': 'WebSite',
+  '@id': `${base}/#sito`,
+  url: base,
+  name: site.name,
+  inLanguage: 'it-IT',
+  publisher: { '@id': idAzienda },
+}
+
+const paginaFaq = {
+  '@type': 'FAQPage',
+  '@id': `${base}/#faq`,
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+}
+
+const grafo = {
+  '@context': 'https://schema.org',
+  '@graph': [azienda, sitoWeb, paginaFaq],
+}
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(grafo)} />

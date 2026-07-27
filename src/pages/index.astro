@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro'
+import Header from '../components/Header.astro'
+import Hero from '../components/Hero.astro'
+import PercheNoi from '../components/PercheNoi.astro'
+import Servizi from '../components/Servizi.astro'
+import Preventivo from '../components/Preventivo.astro'
+import Processo from '../components/Processo.astro'
+import Lavori from '../components/Lavori.astro'
+import Recensioni from '../components/Recensioni.astro'
+import Approfondimenti from '../components/Approfondimenti.astro'
+import Domande from '../components/Domande.astro'
+import Footer from '../components/Footer.astro'
+import BarraMobile from '../components/BarraMobile.astro'
+import ContattoRapido from '../components/ContattoRapido.astro'
+import ControlloLegale from '../components/ControlloLegale.astro'
+import { site } from '../config/site'
+
+/* Title sotto i 60 caratteri, description fra 140 e 158: è la finestra
+   in cui Google non tronca il risultato. La città e in entrambi. */
+const title = `Rifacimento Tetti ${site.city} | Impresa Edile ${site.name.split(' ')[0]}`
+const description = `Rifacimento, manutenzione e impermeabilizzazione tetti a ${site.city} e provincia. Sopralluogo e preventivo scritto gratuiti, garanzia ${site.warrantyYears} anni sul lavoro eseguito.`
+---
+
+<Base title={title} description={description}>
+  <Header />
+
+  <main id="contenuto">
+    <Hero />
+    <PercheNoi />
+    <Servizi />
+    <Preventivo />
+    <Processo />
+    <Lavori />
+    <Recensioni />
+    <Approfondimenti />
+    <Domande />
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+  <ControlloLegale />
+</Base>

@@ -1,0 +1,221 @@
+---
+/**
+ * Modulo di contatto rapido nell'hero: servizio, telefono, messaggio.
+ * Tre campi, la via piu corta fra "sto guardando il sito" e "mi richiamano".
+ * Chi vuole un preventivo articolato usa il configuratore piu in basso.
+ */
+import { site } from '../config/site'
+import { services, verniciatura } from '../config/content'
+
+const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Verniciatura Tetto' : '', 'Non lo so, ho bisogno di un parere'].filter(
+  Boolean,
+)
+---
+
+<div class="rounded-xl bg-crema p-6 text-nero shadow-[0_20px_50px_rgba(0,0,0,0.35)] sm:p-8">
+  <div class="flex flex-col gap-1.5">
+    <p class="occhiello">Risposta entro {site.responseHours} ore</p>
+    <h2 class="font-display text-[1.75rem] font-normal leading-tight">Ti richiamiamo noi</h2>
+    <p class="font-sans text-sm leading-relaxed text-nero/70">
+      Lascia il numero e due righe sul problema. Nessun costo, nessun impegno.
+    </p>
+  </div>
+
+  <form id="form-rapido" novalidate class="mt-6 flex flex-col gap-3.5">
+    <div>
+      <label for="r-servizio" class="mb-1.5 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-taupe">
+        Di cosa hai bisogno
+      </label>
+      <select id="r-servizio" name="servizio" class="campo-chiaro">
+        {servizi.map((s) => <option value={s}>{s}</option>)}
+      </select>
+    </div>
+
+    <div>
+      <label for="r-telefono" class="mb-1.5 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-taupe">
+        Il tuo telefono
+      </label>
+      <input
+        id="r-telefono"
+        name="telefono"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        placeholder="Es. 340 1234567"
+        class="campo-chiaro"
+        required
+      />
+    </div>
+
+    <div>
+      <label for="r-messaggio" class="mb-1.5 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-taupe">
+        Messaggio <span class="font-normal normal-case tracking-normal text-taupe/70">(facoltativo)</span>
+      </label>
+      <textarea
+        id="r-messaggio"
+        name="messaggio"
+        rows="2"
+        placeholder="Es. infiltrazione sopra la camera quando piove forte"
+        class="campo-chiaro resize-y"></textarea>
+    </div>
+
+    <label class="flex items-start gap-2.5 font-sans text-[12px] leading-relaxed text-nero/70">
+      <input id="r-privacy" name="privacy" type="checkbox" required class="mt-0.5 size-3.5 shrink-0 accent-[#151613]" />
+      <span>
+        Ho letto l'<a href="/privacy" class="font-semibold text-taupe underline underline-offset-2">informativa privacy</a>
+        e acconsento al trattamento dei dati per essere ricontattato.
+      </span>
+    </label>
+
+    <!-- Trappola anti-spam, invisibile agli utenti -->
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
+
+    <p id="r-errore" class="hidden rounded-[4px] border-l-2 border-red-600 bg-red-50 px-3 py-2 font-sans text-[13px] text-red-800" role="alert"></p>
+
+    <button type="submit" id="r-invia" class="btn btn-nero mt-1 w-full !py-4">
+      <span class="r-invia-testo">Richiedi di essere richiamato</span>
+      <svg class="r-spinner hidden size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.25"></circle>
+        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+      </svg>
+    </button>
+
+    <p class="text-center font-sans text-[11px] text-nero/50">
+      Oppure chiama subito
+      <a href={`tel:${site.phoneHref}`} class="font-bold text-nero underline underline-offset-2">{site.phone}</a>
+    </p>
+  </form>
+
+  <!-- Conferma -->
+  <div id="r-fatto" hidden class="py-8 text-center">
+    <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-nero">
+      <svg class="size-7 text-crema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <path d="m4 12.5 5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <h3 class="mt-5 font-display text-2xl font-normal">Richiesta ricevuta</h3>
+    <p class="mx-auto mt-2 max-w-xs font-sans text-sm leading-relaxed text-nero/70">
+      Ti richiamiamo entro {site.responseHours} ore. Se preferisci, scrivici subito su WhatsApp.
+    </p>
+    <a id="r-whatsapp" href="#" target="_blank" rel="noopener" class="btn mt-5 w-full bg-whatsapp text-white hover:opacity-90">
+      Scrivici su WhatsApp
+    </a>
+  </div>
+</div>
+
+<style>
+  .campo-chiaro {
+    width: 100%;
+    border: 1px solid rgba(21, 22, 19, 0.15);
+    background-color: #fff;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--color-nero);
+    border-radius: 6px;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .campo-chiaro::placeholder {
+    color: color-mix(in srgb, var(--color-nero) 40%, transparent);
+  }
+
+  .campo-chiaro:focus {
+    border-color: var(--color-nero);
+    box-shadow: 0 0 0 3px rgba(142, 126, 106, 0.25);
+    outline: none;
+  }
+
+  .campo-chiaro[aria-invalid='true'] {
+    border-color: #dc2626;
+  }
+
+  select.campo-chiaro {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%238E7E6A' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.1rem;
+    padding-right: 2.4rem;
+  }
+</style>
+
+<script define:vars={{ WHATSAPP: site.whatsapp, ENDPOINT: site.formEndpoint, CHIAVE: site.formAccessKey }}>
+  const form = document.getElementById('form-rapido')
+
+  if (form) {
+    const errore = document.getElementById('r-errore')
+    const invia = document.getElementById('r-invia')
+    const fatto = document.getElementById('r-fatto')
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      errore.classList.add('hidden')
+
+      const dati = Object.fromEntries(new FormData(form).entries())
+
+      // Trappola anti-spam: se e compilata, e un bot
+      if (dati._gotcha) return
+
+      const telefono = document.getElementById('r-telefono')
+      if (!dati.telefono?.trim()) {
+        errore.textContent = 'Serve un numero di telefono per poterti richiamare.'
+        errore.classList.remove('hidden')
+        telefono.setAttribute('aria-invalid', 'true')
+        telefono.focus()
+        return
+      }
+      telefono.removeAttribute('aria-invalid')
+
+      if (!document.getElementById('r-privacy').checked) {
+        errore.textContent = 'Per poterti ricontattare serve il consenso al trattamento dei dati.'
+        errore.classList.remove('hidden')
+        return
+      }
+
+      const testo = [
+        `Servizio: ${dati.servizio}`,
+        `Telefono: ${dati.telefono}`,
+        dati.messaggio ? `Messaggio: ${dati.messaggio}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n')
+
+      invia.disabled = true
+      invia.querySelector('.r-invia-testo').textContent = 'Invio in corso'
+      invia.querySelector('.r-spinner').classList.remove('hidden')
+
+      const concludi = () => {
+        document.getElementById('r-whatsapp').href =
+          `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, vi scrivo dal sito.\n\n${testo}`)}`
+        form.hidden = true
+        fatto.hidden = false
+        window.dataLayer = window.dataLayer || []
+        window.dataLayer.push({ event: 'richiamo_richiesto', servizio: dati.servizio })
+      }
+
+      try {
+        const risposta = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: CHIAVE,
+            subject: `Richiesta di richiamo: ${dati.servizio}`,
+            from_name: 'Sito MDA Impresa Edile',
+            ...dati,
+            riepilogo: testo,
+          }),
+        })
+        if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
+        concludi()
+      } catch (err) {
+        // L'email non e partita: non perdiamo il contatto, mostriamo comunque
+        // la conferma e spingiamo sul canale WhatsApp.
+        console.error('Invio richiesta rapida non riuscito:', err)
+        concludi()
+      }
+    })
+  }
+</script>

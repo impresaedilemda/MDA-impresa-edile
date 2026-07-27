@@ -1,0 +1,371 @@
+@import 'tailwindcss';
+
+/* ===========================================================================
+ *  FONT
+ *  Self-hosted, solo sottoinsieme latino: copre l'italiano accentato e l'euro.
+ *  Cormorant Garamond per i titoli (300/400/600 + corsivo 400),
+ *  Manrope variabile (200-800) per interfaccia e testo.
+ * ======================================================================== */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: url('/fonts/cormorant-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/cormorant-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/cormorant-400-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('/fonts/cormorant-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Manrope Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin.woff2') format('woff2-variations');
+}
+
+/* ===========================================================================
+ *  DESIGN TOKENS
+ *  Palette estratta 1:1 dal file Figma (nessuna variabile definita li,
+ *  valori raw hex): crema, carta, sabbia, quasi-nero, taupe.
+ * ======================================================================== */
+@theme {
+  /* Fondi chiari */
+  --color-crema: #f7f4eb; /* fondo pagina e header */
+  --color-carta: #f1ece0; /* card riga 1, card FAQ e processo */
+  --color-sabbia: #eae5da; /* card riga 2, sezione preventivo, testi su scuro */
+
+  /* Scuri */
+  --color-nero: #151613; /* quasi-nero di tutto il design */
+  --color-nero-2: #282924; /* card interne su pannelli scuri */
+
+  /* Accento */
+  --color-taupe: #8e7e6a; /* occhielli, link, numeri, stelle */
+
+  /* Segnali */
+  --color-verde: #22c55e; /* pallino disponibilita, etichetta DOPO */
+  --color-mattone: #a35c4e; /* etichetta PRIMA */
+  --color-whatsapp: #25d366;
+
+  /* Tipografia */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-fuori: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===========================================================================
+ *  BASE
+ * ======================================================================== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-crema);
+    color: var(--color-nero);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Titoli editoriali: serif leggero, interlinea stretta */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-taupe);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-nero);
+    color: var(--color-crema);
+  }
+}
+
+/* ===========================================================================
+ *  COMPONENTI RIUTILIZZABILI
+ * ======================================================================== */
+@layer components {
+  /* Contenuto interno del design: 1280px (frame 1440 con padding 80) */
+  .contenitore {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .contenitore {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .contenitore {
+      padding-inline: 5rem;
+      max-width: 90rem;
+    }
+  }
+
+  /* Occhiello: Manrope Bold 13 uppercase taupe */
+  .occhiello {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-taupe);
+  }
+
+  /* Titolo di sezione: Cormorant Light 52px desktop */
+  .titolo-sezione {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 2.25rem;
+    line-height: 1.1;
+    color: var(--color-nero);
+  }
+
+  @media (min-width: 768px) {
+    .titolo-sezione {
+      font-size: 3.25rem;
+    }
+  }
+
+  /* Pulsanti del design: uppercase Manrope Bold 13, radius 4 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.875rem 1.5rem;
+    border-radius: 4px;
+    transition:
+      background-color 0.25s var(--ease-fuori),
+      color 0.25s var(--ease-fuori),
+      opacity 0.25s var(--ease-fuori),
+      transform 0.25s var(--ease-fuori);
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn-nero {
+    background-color: var(--color-nero);
+    color: #fff;
+  }
+
+  .btn-nero:hover {
+    background-color: var(--color-nero-2);
+  }
+
+  .btn-bianco {
+    background-color: #fff;
+    color: var(--color-nero);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-bianco:hover {
+    background-color: var(--color-sabbia);
+  }
+
+  .btn-contorno-scuro {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+  }
+
+  .btn-contorno-scuro:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Testi legali (privacy, cookie) */
+  .prose-legale h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    margin-top: 2.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .prose-legale p,
+  .prose-legale li {
+    color: color-mix(in srgb, var(--color-nero) 80%, transparent);
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+
+  .prose-legale p + p {
+    margin-top: 1rem;
+  }
+
+  .prose-legale ul {
+    margin-top: 1rem;
+    padding-left: 1.15rem;
+    list-style: disc;
+  }
+
+  .prose-legale li + li {
+    margin-top: 0.65rem;
+  }
+
+  .prose-legale strong {
+    color: var(--color-nero);
+    font-weight: 700;
+  }
+
+  .prose-legale a {
+    color: var(--color-taupe);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose-legale .nota {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(21, 22, 19, 0.08);
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--color-nero) 55%, transparent);
+  }
+}
+
+/* ===========================================================================
+ *  MICRO-ANIMAZIONI
+ *  Entrata delle sezioni + scaglionamento delle carte + vita al passaggio
+ *  del mouse. Failsafe: senza JS o senza observer, tutto resta visibile.
+ * ======================================================================== */
+@layer utilities {
+  .js .rivela {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.75s var(--ease-fuori),
+      transform 0.75s var(--ease-fuori);
+  }
+
+  .js .rivela.visibile {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Le carte dentro una griglia entrano una dopo l'altra: lo script assegna
+     --ritardo in base alla posizione. */
+  .js .rivela-fila > * {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.7s var(--ease-fuori),
+      transform 0.7s var(--ease-fuori);
+    transition-delay: var(--ritardo, 0ms);
+  }
+
+  .js .rivela-fila.visibile > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Sollevamento delle carte al passaggio del mouse */
+  .solleva {
+    transition:
+      transform 0.35s var(--ease-fuori),
+      box-shadow 0.35s var(--ease-fuori);
+  }
+
+  @media (hover: hover) {
+    .solleva:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 40px rgba(21, 22, 19, 0.1);
+    }
+  }
+
+  /* Zoom lento delle foto dentro le carte */
+  .zoom-foto {
+    overflow: hidden;
+  }
+
+  .zoom-foto img {
+    transition: transform 0.8s var(--ease-fuori);
+  }
+
+  @media (hover: hover) {
+    .zoom-foto:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  /* La riga dell'occhiello si disegna quando la sezione entra in vista */
+  .js .rivela .occhiello,
+  .js .rivela-fila .occhiello {
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .rivela,
+    .js .rivela-fila > * {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .solleva,
+    .zoom-foto img {
+      transition: none;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}

@@ -1,0 +1,75 @@
+---
+/**
+ * Logo MDA Impresa Edile, ricostruito in vettoriale dal logo originale:
+ * due case con comignolo, la pennellata sotto, il lettering MDA + IMPRESA EDILE.
+ *
+ * `tinta` disegna, `sfondo` scava. Devono essere i colori reali della
+ * superficie su cui sta il logo, altrimenti gli spazi negativi (timpani,
+ * finestre) spariscono: su fondo nero un ritaglio bianco non e un ritaglio.
+ */
+interface Props {
+  variante?: 'scuro' | 'chiaro'
+  class?: string
+}
+
+const { variante = 'scuro', class: classe = '' } = Astro.props
+
+const tinta = variante === 'chiaro' ? '#F7F4EB' : '#151613'
+const sfondo = variante === 'chiaro' ? '#151613' : '#F7F4EB'
+---
+
+<svg
+  class={classe}
+  viewBox="0 0 440 172"
+  role="img"
+  aria-label="MDA Impresa Edile"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <title>MDA Impresa Edile</title>
+
+  <!-- Comignolo -->
+  <rect x="68" y="20" width="17" height="62" fill={tinta} />
+
+  <!-- Casa grande: falda asimmetrica che scende verso destra -->
+  <path d="M165 12 L330 104 L42 104 Z" fill={tinta} />
+  <path d="M165 35 L252 104 L78 104 Z" fill={sfondo} />
+  <rect x="149" y="62" width="32" height="32" fill={tinta} />
+  <rect x="163" y="62" width="4" height="32" fill={sfondo} />
+  <rect x="149" y="76" width="32" height="4" fill={sfondo} />
+
+  <!-- Casa piccola. La prima sagoma, leggermente piu grande e del colore
+       dello sfondo, ritaglia lo stacco fra i due tetti come nel logo. -->
+  <path d="M368 42 L440 105 L286 105 Z" fill={sfondo} />
+  <path d="M368 50 L432 104 L296 104 Z" fill={tinta} />
+  <path d="M368 67 L413 104 L323 104 Z" fill={sfondo} />
+  <rect x="356" y="78" width="24" height="24" fill={tinta} />
+  <rect x="366.5" y="78" width="3" height="24" fill={sfondo} />
+  <rect x="356" y="88.5" width="24" height="3" fill={sfondo} />
+
+  <!-- Pennellata: passa sulla base delle case, non sotto, come nel logo -->
+  <path
+    d="M12 111 C 76 94, 168 103, 248 107 C 328 111, 388 107, 437 92 C 394 117, 324 124, 246 120 C 166 116, 78 117, 12 111 Z"
+    fill={tinta}
+  />
+
+  <!-- Lettering -->
+  <text
+    x="46"
+    y="164"
+    font-family="Manrope Variable, Manrope, Helvetica, Arial, sans-serif"
+    font-size="46"
+    font-weight="800"
+    letter-spacing="3"
+    fill={tinta}>MDA</text
+  >
+  <text
+    x="176"
+    y="164"
+    font-family="Manrope Variable, Manrope, Helvetica, Arial, sans-serif"
+    font-size="23"
+    font-weight="600"
+    letter-spacing="4.2"
+    fill={tinta}>IMPRESA EDILE</text
+  >
+</svg>

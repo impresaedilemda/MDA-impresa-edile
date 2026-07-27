@@ -1,0 +1,50 @@
+---
+/**
+ * Sezione "trust" del design: sei carte in due righe.
+ * Riga 1: carta #F1ECE0 con bordo, cerchio icona scuro.
+ * Riga 2: carta #EAE5DA senza bordo, cerchio icona bianco.
+ */
+import { trust } from '../config/content'
+import Icona from './Icona.astro'
+---
+
+<section id="perche-noi" class="scroll-mt-24 bg-crema py-16 md:py-[120px]">
+  <div class="contenitore flex flex-col gap-12 md:gap-20">
+    <!-- Intestazione: titolo a sinistra, intro a destra allineata in basso -->
+    <div class="rivela flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div class="flex max-w-[680px] flex-col gap-4">
+        <p class="occhiello">{trust.eyebrow}</p>
+        <h2 class="titolo-sezione">{trust.title}</h2>
+      </div>
+      <p class="max-w-[400px] font-sans leading-relaxed text-taupe">{trust.intro}</p>
+    </div>
+
+    <!-- Griglia 2x3 -->
+    <ul class="rivela-fila grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+      {
+        trust.cards.map((card, i) => {
+          const rigaDue = i >= 3
+          return (
+            <li
+              class:list={[
+                'solleva flex flex-col gap-5 rounded-lg p-8 md:p-10',
+                rigaDue ? 'bg-sabbia' : 'border border-nero/8 bg-carta',
+              ]}
+            >
+              <span
+                class:list={[
+                  'flex size-12 items-center justify-center rounded-full',
+                  rigaDue ? 'bg-white text-nero' : 'bg-nero text-white',
+                ]}
+              >
+                <Icona nome={`trust-${card.icon}`} class="size-[22px]" />
+              </span>
+              <h3 class="font-display text-[1.75rem] font-normal leading-tight text-nero">{card.title}</h3>
+              <p class="font-sans text-[15px] leading-relaxed text-nero/80">{card.text}</p>
+            </li>
+          )
+        })
+      }
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,93 @@
+---
+import { site } from '../config/site'
+import { hero } from '../config/content'
+import Icona from './Icona.astro'
+import FormRapido from './FormRapido.astro'
+---
+
+<section id="top" class="relative isolate overflow-hidden bg-nero text-white">
+  <!-- Foto di sfondo: ritaglio verticale su mobile, orizzontale da md in su.
+       Il leggero parallax e gestito dallo script in fondo. -->
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <picture>
+      <source media="(max-width: 767px)" srcset="/images/hero-mobile.webp" width="900" height="1170" />
+      <img
+        id="hero-foto"
+        src="/images/hero.webp"
+        alt={`Tetto in lamiera aggraffata con finestra da tetto, realizzato da ${site.name}`}
+        width="1920"
+        height="1080"
+        fetchpriority="high"
+        decoding="async"
+        class="size-full scale-[1.1] object-cover object-center will-change-transform"
+      />
+    </picture>
+    <!-- Filtro scuro, come prima -->
+    <div class="absolute inset-0 bg-nero/50 max-md:bg-nero/60"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-nero/55 via-transparent to-nero/20"></div>
+  </div>
+
+  <!-- Corpo: titolo a sinistra, modulo rapido a destra -->
+  <div class="contenitore grid items-center gap-10 py-16 md:py-24 lg:grid-cols-[1fr_minmax(0,390px)] lg:gap-16 lg:py-32">
+    <div>
+      <h1 class="font-display text-[2.5rem] font-light leading-[1.08] md:text-[3.5rem] lg:text-[4.25rem]">
+        {hero.headlinePlain}
+        <em class="font-normal italic text-sabbia">{hero.headlineItalic}</em>
+      </h1>
+
+      <p class="mt-6 max-w-[620px] font-sans text-base leading-relaxed text-crema md:text-lg">
+        {hero.sub}
+      </p>
+
+      <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+        <a href="#preventivo" class="btn btn-bianco !px-7 !py-4 max-sm:w-full">
+          {hero.cta}
+        </a>
+        <a
+          href={`tel:${site.phoneHref}`}
+          class="btn btn-contorno-scuro !px-7 !py-4 max-sm:w-full lg:hidden"
+        >
+          <Icona nome="hero-phone-call" class="size-4" />
+          {site.phone}
+        </a>
+      </div>
+
+      <p class="mt-6 flex items-center gap-3 font-sans text-sm text-white">
+        <span class="relative flex size-2 shrink-0">
+          <span class="absolute inline-flex size-full animate-ping rounded-full bg-verde opacity-60"></span>
+          <span class="relative inline-flex size-2 rounded-full bg-verde"></span>
+        </span>
+        {hero.availability}
+      </p>
+    </div>
+
+    <FormRapido />
+  </div>
+</section>
+
+<script>
+  // Parallax leggero sulla foto dell'hero: la foto e in scala 1.1, quindi
+  // ha margine per muoversi senza scoprire i bordi. Disattivato se l'utente
+  // preferisce ridurre il movimento.
+  const foto = document.getElementById('hero-foto')
+
+  if (foto && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let ticking = false
+    const aggiorna = () => {
+      // Solo finche l'hero e in vista
+      const y = Math.min(window.scrollY, window.innerHeight)
+      foto.style.transform = `scale(1.1) translateY(${y * 0.12}px)`
+      ticking = false
+    }
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true
+          requestAnimationFrame(aggiorna)
+        }
+      },
+      { passive: true },
+    )
+  }
+</script>

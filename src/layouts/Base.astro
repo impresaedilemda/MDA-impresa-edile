@@ -1,0 +1,117 @@
+---
+import '../styles/global.css'
+import { site } from '../config/site'
+import Schema from '../components/Schema.astro'
+
+interface Props {
+  title: string
+  description: string
+  image?: string
+}
+
+const { title, description, image = '/images/og-image.jpg' } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const ogImage = new URL(image, Astro.site).href
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- I font partono subito, in parallelo al CSS: niente sfarfallio del testo.
+         Precarichiamo solo i pesi above-the-fold: serif 300 (titoli) e Manrope. -->
+    <link rel="preload" href="/fonts/cormorant-300.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/cormorant-400-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Indicizzazione -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="geo.region" content={`IT-${site.province}`} />
+    <meta name="geo.placename" content={site.city} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Icone -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#151613" />
+
+    <Schema />
+
+    <!-- Dati strutturati aggiuntivi per pagina (es. breadcrumb delle zone) -->
+    <slot name="head" />
+
+    <!-- Marca il documento come "JS attivo": le animazioni di entrata
+         si applicano solo in questo caso, così senza JS il contenuto
+         resta comunque visibile. -->
+    <script is:inline>
+      document.documentElement.classList.add('js')
+    </script>
+  </head>
+
+  <body>
+    <a
+      href="#contenuto"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-nero focus:px-4 focus:py-2 focus:text-sabbia-50"
+    >
+      Vai al contenuto
+    </a>
+
+    <slot />
+
+    <script>
+      // Animazione di entrata delle sezioni e delle file di carte.
+      // Failsafe: dopo 2s tutto viene mostrato comunque, anche se
+      // l'observer non ha mai emesso (succede in alcune webview).
+      const elementi = document.querySelectorAll<HTMLElement>('.rivela, .rivela-fila')
+
+      // Le carte di una fila entrano scaglionate: 80ms l'una dall'altra
+      document.querySelectorAll<HTMLElement>('.rivela-fila').forEach((fila) => {
+        ;[...fila.children].forEach((carta, i) => {
+          ;(carta as HTMLElement).style.setProperty('--ritardo', `${Math.min(i * 80, 480)}ms`)
+        })
+      })
+
+      const mostra = (el: Element) => el.classList.add('visibile')
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (voci) => {
+            for (const voce of voci) {
+              if (voce.isIntersecting) {
+                mostra(voce.target)
+                observer.unobserve(voce.target)
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+        )
+        elementi.forEach((el) => observer.observe(el))
+        window.setTimeout(() => elementi.forEach(mostra), 2000)
+      } else {
+        elementi.forEach(mostra)
+      }
+    </script>
+  </body>
+</html>

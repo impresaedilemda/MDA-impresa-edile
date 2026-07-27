@@ -1,0 +1,131 @@
+---
+/**
+ * Recensioni: carosello orizzontale con frecce, come richiesto.
+ * Sei carte nello stile del design Figma (stelle a contorno, citazione,
+ * avatar circolare, nome e localita), scorrevoli con snap e trascinabili
+ * col dito su mobile. Senza JS la lista resta scorrevole nativamente.
+ */
+import { reviews, reviewsSection, reviewsArePlaceholder } from '../config/content'
+import Icona from './Icona.astro'
+---
+
+<section id="recensioni" class="scroll-mt-24 overflow-hidden bg-crema py-16 md:py-[120px]">
+  <div class="contenitore flex flex-col gap-10 md:gap-14">
+    <!-- Intestazione + frecce -->
+    <div class="rivela flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div class="flex max-w-[800px] flex-col gap-4">
+        <p class="occhiello">{reviewsSection.eyebrow}</p>
+        <h2 class="titolo-sezione">{reviewsSection.title}</h2>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="button"
+          id="rec-indietro"
+          aria-label="Recensioni precedenti"
+          class="flex size-12 items-center justify-center rounded-full border border-nero/15 text-nero transition-all hover:bg-nero hover:text-white disabled:pointer-events-none disabled:opacity-30"
+        >
+          <Icona nome="services-arrow-right" class="size-4 rotate-180" />
+        </button>
+        <button
+          type="button"
+          id="rec-avanti"
+          aria-label="Recensioni successive"
+          class="flex size-12 items-center justify-center rounded-full border border-nero/15 text-nero transition-all hover:bg-nero hover:text-white disabled:pointer-events-none disabled:opacity-30"
+        >
+          <Icona nome="services-arrow-right" class="size-4" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Nastro scorrevole -->
+    <ul
+      id="rec-nastro"
+      class="rivela -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-6 overflow-x-auto px-5 pb-4 md:-mx-10 md:scroll-px-10 md:px-10 xl:-mx-20 xl:scroll-px-20 xl:px-20 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      {
+        reviews.map((recensione) => (
+          <li class="flex w-[85vw] max-w-[405px] shrink-0 snap-start flex-col gap-6 rounded-lg border border-nero/8 bg-white p-8 md:p-10">
+            <div class="flex gap-[3px] text-taupe" role="img" aria-label="Valutazione 5 stelle su 5">
+              {Array.from({ length: 5 }).map(() => (
+                <Icona nome="reviews-star" class="size-4" />
+              ))}
+            </div>
+
+            <blockquote class="flex-1">
+              <p class="font-sans text-[15px] leading-relaxed text-nero">"{recensione.text}"</p>
+            </blockquote>
+
+            <footer class="flex items-center gap-4">
+              <img
+                src={recensione.avatar}
+                alt={`Foto profilo di ${recensione.name}`}
+                width="56"
+                height="56"
+                loading="lazy"
+                decoding="async"
+                class="size-14 rounded-full object-cover"
+              />
+              <div class="flex flex-col gap-0.5">
+                <p class="font-sans text-[15px] font-bold text-nero">{recensione.name}</p>
+                <p class="font-sans text-[13px] text-taupe">{recensione.place}</p>
+              </div>
+            </footer>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Indicatori di posizione -->
+    <div id="rec-punti" class="flex justify-center gap-2" aria-hidden="true">
+      {reviews.map(() => <span class="size-1.5 rounded-full bg-nero/15 transition-all duration-300" />)}
+    </div>
+
+    {
+      import.meta.env.DEV && reviewsArePlaceholder && (
+        <div class="border-l-4 border-red-500 bg-red-50 p-5 text-sm text-red-900">
+          <strong class="font-semibold">Promemoria di sviluppo, non visibile in produzione.</strong>
+          <br />
+          Recensioni, nomi e volti sono segnaposto generati. Vanno sostituiti con recensioni reali del
+          profilo Google (con foto profilo reali), poi impostare <code>reviewsArePlaceholder = false</code> in
+          <code>src/config/content.ts</code> per attivare i dati strutturati AggregateRating. Pubblicare
+          recensioni inventate viola le linee guida di Google e la normativa sulla pubblicità.
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  const nastro = document.getElementById('rec-nastro')
+  const indietro = document.getElementById('rec-indietro') as HTMLButtonElement | null
+  const avanti = document.getElementById('rec-avanti') as HTMLButtonElement | null
+  const punti = [...(document.getElementById('rec-punti')?.children ?? [])] as HTMLElement[]
+
+  if (nastro && indietro && avanti) {
+    const carte = [...nastro.children] as HTMLElement[]
+
+    const passo = () => (carte[1]?.offsetLeft ?? 0) - (carte[0]?.offsetLeft ?? 0)
+
+    const aggiorna = () => {
+      const max = nastro.scrollWidth - nastro.clientWidth
+      indietro.disabled = nastro.scrollLeft <= 4
+      avanti.disabled = nastro.scrollLeft >= max - 4
+
+      // Punto attivo: la carta piu vicina al bordo sinistro visibile
+      const indice = Math.round(nastro.scrollLeft / Math.max(passo(), 1))
+      punti.forEach((p, i) => {
+        p.classList.toggle('bg-nero', i === indice)
+        p.classList.toggle('bg-nero/15', i !== indice)
+        p.classList.toggle('w-5', i === indice)
+        p.classList.toggle('size-1.5', i !== indice)
+      })
+    }
+
+    indietro.addEventListener('click', () => nastro.scrollBy({ left: -passo(), behavior: 'smooth' }))
+    avanti.addEventListener('click', () => nastro.scrollBy({ left: passo(), behavior: 'smooth' }))
+    nastro.addEventListener('scroll', aggiorna, { passive: true })
+    window.addEventListener('resize', aggiorna, { passive: true })
+    aggiorna()
+  }
+</script>

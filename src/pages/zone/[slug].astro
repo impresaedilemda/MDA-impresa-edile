@@ -1,0 +1,165 @@
+---
+/**
+ * Pagina locale per comune: "Rifacimento e manutenzione tetti a <Comune>".
+ * Generata staticamente per ogni comune in site.areaServed (tranne la citta
+ * principale, coperta dalla home).
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import { site, yearsActive, waLink } from '../../config/site'
+import { services, verniciatura, faqs } from '../../config/content'
+import { zoneSecondarie } from '../../config/zone'
+
+export function getStaticPaths() {
+  return zoneSecondarie.map((zona) => ({ params: { slug: zona.slug }, props: { zona } }))
+}
+
+const { zona } = Astro.props
+
+const title = `Rifacimento Tetti ${zona.nome} | ${site.name}`
+const description = `Rifacimento, manutenzione, guaine e verniciatura tetti a ${zona.nome}. Sopralluogo e preventivo scritto gratuiti, squadra interna, garanzia ${site.warrantyYears} anni.`
+
+/* Le tre FAQ piu utili per chi arriva da una ricerca locale */
+const faqLocali = faqs.slice(0, 3)
+
+const tuttiIServizi = [
+  ...services,
+  { id: verniciatura.id, title: 'Verniciatura Tetto', text: verniciatura.intro, image: verniciatura.image, alt: verniciatura.alt },
+]
+
+/* Breadcrumb per Google: Home > Zone > Comune */
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 2, name: 'Zone servite', item: `${site.url}/zone/` },
+    { '@type': 'ListItem', position: 3, name: zona.nome, item: `${site.url}/zone/${zona.slug}/` },
+  ],
+}
+---
+
+<Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)} />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto">
+    <!-- Intestazione locale -->
+    <section class="bg-nero py-16 text-white md:py-24">
+      <div class="contenitore">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+          <span aria-hidden="true" class="mx-2">·</span>
+          <a href="/zone/" class="transition-colors hover:text-white">Zone servite</a>
+          <span aria-hidden="true" class="mx-2">·</span>
+          <span class="text-sabbia">{zona.nome}</span>
+        </nav>
+
+        <h1 class="mt-6 max-w-[900px] font-display text-4xl font-light leading-[1.1] md:text-[3.5rem]">
+          Rifacimento e manutenzione tetti a
+          <em class="font-normal italic text-sabbia">{zona.nome}</em>
+        </h1>
+
+        <p class="mt-6 max-w-[720px] font-sans text-lg leading-relaxed text-crema">
+          Da {yearsActive} anni la nostra squadra interna interviene anche a {zona.nome} e nei comuni
+          vicini: rifacimenti completi, riparazioni, impermeabilizzazioni, lattonerie e verniciature.
+          {zona.taglio}
+        </p>
+
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <a href="/#preventivo" class="btn btn-bianco !px-7 !py-4">Preventivo gratuito</a>
+          <a href={`tel:${site.phoneHref}`} class="btn btn-contorno-scuro !px-7 !py-4">
+            <Icona nome="hero-phone-call" class="size-4" />
+            {site.phone}
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servizi disponibili nel comune -->
+    <section class="bg-crema py-16 md:py-24">
+      <div class="contenitore flex flex-col gap-10">
+        <div class="flex max-w-[800px] flex-col gap-4">
+          <p class="occhiello">Cosa facciamo a {zona.nome}</p>
+          <h2 class="titolo-sezione">Tutti gli interventi sulle coperture</h2>
+        </div>
+
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            tuttiIServizi.map((s) => (
+              <li class="flex flex-col gap-3 rounded-lg border border-nero/8 bg-white p-7">
+                <h3 class="font-display text-2xl font-normal text-nero">{s.title}</h3>
+                <p class="flex-1 font-sans text-[14px] leading-relaxed text-nero/75">{s.text}</p>
+                <a
+                  href={`/#${s.id}`}
+                  class="group inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe transition-colors hover:text-nero"
+                >
+                  Scopri di più
+                  <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <!-- Come funziona + FAQ locali -->
+    <section class="bg-sabbia py-16 md:py-24">
+      <div class="contenitore grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div class="flex flex-col gap-6">
+          <p class="occhiello">Come funziona</p>
+          <h2 class="titolo-sezione">Sopralluogo gratuito a {zona.nome}</h2>
+          <p class="max-w-[520px] font-sans leading-relaxed text-nero/80">
+            Saliamo sulla copertura, la fotografiamo e vi mostriamo qual è il problema reale. Entro
+            pochi giorni ricevete un preventivo scritto voce per voce, con prezzo bloccato: quello
+            firmato è quello finale. Sopralluogo e preventivo non vi costano nulla, anche se poi
+            scegliete un'altra impresa.
+          </p>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Richiedi il sopralluogo</a>
+            <a href={waLink(`Buongiorno, vorrei un sopralluogo a ${zona.nome}.`)} target="_blank" rel="noopener" class="btn !px-7 !py-4 bg-whatsapp text-white hover:opacity-90">
+              WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          {
+            faqLocali.map((faq, i) => (
+              <details class="rounded-lg bg-crema" open={i === 0}>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-5 px-6 py-5 font-display text-lg font-semibold text-nero">
+                  {faq.q}
+                  <svg class="size-4 shrink-0 text-taupe" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 10h12M10 4v12" />
+                  </svg>
+                </summary>
+                <p class="px-6 pb-6 font-sans text-[14px] leading-relaxed text-nero/80">{faq.a}</p>
+              </details>
+            ))
+          }
+          <a href="/#domande" class="mt-1 font-sans text-sm font-bold text-taupe underline-offset-4 hover:underline">
+            Tutte le domande frequenti
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+</Base>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
