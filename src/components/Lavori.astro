@@ -20,17 +20,17 @@ import Icona from './Icona.astro'
     <!-- Progetti -->
     <div class="flex flex-col">
       {
-        portfolio.map((progetto) => (
-          <article class="rivela grid gap-8 border-b border-white/8 py-12 first:pt-0 xl:grid-cols-[auto_1fr] xl:gap-14">
+        portfolio.map((progetto, i) => (
+          <article class:list={['rivela grid gap-8 border-b border-white/8 py-12 first:pt-0 xl:gap-14', i % 2 === 1 ? 'xl:grid-cols-[1fr_auto]' : 'xl:grid-cols-[auto_1fr]']}>
             <!-- Coppia prima/dopo -->
-            <div class="grid max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class:list={["grid max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2", i % 2 === 1 && "xl:order-2"]}>
               <figure class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
                 <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-mattone">
                   {portfolioSection.beforeLabel}
                 </figcaption>
                 <img
                   src={progetto.before}
-                  alt={`${progetto.title}, prima dell'intervento`}
+                  alt={progetto.altPrima}
                   width="700"
                   height="700"
                   loading="lazy"
@@ -44,7 +44,7 @@ import Icona from './Icona.astro'
                 </figcaption>
                 <img
                   src={progetto.after}
-                  alt={`${progetto.title}, a lavoro concluso`}
+                  alt={progetto.altDopo}
                   width="700"
                   height="700"
                   loading="lazy"
@@ -55,7 +55,7 @@ import Icona from './Icona.astro'
             </div>
 
             <!-- Dettagli -->
-            <div class="flex flex-col justify-center gap-5">
+            <div class:list={["flex flex-col justify-center gap-5", i % 2 === 1 && "xl:order-1"]}>
               <span class="inline-flex items-center gap-2 self-start rounded-[4px] bg-white/7 px-3 py-1.5 font-sans text-xs font-semibold text-sabbia">
                 <Icona nome="portfolio-map-pin" class="size-3.5" />
                 {progetto.place}

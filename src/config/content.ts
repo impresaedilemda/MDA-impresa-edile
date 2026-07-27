@@ -169,6 +169,9 @@ export const portfolioSection = {
   afterLabel: 'Dopo il nostro lavoro',
 }
 
+/* Cinque cantieri, uno per servizio, con le coppie prima/dopo aggiornate
+   dal file Figma. Le localita restano in Veneto e Friuli (nel Figma erano
+   rimaste quelle lombarde della prima bozza). */
 export const portfolio = [
   {
     place: 'Oderzo (TV)', // TODO CLIENTE: cantieri reali
@@ -178,15 +181,54 @@ export const portfolio = [
     materials: 'Lana Minerale, Rame, Tegole Wierer',
     before: '/images/progetto-1-prima.webp',
     after: '/images/progetto-1-dopo.webp',
+    altPrima: 'Copertura ammalorata con tegole rotte e listelli scoperti prima dell’intervento',
+    altDopo: 'Nuova copertura in tegole portoghesi posata a regola d’arte',
   },
   {
-    place: 'Pordenone (PN)',
-    title: 'Progetto Pordenone',
-    text: 'Rimozione amianto e installazione tetto ventilato in legno lamellare a vista e finitura ardesia.',
-    days: '12 Giorni Lavorativi',
-    materials: 'Legno Lamellare, Ardesia, Zinco Titanio',
+    /* Nel Figma questa scheda aveva il testo dell'amianto ma le foto di un
+       tetto piano impermeabilizzato: testo allineato alle immagini. */
+    place: 'Portogruaro (VE)',
+    title: 'Progetto Portogruaro',
+    text: 'Rifacimento dell’impermeabilizzazione di un lastrico solare con ristagni d’acqua, nuova membrana e risvolti sui parapetti.',
+    days: '6 Giorni Lavorativi',
+    materials: 'Membrana PVC, Scossaline, Nuovi Scarichi',
     before: '/images/progetto-2-prima.webp',
     after: '/images/progetto-2-dopo.webp',
+    altPrima: 'Lastrico solare con ristagni d’acqua e guaina degradata prima dell’intervento',
+    altDopo: 'Lastrico solare impermeabilizzato con nuova membrana e risvolti perimetrali',
+  },
+  {
+    place: 'Conegliano (TV)',
+    title: 'Progetto Conegliano',
+    text: 'Verniciatura completa tetto in tegole con trattamento biocida e doppia mano di finitura protettiva.',
+    days: '5 Giorni Lavorativi',
+    materials: 'Primer Consolidante, Vernice Protettiva',
+    before: '/images/progetto-3-prima.webp',
+    after: '/images/progetto-3-dopo.webp',
+    altPrima: 'Tegole in cemento invase da muschio e licheni prima del ciclo di verniciatura',
+    altDopo: 'Manto verniciato con finitura protettiva uniforme dopo il trattamento',
+  },
+  {
+    place: 'Sacile (PN)',
+    title: 'Progetto Sacile',
+    text: 'Sostituzione completa grondaie in rame e lattonerie con lavorazione su misura in cantiere.',
+    days: '4 Giorni Lavorativi',
+    materials: 'Rame, Alluminio, Guarnizioni',
+    before: '/images/progetto-4-prima.webp',
+    after: '/images/progetto-4-dopo.webp',
+    altPrima: 'Vecchia grondaia ostruita da detriti e vegetazione prima della sostituzione',
+    altDopo: 'Nuovo canale di gronda e pluviale in rame piegati su misura',
+  },
+  {
+    place: 'Latisana (UD)',
+    title: 'Progetto Latisana',
+    text: 'Manutenzione straordinaria con sostituzione tegole rotte, ripristino listelli e sigillatura del camino.',
+    days: '3 Giorni Lavorativi',
+    materials: 'Tegole Wierer, Malta, Guaina',
+    before: '/images/progetto-5-prima.webp',
+    after: '/images/progetto-5-dopo.webp',
+    altPrima: 'Falda con listelli scoperti e camino da sigillare prima della manutenzione',
+    altDopo: 'Manto ripristinato e camino sigillato con nuova scossalina metallica',
   },
 ]
 
