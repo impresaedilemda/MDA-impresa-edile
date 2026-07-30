@@ -1,0 +1,79 @@
+---
+/**
+ * Indice delle guide: il polo di contenuti del sito.
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import { site } from '../../config/site'
+import { guide } from '../../config/guide'
+
+const title = `Guide alle Coperture e ai Tetti | ${site.name}`
+const description = `Guide pratiche su costi, infiltrazioni, coibentazione, amianto, materiali di copertura e manutenzione del tetto, scritte da chi i tetti li fa ogni giorno.`
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 2, name: 'Guide', item: `${site.url}/guide/` },
+  ],
+}
+---
+
+<Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)} />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto">
+    <section class="bg-nero py-14 text-white md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+        </nav>
+        <p class="occhiello !text-sabbia">Il tetto, spiegato bene</p>
+        <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">
+          Guide alle coperture, scritte da chi i tetti li fa
+        </h1>
+        <p class="max-w-[720px] font-sans text-lg leading-relaxed text-sabbia/85">
+          Costi veri, materiali a confronto, errori da evitare: le risposte che diamo ogni settimana
+          ai proprietari di casa fra {site.regions[0]} e {site.regions[1]}, messe per iscritto.
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-crema py-14 md:py-20">
+      <div class="contenitore">
+        <ul class="rivela-fila grid gap-6 md:grid-cols-2 lg:gap-8">
+          {
+            guide.map((g) => (
+              <li class="solleva rounded-lg border border-nero/8 bg-white">
+                <a href={`/guide/${g.slug}/`} class="group flex h-full flex-col gap-4 p-8 md:p-9">
+                  <p class="occhiello">{g.eyebrow}</p>
+                  <h2 class="font-display text-2xl font-normal leading-snug text-nero transition-colors group-hover:text-taupe">
+                    {g.h1}
+                  </h2>
+                  <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75">{g.intro}</p>
+                  <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+                    Leggi la guida
+                    <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+</Base>

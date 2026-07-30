@@ -1,0 +1,62 @@
+---
+/**
+ * Pagina servizio: schema Service, FAQPage e BreadcrumbList propri.
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import PaginaEditoriale from '../../components/PaginaEditoriale.astro'
+import { site } from '../../config/site'
+import { serviziPagine } from '../../config/servizi-pagine'
+
+export function getStaticPaths() {
+  return serviziPagine.map((pagina) => ({ params: { slug: pagina.slug }, props: { pagina } }))
+}
+
+const { pagina } = Astro.props
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Service',
+      name: pagina.h1,
+      description: pagina.metaDescription,
+      serviceType: pagina.h1.split(':')[0],
+      provider: { '@id': `${site.url}/#organizzazione` },
+      areaServed: site.regions.map((r) => ({ '@type': 'AdministrativeArea', name: r })),
+      url: `${site.url}/servizi/${pagina.slug}/`,
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: pagina.faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+        { '@type': 'ListItem', position: 2, name: 'Servizi', item: `${site.url}/servizi/` },
+        { '@type': 'ListItem', position: 3, name: pagina.h1, item: `${site.url}/servizi/${pagina.slug}/` },
+      ],
+    },
+  ],
+}
+---
+
+<Base title={pagina.metaTitle} description={pagina.metaDescription}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+  </Fragment>
+
+  <Header />
+  <PaginaEditoriale pagina={pagina} radice="servizi" etichettaRadice="Servizi" />
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+</Base>

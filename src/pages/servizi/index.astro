@@ -1,0 +1,101 @@
+---
+/**
+ * Indice dei servizi: una pagina di snodo con le cinque specialita.
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import { site } from '../../config/site'
+import { serviziPagine } from '../../config/servizi-pagine'
+import { services, verniciatura } from '../../config/content'
+
+const title = `Servizi per Tetti e Coperture | ${site.name}`
+const description = `Rifacimento, manutenzione, impermeabilizzazione, grondaie e verniciatura tetti in Veneto e Friuli-Venezia Giulia. Squadra interna, preventivo scritto gratuito.`
+
+/* Immagine di ogni servizio, presa dalla sezione della home */
+const immagini: Record<string, { image: string; alt: string }> = Object.fromEntries([
+  ...services.map((s) => [s.id, { image: s.image, alt: s.alt }]),
+  [verniciatura.id, { image: verniciatura.image, alt: verniciatura.alt }],
+])
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 2, name: 'Servizi', item: `${site.url}/servizi/` },
+  ],
+}
+---
+
+<Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)} />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto">
+    <section class="bg-nero py-14 text-white md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+        </nav>
+        <p class="occhiello !text-sabbia">Cosa facciamo</p>
+        <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">
+          Servizi per tetti e coperture in Veneto e Friuli
+        </h1>
+        <p class="max-w-[720px] font-sans text-lg leading-relaxed text-sabbia/85">
+          Cinque specialità, una sola squadra interna. Dal primo sopralluogo alla garanzia scritta,
+          lo stesso referente per tutto il cantiere.
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-crema py-14 md:py-20">
+      <div class="contenitore">
+        <ul class="rivela-fila grid gap-6 md:grid-cols-2 lg:gap-8">
+          {
+            serviziPagine.map((s) => {
+              const img = immagini[s.slug]
+              return (
+                <li class="solleva zoom-foto overflow-hidden rounded-lg border border-nero/8 bg-white">
+                  <a href={`/servizi/${s.slug}/`} class="group flex h-full flex-col sm:flex-row">
+                    {img && (
+                      <img
+                        src={img.image}
+                        alt={img.alt}
+                        width="480"
+                        height="640"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-44 w-full shrink-0 object-cover sm:h-auto sm:w-[200px]"
+                      />
+                    )}
+                    <span class="flex flex-1 flex-col gap-3 p-7">
+                      <h2 class="font-display text-2xl font-normal leading-snug text-nero transition-colors group-hover:text-taupe">
+                        {s.h1.split(':')[0].split(',')[0]}
+                      </h2>
+                      <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75">{s.intro.split('.')[0]}.</p>
+                      <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+                        Scopri il servizio
+                        <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              )
+            })
+          }
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+</Base>

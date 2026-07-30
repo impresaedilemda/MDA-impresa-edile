@@ -2,6 +2,13 @@
 import { site, yearsActive } from '../config/site'
 import { services, verniciatura, faqs, reviews, reviewsArePlaceholder } from '../config/content'
 
+interface Props {
+  /** FAQPage della home: va dichiarata solo dove le domande sono visibili */
+  conFaq?: boolean
+}
+
+const { conFaq = false } = Astro.props
+
 /* La verniciatura nel design e un pannello di approfondimento, ma per lo
    schema resta un servizio a pieno titolo. */
 const tuttiIServizi = [
@@ -115,7 +122,7 @@ const paginaFaq = {
 
 const grafo = {
   '@context': 'https://schema.org',
-  '@graph': [azienda, sitoWeb, paginaFaq],
+  '@graph': conFaq ? [azienda, sitoWeb, paginaFaq] : [azienda, sitoWeb],
 }
 ---
 

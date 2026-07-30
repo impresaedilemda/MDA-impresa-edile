@@ -34,7 +34,9 @@ import Icona from './Icona.astro'
             />
             <div class="flex flex-1 flex-col justify-between gap-6 p-7 md:p-8">
               <div class="flex flex-col gap-3">
-                <h3 class="font-display text-[1.75rem] font-normal leading-tight text-nero">{servizio.title}</h3>
+                <h3 class="font-display text-[1.75rem] font-normal leading-tight text-nero">
+                  <a href={`/servizi/${servizio.id}/`} class="transition-colors hover:text-taupe">{servizio.title}</a>
+                </h3>
                 <p class="font-sans text-[15px] leading-relaxed text-nero/80">{servizio.text}</p>
               </div>
               <a
@@ -71,8 +73,10 @@ import Icona from './Icona.astro'
         </span>
 
         <h3 class="max-w-[700px] font-display text-3xl font-light leading-tight md:text-[2.75rem]">
-          {verniciatura.titlePlain}
-          <span class="text-sabbia">{verniciatura.titleAccent}</span>
+          <a href={`/servizi/${verniciatura.id}/`} class="transition-colors hover:text-sabbia">
+            {verniciatura.titlePlain}
+            <span class="text-sabbia">{verniciatura.titleAccent}</span>
+          </a>
         </h3>
 
         <p class="max-w-[640px] font-sans text-[15px] leading-relaxed text-white/85">{verniciatura.intro}</p>

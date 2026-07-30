@@ -1,0 +1,4 @@
+# Segnalazioni di sicurezza per mdaimpresaedile.it
+Contact: mailto:impresaedilemda@gmail.com
+Preferred-Languages: it, en
+Expires: 2027-12-31T23:59:59.000Z

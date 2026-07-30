@@ -7,9 +7,11 @@ interface Props {
   title: string
   description: string
   image?: string
+  /** true solo sulla homepage, dove le FAQ dello schema sono visibili */
+  schemaFaq?: boolean
 }
 
-const { title, description, image = '/images/og-image.jpg' } = Astro.props
+const { title, description, image = '/images/og-image.jpg', schemaFaq = false } = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site).href
 const ogImage = new URL(image, Astro.site).href
 ---
@@ -57,7 +59,7 @@ const ogImage = new URL(image, Astro.site).href
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#151613" />
 
-    <Schema />
+    <Schema conFaq={schemaFaq} />
 
     <!-- Dati strutturati aggiuntivi per pagina (es. breadcrumb delle zone) -->
     <slot name="head" />
