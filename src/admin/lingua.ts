@@ -97,7 +97,6 @@ const TESTI = {
     'pannello.articoliPubblicati': 'articoli pubblicati',
     'pannello.recensioniAttive': 'recensioni sul sito',
     'pannello.cantieri': 'cantieri in galleria',
-    'pannello.esempiAttivi': 'Il sito mostra ancora gli esempi: aggiungi i tuoi lavori e le recensioni vere.',
     'pannello.curva': 'Andamento del mese',
 
     'richieste.titolo': 'Richieste',
@@ -471,7 +470,6 @@ const TESTI = {
     'pannello.articoliPubblicati': 'articole publicate',
     'pannello.recensioniAttive': 'recenzii pe site',
     'pannello.cantieri': 'lucrări în galerie',
-    'pannello.esempiAttivi': 'Site-ul arată încă exemplele: adaugă lucrările și recenziile tale reale.',
     'pannello.curva': 'Evoluția lunii',
 
     'richieste.titolo': 'Cereri',

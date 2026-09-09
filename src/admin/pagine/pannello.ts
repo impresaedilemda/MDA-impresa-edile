@@ -26,7 +26,7 @@
  * =============================================================================
  */
 
-import { avatar, distintivo, el, fascia, scheletro, statoErrore, svuota } from '../dom'
+import { avatar, distintivo, el, scheletro, statoErrore, svuota } from '../dom'
 import {
   iconaCantiere,
   iconaFreccia,
@@ -247,12 +247,14 @@ function rigaSito(valore: number, etichetta: string): HTMLElement {
 }
 
 /**
- * Cosa c'è sul sito adesso. Finché lavori o recensioni sono a zero il sito
- * mostra gli esempi scritti in fase di costruzione: lo si dice qui, perché è
- * la prima cosa da sistemare e da questa schermata non si vedrebbe.
+ * Cosa c'è sul sito adesso, in tre numeri. Qui stava anche un avviso che
+ * diceva "il sito mostra ancora gli esempi": non è più vero. Gli esempi
+ * scritti in fase di costruzione sono stati tolti il 9 settembre 2026, e le
+ * sezioni che non hanno contenuto vero semplicemente non vengono stampate.
+ * I tre numeri dicono già quello che c'è, senza accusare il sito di mostrare
+ * qualcosa che non mostra.
  */
 function cardSito(c: Contatori): HTMLElement {
-  const esempi = c.recensioni <= 0 || c.lavori <= 0
   return el('section', { class: 'adm-card' }, [
     titoletto(t('pannello.ilSito')),
     el('div', { class: 'adm-pila' }, [
@@ -261,7 +263,6 @@ function cardSito(c: Contatori): HTMLElement {
         rigaSito(c.recensioni, t('pannello.recensioniAttive')),
         rigaSito(c.lavori, t('pannello.cantieri')),
       ]),
-      esempi ? fascia(t('pannello.esempiAttivi'), 'attenzione') : null,
     ]),
   ])
 }

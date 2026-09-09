@@ -274,8 +274,8 @@ export const portfolio = [
     materials: 'Tegole Wierer, Malta, Guaina',
     before: '/images/progetto-5-prima.webp',
     after: '/images/progetto-5-dopo.webp',
-    altPrima: 'Illustrazione: falda con listelli scoperti e camino da sigillare',
-    altDopo: 'Illustrazione: manto ripristinato e camino sigillato con nuova scossalina metallica',
+    altPrima: 'Illustrazione: tegole rotte e scivolate sotto il camino, vecchia scossalina sollevata e muschio sul manto',
+    altDopo: 'Illustrazione: manto ripristinato, camino ripuntato con nuova scossalina in piombo e comignolo',
   },
 ]
 
