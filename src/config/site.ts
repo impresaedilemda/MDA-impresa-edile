@@ -113,12 +113,10 @@ const statico = {
   /* --- Tecnico ---------------------------------------------------------- */
   /**
    * L'indirizzo pubblico del sito, usato nei dati strutturati e nei
-   * breadcrumb. Segue PUBLIC_SITE_URL come astro.config.mjs: finché il
-   * dominio mdaimpresaedile.it non è collegato risponde solo Vercel, e un
-   * canonical verso un host che non risponde vale come assente.
-   * Al cutover basta la variabile su Vercel, senza toccare il codice.
+   * breadcrumb. Segue PUBLIC_SITE_URL come astro.config.mjs, e il valore
+   * predefinito e il dominio vero: risponde dal 9 settembre 2026.
    */
-  url: ((import.meta.env.PUBLIC_SITE_URL as string | undefined) ?? 'https://mda-impresa-edile-henna.vercel.app').replace(
+  url: ((import.meta.env.PUBLIC_SITE_URL as string | undefined) ?? 'https://www.mdaimpresaedile.it').replace(
     /\/+$/,
     '',
   ),

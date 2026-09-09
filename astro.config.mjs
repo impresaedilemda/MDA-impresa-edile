@@ -23,7 +23,14 @@ import { fileURLToPath } from 'node:url'
  * NOTA: `url` in src/config/site.ts, usato nel JSON-LD, e ancora hardcodato
  * e va allineato allo stesso modo.
  */
-const SITE_URL = (process.env.PUBLIC_SITE_URL ?? 'https://mda-impresa-edile-henna.vercel.app').replace(/\/+$/, '')
+/**
+ * Il dominio definitivo e collegato e risponde dal 9 settembre 2026, quindi
+ * e lui il valore predefinito. Prima il ripiego era l'indirizzo vercel.app:
+ * aveva senso finche il dominio non rispondeva, ma da quando risponde manda
+ * canonical e sitemap sul dominio sbagliato e Google consolida li.
+ * PUBLIC_SITE_URL resta e vince, per le anteprime e per un eventuale cambio.
+ */
+const SITE_URL = (process.env.PUBLIC_SITE_URL ?? 'https://www.mdaimpresaedile.it').replace(/\/+$/, '')
 
 /** I deploy di anteprima non devono finire nell'indice al posto del sito. */
 const ANTEPRIMA = process.env.VERCEL_ENV === 'preview'

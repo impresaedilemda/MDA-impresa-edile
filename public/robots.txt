@@ -20,4 +20,4 @@ Allow: /
 
 # La riga Sitemap viene riscritta durante la build da astro.config.mjs
 # usando PUBLIC_SITE_URL: al cutover del dominio non va toccata a mano.
-Sitemap: https://mda-impresa-edile.vercel.app/sitemap-index.xml
+Sitemap: https://www.mdaimpresaedile.it/sitemap-index.xml
