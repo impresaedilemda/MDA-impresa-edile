@@ -106,6 +106,23 @@ function scappa(s: string): string {
     .replace(/"/g, '&quot;')
 }
 
+/**
+ * Una variabile d'ambiente, cercata dove puo stare.
+ *
+ * In produzione su Vercel le variabili sono vere variabili di processo e la
+ * risposta giusta e process.env: cambiare la chiave su Vercel ha effetto
+ * subito, senza ricompilare, e il valore non finisce dentro nessun pacchetto.
+ *
+ * In locale invece i file .env li legge Vite, che li mette in import.meta.env
+ * e NON in process.env: senza questo ripiego la rotta risponderebbe sempre
+ * "non configurato" mentre si sviluppa. Preso a spese nostre il 9 settembre.
+ */
+function variabile(nome: string): string {
+  const daProcesso = typeof process !== 'undefined' ? process.env?.[nome] : undefined
+  const daVite = (import.meta.env as Record<string, string | undefined>)[nome]
+  return (daProcesso ?? daVite ?? '').trim()
+}
+
 function primoIp(intestazione: string | null): string {
   return (intestazione ?? '').split(',')[0]?.trim() || 'sconosciuto'
 }
@@ -220,12 +237,12 @@ export const POST: APIRoute = async ({ request }) => {
     return rispondi(429, { errore: 'Troppi tentativi. Riprovate fra qualche minuto.' }, { 'Retry-After': '600' })
   }
 
-  const chiave = process.env.RESEND_API_KEY
-  const a = (process.env.RICHIESTE_A ?? '')
+  const chiave = variabile('RESEND_API_KEY')
+  const a = variabile('RICHIESTE_A')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  const da = (process.env.RICHIESTE_DA ?? '').trim()
+  const da = variabile('RICHIESTE_DA')
 
   if (!chiave || a.length === 0 || !da) {
     console.error('Modulo non configurato: mancano RESEND_API_KEY, RICHIESTE_A o RICHIESTE_DA')

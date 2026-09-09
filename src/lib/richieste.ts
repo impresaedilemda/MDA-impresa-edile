@@ -12,6 +12,14 @@
  *  legge in modalita di prova: cosi si puo provare il giro completo anche
  *  senza rete.
  *
+ *  ATTENZIONE, e il punto che conta: quel ripiego vale SOLO in sviluppo.
+ *  Sul sito pubblicato il localStorage e il browser del visitatore, non un
+ *  posto dove qualcuno andra mai a leggere. Se contasse come "richiesta al
+ *  sicuro", il modulo mostrerebbe "Richiesta ricevuta" mentre il contatto
+ *  resta chiuso nel telefono di chi ha scritto, e sarebbe di nuovo la bugia
+ *  che questo modulo aveva gia prima del 9 settembre 2026. In produzione,
+ *  senza database, questa funzione torna false e il modulo mostra l'errore.
+ *
  *  Non lancia mai: torna true se la richiesta e al sicuro, false altrimenti.
  *  Decidere cosa dire alla persona spetta al modulo che chiama.
  * =============================================================================
@@ -83,7 +91,13 @@ export async function inviaRichiesta(grezza: NuovaRichiesta): Promise<boolean> {
   const dati = pulisci(grezza)
   if (dati.telefono.length < 5) return false
 
-  if (!URL_BASE || !CHIAVE) return salvaInLocale(dati)
+  if (!URL_BASE || !CHIAVE) {
+    // In sviluppo il deposito locale serve a provare il giro completo.
+    // In produzione non e un posto sicuro: e il browser di chi scrive.
+    if (import.meta.env.DEV) return salvaInLocale(dati)
+    console.error('[MDA] Nessun database configurato: la richiesta non e stata salvata da nessuna parte.')
+    return false
+  }
 
   try {
     const risposta = await fetch(`${URL_BASE}/rest/v1/richieste`, {
