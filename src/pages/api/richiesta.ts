@@ -77,7 +77,11 @@ const SCADENZA_MS = 9_000
 /* --- Colori del sito, per la email ---------------------------------------- */
 const CREMA = '#f7f4eb'
 const NERO = '#151613'
+const NERO_2 = '#282924'
 const TAUPE = '#8e7e6a'
+const TAUPE_TESTO = '#736552'
+const WHATSAPP = '#25d366'
+const BORDO = 'rgba(21,22,19,0.10)'
 
 /* --- Utilita -------------------------------------------------------------- */
 
@@ -90,6 +94,19 @@ function testoLungo(valore: unknown, massimo: number): string {
   return typeof valore === 'string'
     ? valore.replace(/[\x00-\x09\x0b\x0c\x0e-\x1f\x7f]/g, ' ').trim().slice(0, massimo)
     : ''
+}
+
+/**
+ * Le sole cifre di un numero, con il prefisso internazionale.
+ * Chi scrive "340 1234567" intende un numero italiano: senza il 39 davanti
+ * il collegamento di WhatsApp non apre niente.
+ */
+function soloCifre(numero: string): string {
+  const cifre = numero.replace(/\D/g, '')
+  if (numero.trim().startsWith('+')) return cifre
+  if (cifre.startsWith('00')) return cifre.slice(2)
+  if (cifre.startsWith('39')) return cifre
+  return `39${cifre}`
 }
 
 /** Un telefono plausibile: da 6 a 20 cifre, piu i simboli che la gente scrive. */
@@ -157,39 +174,114 @@ function troppiTentativi(ip: string): boolean {
 
 /* --- La email ------------------------------------------------------------- */
 
-function corpoTesto(righe: Riga[]): string {
-  return righe.map((r) => `${r.etichetta}: ${r.valore}`).join('\n')
+/**
+ * La versione senza grafica, che alcuni programmi di posta mostrano al posto
+ * dell'HTML. Qui nome e telefono vanno ripetuti: non c'e nessuna intestazione
+ * grande a mostrarli.
+ */
+function corpoTesto(titolo: string, nome: string, telefono: string, righe: Riga[]): string {
+  return [
+    titolo,
+    '',
+    ...(nome ? [`Nome: ${nome}`] : []),
+    `Telefono: ${telefono}`,
+    ...righe.map((r) => `${r.etichetta}: ${r.valore}`),
+  ].join('\n')
 }
 
-function corpoHtml(titolo: string, righe: Riga[]): string {
+/**
+ * La email che arriva all'impresa.
+ *
+ * Chi la legge quasi sempre sta in cantiere, col telefono in mano e i guanti
+ * addosso. Quindi in cima non c'e un elenco di campi: c'e il nome, il numero
+ * scritto grande, e tre pulsanti che partono con un dito solo. Il resto della
+ * richiesta sta sotto, per quando si torna in ufficio.
+ *
+ * Scritta con tabelle e stili in riga perche i programmi di posta buttano via
+ * i fogli di stile, e Outlook non conosce flex ne border-radius: i pulsanti
+ * restano rettangoli squadrati la, e vanno bene lo stesso.
+ */
+function corpoHtml(opzioni: {
+  titolo: string
+  etichettaTipo: string
+  nome: string
+  telefono: string
+  email: string
+  righe: Riga[]
+}): string {
+  const { titolo, etichettaTipo, nome, telefono, email, righe } = opzioni
+  const cifre = soloCifre(telefono)
+
+  const pulsante = (indirizzo: string, testo: string, sfondo: string, colore: string) => `
+    <td style="padding:0 8px 8px 0">
+      <a href="${indirizzo}" style="display:inline-block;padding:13px 20px;background:${sfondo};color:${colore};font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;white-space:nowrap">${scappa(testo)}</a>
+    </td>`
+
+  const pulsanti = [
+    pulsante(`tel:+${cifre}`, 'Chiama ora', NERO, '#ffffff'),
+    pulsante(
+      `https://wa.me/${cifre}?text=${encodeURIComponent(`Buongiorno${nome ? ` ${nome.split(' ')[0]}` : ''}, la contatto da MDA Impresa Edile per la sua richiesta dal nostro sito.`)}`,
+      'WhatsApp',
+      WHATSAPP,
+      '#ffffff',
+    ),
+    email
+      ? pulsante(
+          `mailto:${email}?subject=${encodeURIComponent('La sua richiesta a MDA Impresa Edile')}`,
+          'Rispondi via email',
+          '#ffffff',
+          NERO,
+        )
+      : '',
+  ]
+    .filter(Boolean)
+    .join('')
+
   const celle = righe
     .map(
       (r) => `
       <tr>
-        <td style="padding:10px 16px 10px 0;vertical-align:top;font-size:13px;color:${TAUPE};white-space:nowrap">${scappa(r.etichetta)}</td>
-        <td style="padding:10px 0;vertical-align:top;font-size:15px;color:${NERO};line-height:1.6">${scappa(r.valore).replace(/\n/g, '<br>')}</td>
+        <td style="padding:11px 18px 11px 0;vertical-align:top;font-size:13px;color:${TAUPE_TESTO};white-space:nowrap;border-bottom:1px solid ${BORDO}">${scappa(r.etichetta)}</td>
+        <td style="padding:11px 0;vertical-align:top;font-size:15px;color:${NERO};line-height:1.6;border-bottom:1px solid ${BORDO}">${scappa(r.valore).replace(/\n/g, '<br>')}</td>
       </tr>`,
     )
     .join('')
 
   return `<!doctype html>
 <html lang="it">
-<body style="margin:0;padding:24px;background:${CREMA};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-  <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#fff;border-radius:10px;border:1px solid rgba(21,22,19,0.1)">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>${scappa(titolo)}</title>
+</head>
+<body style="margin:0;padding:24px 16px;background:${CREMA};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:620px;margin:0 auto;border-collapse:separate">
     <tr>
-      <td style="padding:28px 28px 8px">
-        <p style="margin:0;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${TAUPE};font-weight:700">MDA Impresa Edile</p>
-        <h1 style="margin:10px 0 0;font-size:21px;font-weight:600;color:${NERO}">${scappa(titolo)}</h1>
+      <td style="background:${NERO};border-radius:12px 12px 0 0;padding:26px 28px">
+        <p style="margin:0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:${TAUPE};font-weight:700">${scappa(etichettaTipo)}</p>
+        <h1 style="margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:400;color:#ffffff;line-height:1.25">${scappa(titolo)}</h1>
       </td>
     </tr>
+
     <tr>
-      <td style="padding:18px 28px 28px">
-        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">${celle}</table>
+      <td style="background:${NERO_2};padding:22px 28px 24px">
+        ${nome ? `<p style="margin:0 0 4px;font-size:17px;font-weight:700;color:#ffffff">${scappa(nome)}</p>` : ''}
+        <a href="tel:+${cifre}" style="display:inline-block;margin:0 0 18px;font-size:27px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.01em">${scappa(telefono)}</a>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>${pulsanti}</tr></table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="background:#ffffff;border-radius:0 0 12px 12px;padding:8px 28px 26px">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse">${celle}</table>
       </td>
     </tr>
   </table>
-  <p style="max-width:600px;margin:16px auto 0;font-size:12px;color:${TAUPE};text-align:center">
-    Inviato dal modulo su mdaimpresaedile.it
+
+  <p style="max-width:620px;margin:18px auto 0;font-size:12px;line-height:1.6;color:${TAUPE_TESTO};text-align:center">
+    Arrivata dal modulo su mdaimpresaedile.it.<br>
+    Rispondendo a questa email si scrive direttamente a chi ha compilato il modulo.
   </p>
 </body>
 </html>`
@@ -255,9 +347,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   /* --- Le righe della email ----------------------------------------------- */
 
+  // Nome e telefono stanno gia in cima, scritti grandi: ripeterli qui sotto
+  // e solo rumore. L'email invece resta, perche il pulsante non la mostra.
   const righe: Riga[] = []
-  if (nome) righe.push({ etichetta: 'Nome', valore: nome })
-  righe.push({ etichetta: 'Telefono', valore: telefono })
   if (email) righe.push({ etichetta: 'Email', valore: email })
   if (servizio) righe.push({ etichetta: 'Intervento', valore: servizio })
   if (comune) righe.push({ etichetta: 'Comune', valore: cap ? `${comune} (${cap})` : comune })
@@ -280,9 +372,11 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (messaggio) righe.push({ etichetta: 'Messaggio', valore: messaggio })
   if (codiceLink) righe.push({ etichetta: 'Arrivato dal link', valore: codiceLink })
-  if (pagina) righe.push({ etichetta: 'Pagina', valore: pagina })
+  // "/" da solo non dice niente a chi legge: la home si chiama home.
+  if (pagina) righe.push({ etichetta: 'Pagina', valore: pagina === '/' ? 'Home page' : pagina })
 
   const titolo = tipo === 'preventivo' ? 'Nuova richiesta di preventivo' : 'Richiesta di essere richiamato'
+  const etichettaTipo = tipo === 'preventivo' ? 'Configuratore del preventivo' : 'Modulo rapido'
   const oggetto =
     tipo === 'preventivo'
       ? `Nuova richiesta di preventivo${servizio ? `: ${servizio}` : ''}`
@@ -307,8 +401,8 @@ export const POST: APIRoute = async ({ request }) => {
         // Il tasto "Rispondi" del programma di posta va dritto al cliente.
         ...(email ? { reply_to: email } : {}),
         subject: oggetto,
-        text: corpoTesto(righe),
-        html: corpoHtml(titolo, righe),
+        text: corpoTesto(titolo, nome, telefono, righe),
+        html: corpoHtml({ titolo, etichettaTipo, nome, telefono, email, righe }),
       }),
     })
 
