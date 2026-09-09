@@ -1157,7 +1157,7 @@ const datiCalcolatore = JSON.stringify({
         // conferma e NON tracciamo una conversione che non è mai avvenuta.
         console.error('Invio preventivo non riuscito:', err)
         if (import.meta.env.DEV) {
-          console.warn('[MDA] In locale /api/richiesta non esiste: astro dev non serve le funzioni di Vercel. Si prova con `vercel dev`.')
+          console.warn('[MDA] /api/richiesta non ha risposto. In locale la rotta c\u2019e, ma senza RESEND_API_KEY, RICHIESTE_A e RICHIESTE_DA in .env risponde 500.')
         }
         mostraErroreInvio(testo)
         traccia('preventivo_invio_fallito', { motivo: err instanceof Error ? err.message : 'errore sconosciuto' })
