@@ -5,57 +5,22 @@ Primele trei se fac în același loc: **variabile de mediu pe Vercel**.
 
 ---
 
-## 1. Formularul să trimită email — Resend
+## 1. Formularul trimite email — **GATA, 10 septembrie**
 
-**Făcut deja de mine:** cont Resend `impresaedilemda`, domeniul de trimitere
-**`send.mdaimpresaedile.it`** adăugat, regiune Irlanda (eu-west-1), „Enable
-Receiving" oprit. Subdomeniu, nu domeniul principal, ca la Expert Parket: așa
-reputația de trimitere stă separat și nu atingem nimic pe `mdaimpresaedile.it`.
+Verificat cap la cap: cerere pe `/api/richiesta` → 200, iar in Resend emailul
+apare **Delivered** catre `impresaedilemda@gmail.com`.
 
-Pagina domeniului:
-https://resend.com/domains/b3e7586f-9008-4aa3-a3e0-62369170f979
+Ce e configurat:
 
-### a. DNS la Dynadot — **GATA**
+- cont Resend `impresaedilemda`, domeniu **`send.mdaimpresaedile.it`**,
+  regiune Irlanda (eu-west-1), status **Verified**, „Enable Receiving" oprit
+- DNS la Dynadot: DKIM, doua CNAME pentru SPF, DMARC. Inregistrarea A si
+  `www` (Vercel) neatinse
+- Vercel: `RESEND_API_KEY` (Secret, Production), `RICHIESTE_A` si
+  `RICHIESTE_DA` (Config, Production and Preview)
 
-Puse pe 10 septembrie, în contul Dynadot care ține domeniul. Patru
-înregistrări, verificate prin resolvere publice:
-
-| Tip | Host | Valoare |
-|---|---|---|
-| TXT | `resend._domainkey.send` | cheia DKIM, 218 caractere |
-| CNAME | `rsend.send` | `rsend-euw1.forge.rmta.net` |
-| CNAME | `send.send` | `send.forge.rmta.net` |
-| TXT | `_dmarc` | `v=DMARC1; p=none;` |
-
-Înregistrarea A și `www` (Vercel) n-au fost atinse, site-ul răspunde 200.
-
-În Resend statusul a trecut pe **Pending**: verificarea merge singură, poate
-dura de la câteva minute la câteva ore. Când scrie **Verified**, e gata.
-
-**Capcană de reținut:** `dig` direct la `ns1.dyna-ns.net` răspunde inconstant
-și pare că înregistrările lipsesc. Se verifică prin `1.1.1.1` sau `8.8.8.8`.
-
-### b. Cheia API
-
-https://resend.com/api-keys → Create API Key → permisiune **Sending access**.
-
-**Asta o faci tu, nu eu.** O cheie API pe care o văd eu ajunge în transcriptul
-conversației. Copiaz-o direct din Resend în Vercel, să nu treacă prin mine.
-
-### c. Vercel
-
-Settings → Environment Variables:
-
-```
-RESEND_API_KEY = re_...
-RICHIESTE_A    = impresaedilemda@gmail.com
-RICHIESTE_DA   = Sito MDA Impresa Edile <sito@send.mdaimpresaedile.it>
-```
-
-Atenție la `RICHIESTE_DA`: **`@send.mdaimpresaedile.it`**, cu `send.`, pentru
-că ăsta e domeniul verificat. Fără `send.` Resend refuză trimiterea.
-
-Apoi Deployments → ultimul → **Redeploy**.
+**De verificat cand se schimba ceva:** `RICHIESTE_DA` trebuie sa ramana pe
+`@send.mdaimpresaedile.it`. Fara `send.` Resend refuza trimiterea.
 
 ## 2. Panoul de administrare (dacă vrei să-l pornești acum)
 
