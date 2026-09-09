@@ -48,7 +48,7 @@ const tagli = [
   'Lavoriamo su coperture di ogni epoca: dai coppi recuperati dei centri storici alle lamiere coibentate dei capannoni.',
   'Ogni intervento chiude con collaudo finale insieme al proprietario e garanzia scritta, non con una stretta di mano.',
   'Il preventivo arriva scritto, voce per voce, e il prezzo firmato non cambia in corso d’opera.',
-  'Prima di proporre un rifacimento completo verifichiamo sempre se una manutenzione mirata basta: capita piu spesso di quanto si creda.',
+  'Prima di proporre un rifacimento completo verifichiamo sempre se una manutenzione mirata basta: capita più spesso di quanto si creda.',
 ]
 
 export const zone: Zona[] = site.areaServed.map((nome, i) => ({

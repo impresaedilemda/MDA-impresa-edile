@@ -40,10 +40,10 @@ export const serviziPagine: PaginaSEO[] = [
         ],
       },
       {
-        h2: 'Tempi e ordine di grandezza dei costi',
+        h2: 'Tempi di cantiere e cosa determina davvero il costo',
         paragrafi: [
-          'Una villetta media di 120 fino a 160 metri quadri di falda si chiude in 8 fino a 15 giorni lavorativi, ponteggio compreso, meteo permettendo. Come ordine di grandezza economico, un rifacimento completo con isolamento parte da circa 150 euro al metro quadro e cresce con struttura, manto e complessità della copertura.',
-          'Il numero esatto per la vostra casa esce solo dal sopralluogo, che è gratuito e senza impegno: saliamo, misuriamo, fotografiamo e vi consegniamo un preventivo scritto voce per voce, valido e bloccato.',
+          'Una villetta media dai 120 ai 160 metri quadri di falda si chiude fra gli 8 e i 15 giorni lavorativi, ponteggio compreso, meteo permettendo. Sul costo pesano cinque fattori: lo stato dell’orditura portante, che si scopre davvero solo a manto smontato, il tipo di manto scelto, lo spessore e la qualità del pacchetto isolante, l’accessibilità del cantiere per ponteggio e mezzi, e le lattonerie, che i preventivi bassi alleggeriscono per prime ed è quasi sempre lì che le sorprese arrivano dopo.',
+          'Per questo il prezzo del vostro tetto esce dal sopralluogo, che è gratuito e senza impegno: saliamo, misuriamo, fotografiamo, e il preventivo arriva per iscritto, voce per voce, con computo metrico analitico, così lo potete confrontare riga per riga.',
         ],
       },
       {
@@ -86,7 +86,7 @@ export const serviziPagine: PaginaSEO[] = [
     eyebrow: 'Il servizio',
     h1: 'Manutenzione tetto: riparazioni mirate prima che diventino cantieri',
     intro:
-      'La manutenzione è l’intervento più redditizio che esista per una copertura: una tegola sostituita oggi costa cento volte meno del danno che farebbe fra due inverni. Interveniamo su tutta l’area fra Veneto e Friuli-Venezia Giulia con riparazioni rapide e documentate.',
+      'La manutenzione è l’intervento più redditizio che esista per una copertura: una tegola crepata oggi si sostituisce in mezza giornata, la stessa tegola lasciata dov’è diventa una porzione di tavolato da rifare dopo due inverni. Interveniamo su tutta l’area fra Veneto e Friuli-Venezia Giulia con riparazioni rapide e documentate.',
     sezioni: [
       {
         h2: 'Cosa ripariamo ogni settimana',
@@ -110,9 +110,9 @@ export const serviziPagine: PaginaSEO[] = [
         ],
       },
       {
-        h2: 'Quanto costa e in che tempi interveniamo',
+        h2: 'In quanto tempo interveniamo e da cosa dipende la spesa',
         paragrafi: [
-          'Le riparazioni puntuali partono da poche centinaia di euro e la maggior parte si chiude in mezza giornata o una giornata. Per le urgenze con acqua in casa diamo priorità al sopralluogo e, dove serve, mettiamo subito in sicurezza con copertura provvisoria.',
+          'Una riparazione puntuale si chiude quasi sempre in mezza giornata o in una giornata di lavoro, con un impegno economico minimo rispetto a un rifacimento completo: è la ragione per cui conviene chiamarci alla prima tegola scivolata e non alla terza macchia sul soffitto. Per le urgenze con acqua in casa diamo priorità al sopralluogo e, dove serve, mettiamo subito in sicurezza con copertura provvisoria.',
           'Il preventivo è scritto anche per i lavori piccoli: cifra chiara prima di iniziare, fattura regolare dopo. La serietà non dipende dalla dimensione del cantiere.',
         ],
       },
@@ -154,7 +154,7 @@ export const serviziPagine: PaginaSEO[] = [
       {
         h2: 'Guaina bituminosa o membrana sintetica',
         paragrafi: [
-          'La doppia guaina bituminosa con finitura ardesiata resta la soluzione più diffusa: affidabile, riparabile, con un rapporto fra costo e durata onesto, 15 fino a 25 anni se posata a regola d’arte. Le membrane sintetiche in PVC o TPO, saldate ad aria calda, superano i 25 anni, pesano meno e si prestano ai tetti praticabili e alle geometrie complesse.',
+          'La doppia guaina bituminosa con finitura ardesiata resta la soluzione più diffusa: affidabile, riparabile, con un rapporto fra costo e durata onesto, fra i 15 e i 25 anni se posata a regola d’arte. Le membrane sintetiche in PVC o TPO, saldate ad aria calda, superano i 25 anni, pesano meno e si prestano ai tetti praticabili e alle geometrie complesse.',
           'La scelta dipende da uso della superficie, pendenze, budget e stato del supporto. Ve le proponiamo a confronto nel preventivo, con i pro e i contro scritti, non raccontati.',
         ],
       },
@@ -175,7 +175,7 @@ export const serviziPagine: PaginaSEO[] = [
       {
         h2: 'Tempi, durata e garanzia',
         paragrafi: [
-          'Un lastrico solare condominiale medio si impermeabiliza in 4 fino a 8 giorni lavorativi in funzione di superficie e stratigrafia; un terrazzo privato anche in meno. Il meteo comanda: si lavora su superfici asciutte, ed è per questo che programmiamo con margini.',
+          'Un lastrico solare condominiale medio si impermeabilizza fra i 4 e gli 8 giorni lavorativi in funzione di superficie e stratigrafia; un terrazzo privato anche in meno. Il meteo comanda: si lavora su superfici asciutte, ed è per questo che programmiamo con margini.',
           'La garanzia scritta di 10 anni copre il lavoro eseguito, e sui condomini consegniamo la documentazione nel formato che serve all’amministratore per il fascicolo e il riparto.',
         ],
       },
@@ -250,7 +250,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
       {
         q: 'Quanto dura la sostituzione completa su una villetta?',
-        a: 'Di norma 2 fino a 4 giorni lavorativi, piegatura in cantiere compresa. Sui condomini dipende dallo sviluppo dei fronti e dall’accessibilità, e il cronoprogramma è parte del preventivo.',
+        a: 'Di norma da 2 a 4 giorni lavorativi, piegatura in cantiere compresa. Sui condomini dipende dallo sviluppo dei fronti e dall’accessibilità, e il cronoprogramma è parte del preventivo.',
       },
       {
         q: 'Il rame si può montare vicino ad altri metalli?',
@@ -275,7 +275,7 @@ export const serviziPagine: PaginaSEO[] = [
     eyebrow: 'Il servizio',
     h1: 'Verniciatura tetto in 4 fasi: protezione vera, non una mano di colore',
     intro:
-      'Un manto in tegole che si è opacizzato e ha iniziato ad assorbire acqua non è da rifare: è da proteggere, adesso. Il nostro ciclo in quattro fasi ferma il degrado, blocca il muschio e restituisce alla copertura idrorepellenza e colore per altri 12 fino a 18 anni.',
+      'Un manto in tegole che si è opacizzato e ha iniziato ad assorbire acqua non è da rifare: è da proteggere, adesso. Il nostro ciclo in quattro fasi ferma il degrado, blocca il muschio e restituisce alla copertura idrorepellenza e colore per un altro decennio abbondante.',
     sezioni: [
       {
         h2: 'Le quattro fasi del ciclo',
@@ -301,7 +301,7 @@ export const serviziPagine: PaginaSEO[] = [
       {
         h2: 'Cantiere, tempi e garanzia',
         paragrafi: [
-          'Su una villetta media il ciclo completo dura 4 fino a 6 giorni lavorativi, meteo permettendo: servono superfici asciutte e temperature miti, quindi la stagione utile va da tarda primavera a inizio autunno. Lavoriamo con linee vita temporanee o ponteggio secondo la copertura.',
+          'Su una villetta media il ciclo completo dura fra i 4 e i 6 giorni lavorativi, meteo permettendo: servono superfici asciutte e temperature miti, quindi la stagione utile va da tarda primavera a inizio autunno. Lavoriamo con linee vita temporanee o ponteggio secondo la copertura.',
           'A fine lavoro ricevete il report fotografico del ciclo applicato, fase per fase, e la garanzia scritta sul lavoro eseguito. Il prodotto dichiarato nel preventivo è quello che sale sul tetto: marca e scheda tecnica alla mano.',
         ],
       },
@@ -309,7 +309,7 @@ export const serviziPagine: PaginaSEO[] = [
     faq: [
       {
         q: 'Quanto costa la verniciatura rispetto al rifacimento?',
-        a: 'Una frazione: come ordine di grandezza il ciclo completo vale il 15 fino al 25 percento di un rifacimento. È esattamente il suo senso economico: spendere una parte oggi per rimandare di 15 anni la spesa grande.',
+        a: 'Molto meno, ed è esattamente il suo senso economico: si spende una frazione di quello che costerebbe rifare la copertura e si rimanda la spesa grande di una quindicina di anni. Quanto valga sul vostro tetto dipende da superficie, stato del manto e accessibilità, e lo scriviamo voce per voce nel preventivo dopo il sopralluogo, che è gratuito.',
       },
       {
         q: 'Il tetto cambia colore in modo uniforme?',
@@ -317,7 +317,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
       {
         q: 'Quanto dura il trattamento?',
-        a: 'Su supporto sano e con ciclo completo, 12 fino a 18 anni in funzione dell’esposizione. Le zone d’ombra con ricrescita di muschio si trattano puntualmente durante i normali controlli di manutenzione.',
+        a: 'Su supporto sano e con ciclo completo, dai 12 ai 18 anni in funzione dell’esposizione. Le zone d’ombra con ricrescita di muschio si trattano puntualmente durante i normali controlli di manutenzione.',
       },
       {
         q: 'Verniciate anche coppi antichi o lamiere?',

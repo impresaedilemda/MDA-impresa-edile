@@ -1,17 +1,98 @@
 ---
 /**
  * Recensioni: carosello orizzontale con frecce, come richiesto.
- * Sei carte nello stile del design Figma (stelle a contorno, citazione,
- * avatar circolare, nome e localita), scorrevoli con snap e trascinabili
- * col dito su mobile. Senza JS la lista resta scorrevole nativamente.
+ * Carte nello stile del design Figma (stelle, citazione, avatar circolare,
+ * nome e località), scorrevoli con snap e trascinabili col dito su mobile.
+ * Senza JS la lista resta scorrevole nativamente.
+ *
+ * Da dove arrivano le carte:
+ *  - se il cliente ha scritto almeno una recensione visibile nel pannello,
+ *    si mostrano SOLO quelle (remoto.recensioni, lette alla build da
+ *    Supabase, già filtrate e ordinate);
+ *  - altrimenti la sezione NON esiste. Le sei recensioni di esempio sono
+ *    state rimosse il 9 settembre 2026: recensioni scritte da noi sono una
+ *    pratica commerciale ingannevole per l'allegato I del Codice del consumo
+ *    (d.lgs. 26/2023), non un segnaposto grafico. Meglio nessuna sezione che
+ *    una sezione finta.
+ *
+ * Fra una build e l'altra il cliente può aggiungere, nascondere o riordinare:
+ * lo script in fondo chiede al database la versione più fresca e, solo se gli
+ * id sono cambiati, ricostruisce le carte clonando il <template> qui sotto.
  */
 import { reviews, reviewsSection, reviewsArePlaceholder } from '../config/content'
+import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
+
+type Carta = {
+  id: string
+  nome: string
+  localita: string
+  testo: string
+  foto: string | null
+  voto: number
+}
+
+/** Il voto resta fra 1 e 5 qualunque cosa arrivi dal database. */
+const votoValido = (voto: number) => Math.min(5, Math.max(1, Math.round(Number(voto) || 5)))
+
+/** Le prime lettere di ogni parola del nome, al massimo due: "Maria Teresa B." diventa "MT". */
+const iniziali = (nome: string) =>
+  nome
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parola) => parola[0]?.toUpperCase() ?? '')
+    .join('')
+
+const etichettaVoto = (voto: number) => `Valutazione ${voto} ${voto === 1 ? 'stella' : 'stelle'} su 5`
+
+const carte: Carta[] =
+  remoto.recensioni.length > 0
+    ? remoto.recensioni.map((r) => ({
+        id: r.id,
+        nome: r.nome,
+        localita: r.localita,
+        testo: r.testo,
+        foto: r.foto,
+        voto: votoValido(r.voto),
+      }))
+    : reviews.map((r, i) => ({
+        id: `recensione-${i + 1}`,
+        nome: r.name,
+        localita: r.place,
+        testo: r.text,
+        foto: r.avatar,
+        voto: votoValido(r.rating ?? 5),
+      }))
+
+/** Nessuna recensione reale, nessuna sezione: niente vetrina inventata. */
+const mostraSezione = carte.length > 0
+
+/* Un solo tracciato per le due stelle: quella a contorno e quella piena
+   differiscono solo per il riempimento. */
+const tracciatoStella =
+  'M7.8143 1.38595C7.75835 1.42068 7.71322 1.47037 7.684 1.5294L6.14467 4.64873C6.04314 4.85424 5.89319 5.03201 5.70772 5.16672C5.52226 5.30143 5.30684 5.38906 5.08 5.42206L1.63667 5.9254C1.57114 5.93466 1.50952 5.96215 1.45885 6.00472C1.40818 6.04729 1.37048 6.10324 1.35005 6.16619C1.32962 6.22914 1.32729 6.29656 1.34331 6.36078C1.35933 6.42499 1.39306 6.48342 1.44067 6.5294L3.93133 8.95406C4.09574 9.11416 4.21873 9.31186 4.28969 9.53009C4.36066 9.74833 4.37746 9.98055 4.33867 10.2067L3.75133 13.6327C3.73991 13.6979 3.74699 13.7649 3.77177 13.8262C3.79656 13.8875 3.83805 13.9406 3.89153 13.9795C3.94501 14.0184 4.00834 14.0415 4.0743 14.0462C4.14026 14.0509 4.20622 14.037 4.26467 14.0061L7.34267 12.3874C7.54552 12.2809 7.77121 12.2252 8.00033 12.2252C8.22945 12.2252 8.45514 12.2809 8.658 12.3874L11.7367 14.0061C11.7951 14.0372 11.8612 14.0513 11.9272 14.0467C11.9933 14.0421 12.0568 14.019 12.1104 13.9801C12.164 13.9411 12.2055 13.8879 12.2303 13.8265C12.2551 13.7651 12.2622 13.698 12.2507 13.6327L11.6627 10.2061C11.624 9.97999 11.6409 9.74791 11.7119 9.52981C11.7828 9.31172 11.9057 9.11413 12.07 8.95406L14.5607 6.52873C14.6079 6.4827 14.6413 6.42437 14.6571 6.36035C14.6728 6.29633 14.6704 6.22917 14.65 6.16647C14.6296 6.10376 14.5921 6.04801 14.5417 6.00553C14.4912 5.96304 14.4299 5.93552 14.3647 5.92606L10.9207 5.42206C10.6941 5.3888 10.479 5.30106 10.2937 5.16636C10.1085 5.03167 9.95879 4.85404 9.85733 4.64873L8.31733 1.5294C8.28812 1.47037 8.24299 1.42068 8.18703 1.38595C8.13108 1.35121 8.06653 1.3328 8.00067 1.3328C7.93481 1.3328 7.87026 1.35121 7.8143 1.38595Z'
 ---
 
+{mostraSezione && (
 <section id="recensioni" class="scroll-mt-24 overflow-hidden bg-crema py-16 md:py-[120px]">
+  {/* Stella definita una sola volta e richiamata con il tag use: sei carte
+      per cinque stelle sono trenta copie dello stesso disegno nell'HTML.
+      La versione piena serve ai voti sotto le cinque stelle. Nascosta con
+      una classe e non con uno style inline: la CSP non ammette attributi
+      style. Il clipPath dell'export Figma non serve: era un rettangolo
+      grande quanto l'intero viewBox, e il tratto della stella ci sta dentro. */}
+  <svg xmlns="http://www.w3.org/2000/svg" class="hidden" aria-hidden="true">
+    <symbol id="rec-stella" viewBox="0 0 16 16" fill="none">
+      <path d={tracciatoStella} stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="rec-stella-piena" viewBox="0 0 16 16" fill="none">
+      <path d={tracciatoStella} fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+  </svg>
+
   <div class="contenitore flex flex-col gap-10 md:gap-14">
-    <!-- Intestazione + frecce -->
+    {/* Intestazione + frecce */}
     <div class="rivela flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div class="flex max-w-[800px] flex-col gap-4">
         <p class="occhiello">{reviewsSection.eyebrow}</p>
@@ -38,97 +119,335 @@ import Icona from './Icona.astro'
       </div>
     </div>
 
-    <!-- Nastro scorrevole -->
-    <ul
-      id="rec-nastro"
-      data-scroll-nativo
-      class="rivela -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-6 overflow-x-auto px-5 pb-4 md:-mx-10 md:scroll-px-10 md:px-10 xl:-mx-20 xl:scroll-px-20 xl:px-20 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      {
-        reviews.map((recensione) => (
-          <li class="flex w-[85vw] max-w-[405px] shrink-0 snap-start flex-col gap-6 rounded-lg border border-nero/8 bg-white p-8 md:p-10">
-            <div class="flex gap-[3px] text-taupe" role="img" aria-label="Valutazione 5 stelle su 5">
-              {Array.from({ length: 5 }).map(() => (
-                <Icona nome="reviews-star" class="size-4" />
-              ))}
-            </div>
-
-            <blockquote class="flex-1">
-              <p class="font-sans text-[15px] leading-relaxed text-nero">"{recensione.text}"</p>
-            </blockquote>
-
-            <footer class="flex items-center gap-4">
-              <img
-                src={recensione.avatar}
-                alt={`Foto profilo di ${recensione.name}`}
-                width="56"
-                height="56"
-                loading="lazy"
-                decoding="async"
-                class="size-14 rounded-full object-cover"
-              />
-              <div class="flex flex-col gap-0.5">
-                <p class="font-sans text-[15px] font-bold text-nero">{recensione.name}</p>
-                <p class="font-sans text-[13px] text-taupe">{recensione.place}</p>
+    {/* Nastro scorrevole. Il ruolo di regione sta sul contenitore, non sulla
+        lista: sovrascriverebbe il ruolo di list e le voci resterebbero
+        senza genitore nell'albero di accessibilità. */}
+    <div role="region" aria-roledescription="carosello" aria-label="Recensioni dei clienti">
+      <ul
+        id="rec-nastro"
+        data-scroll-nativo
+        tabindex="0"
+        class="rivela -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-6 overflow-x-auto px-5 pb-4 md:-mx-10 md:scroll-px-10 md:px-10 xl:-mx-20 xl:scroll-px-20 xl:px-20 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {
+          carte.map((carta) => (
+            <li
+              data-id={carta.id}
+              class="flex w-[85vw] max-w-[405px] shrink-0 snap-start flex-col gap-6 rounded-lg border border-nero/8 bg-white p-8 md:p-10"
+            >
+              <div class="flex gap-[3px] text-taupe" role="img" aria-label={etichettaVoto(carta.voto)}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <svg class="size-4" fill="none" aria-hidden="true">
+                    <use href={i < carta.voto ? '#rec-stella-piena' : '#rec-stella'} />
+                  </svg>
+                ))}
               </div>
-            </footer>
-          </li>
-        ))
-      }
-    </ul>
 
-    <!-- Indicatori di posizione -->
-    <div id="rec-punti" class="flex justify-center gap-2" aria-hidden="true">
-      {reviews.map(() => <span class="size-1.5 rounded-full bg-nero/15 transition-all duration-300" />)}
+              <blockquote class="flex-1">
+                <p class="font-sans text-[15px] leading-relaxed text-nero">"{carta.testo}"</p>
+              </blockquote>
+
+              <footer class="flex items-center gap-4">
+                {carta.foto ? (
+                  <img
+                    src={carta.foto}
+                    alt={`Foto profilo di ${carta.nome}`}
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                    decoding="async"
+                    class="size-14 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <span
+                    class="flex size-14 shrink-0 items-center justify-center rounded-full bg-sabbia font-sans font-bold text-taupe"
+                    aria-hidden="true"
+                  >
+                    {iniziali(carta.nome) || '?'}
+                  </span>
+                )}
+                <div class="flex flex-col gap-0.5">
+                  <p class="font-sans text-[15px] font-bold text-nero">{carta.nome}</p>
+                  <p class="font-sans text-[13px] text-taupe">{carta.localita}</p>
+                </div>
+              </footer>
+            </li>
+          ))
+        }
+      </ul>
     </div>
 
-    {
-      import.meta.env.DEV && reviewsArePlaceholder && (
-        <div class="border-l-4 border-red-500 bg-red-50 p-5 text-sm text-red-900">
-          <strong class="font-semibold">Promemoria di sviluppo, non visibile in produzione.</strong>
-          <br />
-          Recensioni, nomi e volti sono segnaposto generati. Vanno sostituiti con recensioni reali del
-          profilo Google (con foto profilo reali), poi impostare <code>reviewsArePlaceholder = false</code> in
-          <code>src/config/content.ts</code> per attivare i dati strutturati AggregateRating. Pubblicare
-          recensioni inventate viola le linee guida di Google e la normativa sulla pubblicità.
-        </div>
-      )
-    }
+    {/* Indicatori di posizione. L'altezza sta sempre su h-1.5: cambia solo
+        la larghezza, così il punto attivo non dipende da align-items: stretch. */}
+    <div id="rec-punti" class="flex justify-center gap-2" aria-hidden="true">
+      {carte.map(() => <span class="h-1.5 w-1.5 rounded-full bg-nero/15 transition-all duration-300" />)}
+    </div>
+
+    <p id="rec-stato" class="sr-only" aria-live="polite" />
   </div>
+
+  {/* La forma di una carta, per lo script che ridisegna la lista quando il
+      pannello ha novità. Le classi sono le stesse del markup qui sopra, così
+      Tailwind le compila una volta sola. Foto e tondo con le iniziali ci sono
+      entrambi: lo script tiene quello che serve e toglie l'altro. */}
+  <template id="rec-modello">
+    <li class="flex w-[85vw] max-w-[405px] shrink-0 snap-start flex-col gap-6 rounded-lg border border-nero/8 bg-white p-8 md:p-10">
+      <div data-parte="stelle" class="flex gap-[3px] text-taupe" role="img" aria-label="Valutazione 5 stelle su 5">
+        <svg class="size-4" fill="none" aria-hidden="true"><use href="#rec-stella" /></svg>
+        <svg class="size-4" fill="none" aria-hidden="true"><use href="#rec-stella" /></svg>
+        <svg class="size-4" fill="none" aria-hidden="true"><use href="#rec-stella" /></svg>
+        <svg class="size-4" fill="none" aria-hidden="true"><use href="#rec-stella" /></svg>
+        <svg class="size-4" fill="none" aria-hidden="true"><use href="#rec-stella" /></svg>
+      </div>
+      <blockquote class="flex-1">
+        <p data-parte="testo" class="font-sans text-[15px] leading-relaxed text-nero"></p>
+      </blockquote>
+      <footer class="flex items-center gap-4">
+        <img
+          data-parte="foto"
+          alt=""
+          width="56"
+          height="56"
+          loading="lazy"
+          decoding="async"
+          class="size-14 shrink-0 rounded-full object-cover"
+        />
+        <span
+          data-parte="iniziali"
+          class="flex size-14 shrink-0 items-center justify-center rounded-full bg-sabbia font-sans font-bold text-taupe"
+          aria-hidden="true"
+        ></span>
+        <div class="flex flex-col gap-0.5">
+          <p data-parte="nome" class="font-sans text-[15px] font-bold text-nero"></p>
+          <p data-parte="localita" class="font-sans text-[13px] text-taupe"></p>
+        </div>
+      </footer>
+    </li>
+  </template>
 </section>
+)}
+
+{
+  import.meta.env.DEV && reviewsArePlaceholder && remoto.recensioni.length === 0 && (
+    <div class="contenitore py-10">
+      <div class="border-l-4 border-red-500 bg-red-50 p-5 text-sm text-red-900">
+        <strong class="font-semibold">Promemoria di sviluppo, non visibile in produzione.</strong>
+        <br />
+        La sezione recensioni non viene disegnata: <code>reviews</code> in <code>src/config/content.ts</code>
+        e vuoto di proposito e il pannello non ha ancora nessuna recensione visibile. Compare da sola
+        appena il cliente ne pubblica una vera. Non rimettere qui recensioni scritte da noi: e una
+        pratica commerciale ingannevole (allegato I del Codice del consumo, d.lgs. 26/2023) oltre che
+        una violazione delle linee guida di Google.
+      </div>
+    </div>
+  )
+}
 
 <script>
+  import { leggiPubblico } from '../lib/vetrina-cliente'
+  import type { Recensione } from '../lib/tipi'
+
+  /** Quello che chiediamo al database: i soli campi che finiscono in una carta. */
+  type CartaRemota = Pick<Recensione, 'id' | 'nome' | 'localita' | 'testo' | 'voto' | 'foto'>
+
   const nastro = document.getElementById('rec-nastro')
   const indietro = document.getElementById('rec-indietro') as HTMLButtonElement | null
   const avanti = document.getElementById('rec-avanti') as HTMLButtonElement | null
-  const punti = [...(document.getElementById('rec-punti')?.children ?? [])] as HTMLElement[]
+  const contenitorePunti = document.getElementById('rec-punti')
+  const stato = document.getElementById('rec-stato')
+  const modello = document.getElementById('rec-modello') as HTMLTemplateElement | null
 
-  if (nastro && indietro && avanti) {
-    const carte = [...nastro.children] as HTMLElement[]
+  /* --- CAROSELLO ------------------------------------------------------------ */
+
+  /** Stacca i gestori del giro precedente: dopo un aggiornamento si riparte da zero. */
+  let ferma: (() => void) | null = null
+
+  /**
+   * Misura le carte presenti nel nastro e collega frecce, punti e annuncio.
+   * Si può chiamare più volte: ogni chiamata prima smonta la precedente,
+   * così una lista ricostruita non si porta dietro gestori doppi.
+   */
+  function avviaCarosello(lista: HTMLElement, btnIndietro: HTMLButtonElement, btnAvanti: HTMLButtonElement) {
+    ferma?.()
+    ferma = null
+
+    const carte = [...lista.children] as HTMLElement[]
+    const punti = [...(contenitorePunti?.children ?? [])] as HTMLElement[]
 
     const passo = () => (carte[1]?.offsetLeft ?? 0) - (carte[0]?.offsetLeft ?? 0)
 
-    const aggiorna = () => {
-      const max = nastro.scrollWidth - nastro.clientWidth
-      indietro.disabled = nastro.scrollLeft <= 4
-      avanti.disabled = nastro.scrollLeft >= max - 4
+    // Scorrimento massimo tenuto in cache: leggerlo dentro il gestore di
+    // scroll costringerebbe il browser a ricalcolare il layout a ogni evento.
+    let max = 0
+    let indiceAttivo = -1
+    let annuncia = false
 
-      // Punto attivo in base al progresso reale dello scorrimento: cosi
+    const aggiorna = () => {
+      btnIndietro.disabled = lista.scrollLeft <= 4
+      btnAvanti.disabled = lista.scrollLeft >= max - 4
+
+      // Punto attivo in base al progresso reale dello scorrimento: così
       // l'ultimo punto si accende quando si arriva in fondo, anche se le
       // ultime carte non possono mai raggiungere il bordo sinistro.
-      const indice = max > 0 ? Math.round((nastro.scrollLeft / max) * (punti.length - 1)) : 0
+      const indice = max > 0 ? Math.round((lista.scrollLeft / max) * (punti.length - 1)) : 0
+      if (indice === indiceAttivo) return
+      indiceAttivo = indice
+
       punti.forEach((p, i) => {
         p.classList.toggle('bg-nero', i === indice)
         p.classList.toggle('bg-nero/15', i !== indice)
         p.classList.toggle('w-5', i === indice)
-        p.classList.toggle('size-1.5', i !== indice)
+        p.classList.toggle('w-1.5', i !== indice)
+      })
+      // Solo dopo la prima misura: al caricamento non c'è niente da annunciare.
+      if (stato && annuncia) stato.textContent = `Recensione ${indice + 1} di ${punti.length}`
+    }
+
+    // Unico punto in cui si legge il layout: al cambio di dimensioni.
+    const misura = () => {
+      max = lista.scrollWidth - lista.clientWidth
+      aggiorna()
+    }
+
+    let inAttesa = false
+    const alloScroll = () => {
+      if (inAttesa) return
+      inAttesa = true
+      requestAnimationFrame(() => {
+        inAttesa = false
+        aggiorna()
       })
     }
 
-    indietro.addEventListener('click', () => nastro.scrollBy({ left: -passo(), behavior: 'smooth' }))
-    avanti.addEventListener('click', () => nastro.scrollBy({ left: passo(), behavior: 'smooth' }))
-    nastro.addEventListener('scroll', aggiorna, { passive: true })
-    window.addEventListener('resize', aggiorna, { passive: true })
-    aggiorna()
+    const vaiIndietro = () => lista.scrollBy({ left: -passo(), behavior: 'smooth' })
+    const vaiAvanti = () => lista.scrollBy({ left: passo(), behavior: 'smooth' })
+
+    btnIndietro.addEventListener('click', vaiIndietro)
+    btnAvanti.addEventListener('click', vaiAvanti)
+    lista.addEventListener('scroll', alloScroll, { passive: true })
+
+    // ResizeObserver al posto di window.resize: raggruppa le misure in un
+    // solo callback per fotogramma e intercetta anche il testo che cambia
+    // dimensione dopo il caricamento dei font.
+    let osservatore: ResizeObserver | null = null
+    if ('ResizeObserver' in window) {
+      osservatore = new ResizeObserver(misura)
+      osservatore.observe(lista)
+      if (carte[0]) osservatore.observe(carte[0])
+    } else {
+      window.addEventListener('resize', misura, { passive: true })
+    }
+
+    ferma = () => {
+      btnIndietro.removeEventListener('click', vaiIndietro)
+      btnAvanti.removeEventListener('click', vaiAvanti)
+      lista.removeEventListener('scroll', alloScroll)
+      window.removeEventListener('resize', misura)
+      osservatore?.disconnect()
+    }
+
+    misura()
+    annuncia = true
+  }
+
+  /* --- AGGIORNAMENTO DAL PANNELLO ------------------------------------------- */
+
+  const votoValido = (voto: number) => Math.min(5, Math.max(1, Math.round(Number(voto) || 5)))
+
+  const iniziali = (nome: string) =>
+    nome
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parola) => parola[0]?.toUpperCase() ?? '')
+      .join('')
+
+  const etichettaVoto = (voto: number) => `Valutazione ${voto} ${voto === 1 ? 'stella' : 'stelle'} su 5`
+
+  /** Solo indirizzi che un'immagine può davvero mostrare: il resto vale come "senza foto". */
+  const fotoSicura = (foto: string | null): string | null => {
+    const valore = (foto ?? '').trim()
+    if (/^https:\/\//i.test(valore) || valore.startsWith('/') || /^data:image\//i.test(valore)) return valore
+    return null
+  }
+
+  /** Una carta nuova, clonata dal template e riempita solo con textContent e attributi. */
+  function costruisciCarta(r: CartaRemota): HTMLElement | null {
+    if (!modello) return null
+    const frammento = modello.content.cloneNode(true) as DocumentFragment
+    const carta = frammento.querySelector('li')
+    if (!carta) return null
+
+    carta.setAttribute('data-id', String(r.id))
+
+    const voto = votoValido(r.voto)
+    const stelle = carta.querySelector<HTMLElement>('[data-parte="stelle"]')
+    if (stelle) {
+      stelle.setAttribute('aria-label', etichettaVoto(voto))
+      stelle.querySelectorAll('use').forEach((uso, i) => {
+        uso.setAttribute('href', i < voto ? '#rec-stella-piena' : '#rec-stella')
+      })
+    }
+
+    const testo = carta.querySelector<HTMLElement>('[data-parte="testo"]')
+    if (testo) testo.textContent = `"${r.testo ?? ''}"`
+
+    const nome = String(r.nome ?? '')
+    const foto = carta.querySelector<HTMLImageElement>('[data-parte="foto"]')
+    const tondo = carta.querySelector<HTMLElement>('[data-parte="iniziali"]')
+    const indirizzo = fotoSicura(r.foto)
+    if (indirizzo && foto) {
+      foto.setAttribute('src', indirizzo)
+      foto.setAttribute('alt', `Foto profilo di ${nome}`)
+      tondo?.remove()
+    } else {
+      if (tondo) tondo.textContent = iniziali(nome) || '?'
+      foto?.remove()
+    }
+
+    const etichettaNome = carta.querySelector<HTMLElement>('[data-parte="nome"]')
+    if (etichettaNome) etichettaNome.textContent = nome
+    const localita = carta.querySelector<HTMLElement>('[data-parte="localita"]')
+    if (localita) localita.textContent = String(r.localita ?? '')
+
+    return carta
+  }
+
+  /**
+   * Chiede al database le recensioni visibili adesso. Se gli id sono gli
+   * stessi resi alla build non tocca niente; altrimenti ricostruisce carte e
+   * punti e fa ripartire il carosello con le misure nuove.
+   */
+  async function aggiornaDalPannello(lista: HTMLElement, btnIndietro: HTMLButtonElement, btnAvanti: HTMLButtonElement) {
+    if (!modello || !contenitorePunti) return
+    if (!import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUPABASE_ANON_KEY) return
+
+    const fresche = await leggiPubblico<CartaRemota>(
+      'recensioni?select=id,nome,localita,testo,voto,foto&visibile=eq.true&order=ordine.asc,creato.desc',
+    )
+    if (!fresche || fresche.length === 0) return
+
+    const rese = [...lista.children].map((li) => li.getAttribute('data-id') ?? '')
+    const nuove = fresche.map((r) => String(r.id))
+    if (rese.length === nuove.length && rese.every((id, i) => id === nuove[i])) return
+
+    const carte = fresche.map(costruisciCarta).filter((c): c is HTMLElement => c !== null)
+    if (carte.length === 0) return
+
+    const punti = carte.map(() => {
+      const punto = document.createElement('span')
+      punto.className = 'h-1.5 w-1.5 rounded-full bg-nero/15 transition-all duration-300'
+      return punto
+    })
+
+    lista.replaceChildren(...carte)
+    contenitorePunti.replaceChildren(...punti)
+    lista.scrollLeft = 0
+    avviaCarosello(lista, btnIndietro, btnAvanti)
+  }
+
+  if (nastro && indietro && avanti) {
+    avviaCarosello(nastro, indietro, avanti)
+    void aggiornaDalPannello(nastro, indietro, avanti)
   }
 </script>

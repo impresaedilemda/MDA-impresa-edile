@@ -21,62 +21,66 @@ export type PaginaSEO = {
 export const guide: PaginaSEO[] = [
   {
     slug: 'costo-rifacimento-tetto',
-    metaTitle: 'Costo Rifacimento Tetto al mq: Guida ai Prezzi',
+    metaTitle: 'Costo Rifacimento Tetto: da Cosa Dipende Davvero',
     metaDescription:
-      'Quanto costa rifare un tetto al metro quadro: fasce di prezzo per tegole, coppi e lamiera, cosa incide davvero sul costo e come leggere un preventivo serio.',
+      'Quanto costa rifare un tetto: cosa incide davvero sul prezzo al metro quadro fra tegole, coppi e lamiera, quali voci deve contenere il computo metrico e come leggere un preventivo serio.',
     eyebrow: 'Guida ai costi',
-    h1: 'Quanto costa rifare un tetto: prezzi al metro quadro e cosa li muove',
+    h1: 'Quanto costa rifare un tetto: i fattori che decidono il preventivo',
     intro:
-      'Il costo del rifacimento di un tetto oscilla in Italia fra 150 e 300 euro al metro quadro per una copertura a falde, e la distanza fra i due estremi non è casuale. Dipende da cinque fattori misurabili che un preventivo serio deve mettere nero su bianco.',
+      'Due tetti della stessa metratura possono avere preventivi molto distanti, e la differenza quasi mai sta nel margine dell’impresa: sta in cinque voci che si misurano solo salendo sulla copertura. Lo stato della struttura portante, il tipo di manto, il pacchetto isolante, l’accessibilità del cantiere e le lattonerie. Un preventivo serio le mette nero su bianco una per una.',
     sezioni: [
       {
-        h2: 'Le fasce di prezzo per tipo di manto',
+        h2: 'Quanto pesa il tipo di manto sul costo finale',
         paragrafi: [
-          'Con tegole in laterizio o cemento un rifacimento completo si colloca in genere fra 150 e 220 euro al metro quadro, isolamento incluso. I coppi tradizionali salgono fra 180 e 260 euro, perché la posa è più lenta e spesso una parte dei coppi vecchi si recupera come strato di coperta, il che richiede selezione manuale pezzo per pezzo. La lamiera aggraffata parte da 200 euro e supera facilmente i 300 nelle finiture in zinco titanio: costa il materiale, ma soprattutto la manodopera specializzata di lattoneria.',
-          'Su un tetto piano il rifacimento dell’impermeabilizzazione con doppia guaina bituminosa vale indicativamente 60 fino a 100 euro al metro quadro, e una membrana sintetica PVC o TPO fra 80 e 130. Sono lavorazioni diverse da un tetto a falde e vanno confrontate solo fra loro.',
+          'A parità di pacchetto isolante, le tegole in laterizio o cemento restano la soluzione più contenuta: prodotto diffuso, posa rapida, ricambi reperibili ovunque. I coppi tradizionali salgono, perché la posa è più lenta e spesso una parte dei coppi vecchi si recupera come strato di coperta, il che richiede selezione manuale pezzo per pezzo. La lamiera aggraffata è la più impegnativa delle tre, soprattutto nelle finiture in zinco titanio: incide il materiale, ma incide molto di più la manodopera specializzata di lattoneria.',
+          'Su un tetto piano il confronto cambia del tutto. Il rifacimento dell’impermeabilizzazione con doppia guaina bituminosa resta la via più economica, mentre una membrana sintetica in PVC o TPO richiede un investimento maggiore, sia nel materiale sia nella saldatura eseguita da posatori certificati. Sono lavorazioni diverse da un tetto a falde e vanno confrontate solo fra loro, mai con il prezzo di una copertura in tegole.',
         ],
       },
       {
         h2: 'I cinque fattori che spostano davvero il prezzo',
         paragrafi: [
-          'Primo: lo stato della struttura portante. Se travi e tavolato sono sani si lavora sopra; se il legno è marcito in gronda o attorno al camino, il ripristino strutturale può valere da solo 30 fino a 60 euro al metro quadro in più. Secondo: il pacchetto isolante scelto, perché 12 centimetri di lana di roccia costano meno di 20 centimetri di fibra di legno ad alta densità. Terzo: la ventilazione, cioè listellatura doppia e colmo ventilato.',
-          'Quarto: l’accessibilità del cantiere. Un tetto a due falde su una villetta con giardino permette ponteggio e gru senza problemi; un centro storico con vicoli stretti impone piattaforme, permessi di occupazione suolo e tempi doppi di movimentazione. Quinto: le lattonerie, spesso sottovalutate nei preventivi bassi, perché canali, scossaline e converse in rame incidono per 15 fino a 30 euro al metro quadro di copertura.',
+          'Primo: lo stato della struttura portante. Se travi e tavolato sono sani si lavora sopra; se il legno è marcito in gronda o attorno al camino, il ripristino strutturale diventa una voce a sé che da sola può pesare quanto una parte consistente del manto nuovo. Secondo: il tipo di manto, di cui abbiamo appena visto il peso fra tegole, coppi e lamiera. Terzo: il pacchetto isolante, perché 12 centimetri di lana di roccia costano meno di 20 di fibra di legno ad alta densità, e con l’isolante va contata la ventilazione, cioè listellatura doppia e colmo ventilato.',
+          'Quarto: l’accessibilità del cantiere. Un tetto a due falde su una villetta con giardino permette ponteggio e gru senza problemi; un centro storico con vicoli stretti impone piattaforme, permessi di occupazione suolo e tempi doppi di movimentazione. Quinto: le lattonerie, la voce più sottovalutata dei preventivi bassi, perché canali, scossaline e converse in rame pesano sul totale molto più di quanto ci si aspetti, ed è quasi sempre la prima riga che viene alleggerita per far scendere il numero finale.',
         ],
       },
       {
         h2: 'Come leggere un computo metrico serio',
         paragrafi: [
-          'Un preventivo affidabile elenca le voci separate: smontaggio e smaltimento del vecchio manto, eventuale ripristino strutturale a misura, barriera al vapore, isolamento con spessore e marca dichiarati, listellatura, manto nuovo con modello preciso, lattonerie al metro lineare, ponteggio e sicurezza. Se leggete una riga sola con un prezzo a corpo, non avete modo di confrontare nulla e ogni imprevisto diventerà un extra.',
+          'Un preventivo affidabile elenca le voci separate: smontaggio e smaltimento del vecchio manto, eventuale ripristino strutturale a misura, barriera al vapore, isolamento con spessore e marca dichiarati, listellatura, manto nuovo con modello preciso, lattonerie al metro lineare, ponteggio e sicurezza, e l’aliquota IVA applicata. Se leggete una riga sola con un prezzo a corpo, non avete modo di confrontare nulla e ogni imprevisto diventerà un extra.',
           'Nel nostro metodo il computo è analitico e il prezzo firmato è bloccato: gli imprevisti strutturali documentati si concordano per iscritto prima di proseguire, mai a voce durante i lavori.',
         ],
       },
       {
         h2: 'La trappola del preventivo troppo basso',
         paragrafi: [
-          'Un prezzo molto sotto la fascia di mercato di solito nasconde una di queste tre cose: lo smaltimento non incluso, che riappare a fine cantiere come sorpresa; l’isolamento sottodimensionato o assente, che si paga per vent’anni in bolletta; oppure manodopera in subappalto a cottimo, dove la velocità conta più della posa corretta. Un tetto rifatto male costa due volte: la seconda quando lo si rifà davvero.',
+          'Un preventivo molto più basso degli altri che avete raccolto di solito nasconde una di queste tre cose: lo smaltimento non incluso, che riappare a fine cantiere come sorpresa; l’isolamento sottodimensionato o assente, che si paga per vent’anni in bolletta; oppure manodopera in subappalto a cottimo, dove la velocità conta più della posa corretta. Un tetto rifatto male costa due volte: la seconda quando lo si rifà davvero.',
           'Il modo più semplice per proteggersi è chiedere a ogni impresa lo stesso elenco di voci e confrontare riga per riga. Le differenze vere emergono subito.',
         ],
       },
       {
-        h2: 'Quanto incidono dimensione e forma del tetto',
+        h2: 'Prezzo al metro quadro: quanto incidono dimensione e forma del tetto',
         paragrafi: [
-          'Il prezzo al metro quadro scende leggermente sulle superfici grandi, perché ponteggio e organizzazione pesano meno per unità. Sale invece con la complessità: abbaini, compluvi, torrette e falde spezzate moltiplicano tagli, converse e punti critici. Un tetto semplice di 200 metri quadri può costare meno al metro di un tetto elaborato di 120.',
+          'Il prezzo al metro quadro scende leggermente sulle superfici grandi, perché ponteggio e organizzazione pesano meno per unità. Sale invece con la complessità: abbaini, compluvi, torrette e falde spezzate moltiplicano tagli, converse e punti critici. Una falda ampia e regolare può costare meno al metro quadro di una superficie più piccola ma piena di abbaini e compluvi.',
           'Per questo diffidiamo delle cifre date al telefono: senza salire sulla copertura e misurare falde, punti critici e stato del legno, qualsiasi numero è una scommessa. Il nostro sopralluogo con preventivo scritto è gratuito proprio per togliere questa incertezza.',
         ],
       },
     ],
     faq: [
       {
-        q: 'Lo smaltimento del vecchio manto è incluso nei prezzi indicati?',
-        a: 'Nelle fasce indicate sì, ed è così che dovrebbe essere in ogni preventivo serio: lo smaltimento in discarica autorizzata con formulario è una voce esplicita del computo. Se un preventivo non la cita, chiedete dove andrà a finire il materiale rimosso.',
+        q: 'Lo smaltimento del vecchio manto è incluso nel preventivo?',
+        a: 'Nei nostri computi sì, ed è così che dovrebbe essere in ogni preventivo serio: lo smaltimento in discarica autorizzata con formulario è una voce esplicita, con la sua quantità e la sua riga. Se un preventivo non la cita, chiedete dove andrà a finire il materiale rimosso e chi lo paga.',
       },
       {
         q: 'Il prezzo firmato può cambiare durante i lavori?',
         a: 'Nel nostro metodo no: il computo metrico firmato è bloccato. Se aprendo il tetto emerge un danno strutturale non visibile prima, documentiamo con foto, quantifichiamo per iscritto e proseguiamo solo dopo la vostra approvazione.',
       },
       {
+        q: 'I prezzi del preventivo sono IVA inclusa?',
+        a: 'Nel nostro computo metrico l’aliquota IVA applicata è sempre indicata in modo esplicito, così sapete da subito come leggere le cifre che confrontate. L’aliquota corretta dipende dal tipo di intervento e dall’immobile, e la verifichiamo per il vostro caso in fase di preventivo.',
+      },
+      {
         q: 'Conviene rifare il tetto insieme ad altri lavori di casa?',
-        a: 'Spesso sì, per una ragione pratica: il ponteggio. Montarlo una volta sola per tetto e facciata fa risparmiare una voce che da sola vale migliaia di euro. Se avete in programma entrambi gli interventi, pianificarli insieme è quasi sempre la scelta giusta.',
+        a: 'Spesso sì, per una ragione pratica: il ponteggio. Montarlo una volta sola per tetto e facciata fa risparmiare per intero una delle voci più pesanti del computo. Se avete in programma entrambi gli interventi, pianificarli insieme è quasi sempre la scelta giusta.',
       },
       {
         q: 'Chiedete un acconto? Come funzionano i pagamenti?',
@@ -93,7 +97,7 @@ export const guide: PaginaSEO[] = [
     slug: 'infiltrazioni-tetto',
     metaTitle: 'Infiltrazioni dal Tetto: Cause e Cosa Fare Subito',
     metaDescription:
-      'Infiltrazioni d’acqua dal tetto: i segnali d’allarme, perché la macchia non indica il punto d’ingresso, come si trova la vera origine e cosa succede se si aspetta.',
+      'Infiltrazioni dal tetto: i segnali d’allarme, perché la macchia non indica il punto d’ingresso, come si trova la vera origine e cosa succede se si aspetta.',
     eyebrow: 'Guida alle infiltrazioni',
     h1: 'Infiltrazioni dal tetto: come nascono e come si trovano davvero',
     intro:
@@ -116,7 +120,7 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Dove entra l’acqua: i punti critici ricorrenti',
         paragrafi: [
-          'In vent’anni di cantieri i colpevoli sono quasi sempre gli stessi: le converse attorno ai camini con la sigilatura secca o la scossalina scollata; i compluvi dove due falde si incontrano e l’acqua corre concentrata; le tegole rotte o spostate dal vento; i lucernari con le guarnizioni invecchiate; le grondaie ostruite che fanno tracimare l’acqua all’indietro sotto la prima fila di tegole.',
+          'Nei nostri cantieri i colpevoli sono quasi sempre gli stessi: le converse attorno ai camini con la sigillatura secca o la scossalina scollata; i compluvi dove due falde si incontrano e l’acqua corre concentrata; le tegole rotte o spostate dal vento; i lucernari con le guarnizioni invecchiate; le grondaie ostruite che fanno tracimare l’acqua all’indietro sotto la prima fila di tegole.',
           'Su tetti piani il punto debole sono i risvolti verticali della guaina sui parapetti e gli scarichi: quando il bocchettone si stacca dalla membrana, l’acqua entra direttamente nel pacchetto.',
         ],
       },
@@ -124,13 +128,13 @@ export const guide: PaginaSEO[] = [
         h2: 'Come si trova il punto esatto',
         paragrafi: [
           'La ricerca comincia salendo sul tetto e ripercorrendo il flusso dell’acqua a ritroso dal punto della macchia verso il colmo, ispezionando ogni attraversamento: camini, antenne, lucernari, compluvi. Fotografiamo ogni anomalia e, nei casi ostinati, facciamo una prova d’acqua controllata bagnando una zona per volta finché l’ingresso non si conferma.',
-          'Solo a quel punto ha senso riparare: sostituire le tegole compromesse, rifare la conversa, sigillare a regola d’arte. Una riparazione mirata costa una frazione del rifacimento e, fatta bene, chiude la storia.',
+          'Solo a quel punto ha senso riparare: sostituire le tegole compromesse, rifare la conversa, sigillare a regola d’arte. Una riparazione mirata si esaurisce spesso in mezza giornata di lavoro e costa una frazione di un rifacimento completo: fatta bene, chiude la storia per anni.',
         ],
       },
       {
         h2: 'Cosa succede se si aspetta',
         paragrafi: [
-          'Il legno bagnato non si asciuga mai del tutto dentro un pacchetto di copertura: marcisce. Una trave che oggi si ripara con qualche centinaio di euro, dopo due inverni può richiedere il ripristino strutturale di una porzione di falda. L’isolamento bagnato perde gran parte del potere isolante e non lo recupera: si sostituisce.',
+          'Il legno bagnato non si asciuga mai del tutto dentro un pacchetto di copertura: marcisce. Una trave che oggi si risana con un intervento puntuale, dopo due inverni può richiedere il ripristino strutturale di un’intera porzione di falda. L’isolamento bagnato perde gran parte del potere isolante e non lo recupera: si sostituisce.',
           'La regola pratica è semplice: alla prima macchia che si allarga dopo la pioggia, far salire qualcuno sul tetto entro poche settimane. È l’intervento con il miglior rapporto fra tempestività e risparmio di tutta l’edilizia.',
         ],
       },
@@ -163,7 +167,7 @@ export const guide: PaginaSEO[] = [
     slug: 'tetto-ventilato-coibentazione',
     metaTitle: 'Tetto Ventilato e Coibentazione: Come Funziona',
     metaDescription:
-      'Tetto ventilato e coibentazione spiegati bene: la camera d’aria, i materiali isolanti a confronto, gli spessori giusti per il Nord-Est e il problema della condensa.',
+      'Tetto ventilato e coibentazione: la camera d’aria, i materiali isolanti a confronto, gli spessori giusti per il Nord-Est e il problema della condensa.',
     eyebrow: 'Guida tecnica',
     h1: 'Tetto ventilato e coibentazione: come funzionano e perché convengono',
     intro:
@@ -172,7 +176,7 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Come funziona la camera di ventilazione',
         paragrafi: [
-          'Il tetto ventilato ha un’intercapedine continua di almeno 4 fino a 6 centimetri fra l’isolante e il manto, aperta in gronda e in colmo. L’aria entra dal basso, si scalda a contatto con le tegole e sale per effetto camino uscendo dal colmo ventilato: un flusso costante che d’estate smaltisce il calore prima che attraversi l’isolante e d’inverno porta via il vapore che migra dagli ambienti riscaldati.',
+          'Il tetto ventilato ha un’intercapedine continua di almeno 4 centimetri, meglio 6, fra l’isolante e il manto, aperta in gronda e in colmo. L’aria entra dal basso, si scalda a contatto con le tegole e sale per effetto camino uscendo dal colmo ventilato: un flusso costante che d’estate smaltisce il calore prima che attraversi l’isolante e d’inverno porta via il vapore che migra dagli ambienti riscaldati.',
           'Il risultato misurabile: nei mesi caldi la temperatura all’intradosso può scendere sensibilmente rispetto a un tetto non ventilato, e nei mesi freddi l’isolante resta asciutto, quindi mantiene le prestazioni dichiarate. Un isolante umido lavora male, qualunque sia il materiale.',
         ],
       },
@@ -233,7 +237,7 @@ export const guide: PaginaSEO[] = [
     slug: 'rimozione-amianto-eternit',
     metaTitle: 'Rimozione Amianto dal Tetto: Iter e Regole',
     metaDescription:
-      'Rimozione amianto ed eternit dalle coperture: quando è obbligatoria, chi può farla, come funzionano piano di lavoro e smaltimento tracciato, con cosa si sostituisce.',
+      'Rimozione amianto ed eternit dal tetto: quando è obbligatoria, chi può eseguirla, come funzionano piano di lavoro e smaltimento, con cosa si sostituisce.',
     eyebrow: 'Guida alla bonifica',
     h1: 'Rimozione amianto ed eternit dal tetto: come funziona la bonifica fatta bene',
     intro:
@@ -271,7 +275,10 @@ export const guide: PaginaSEO[] = [
         h2: 'Tempi e documenti che restano al committente',
         paragrafi: [
           'Fra presentazione del piano di lavoro, attesa tecnica e cantiere, una bonifica media si chiude in poche settimane; la rimozione fisica delle lastre su un capannone standard dura pochi giorni. A fine lavori il committente riceve i formulari con quarta copia e la documentazione fotografica: è il fascicolo che dimostra, anche in caso di vendita futura, che la bonifica è stata eseguita a norma.',
-          'Gestiamo l’intero percorso come referente unico, dalla valutazione iniziale alla nuova copertura finita, con squadra interna anche per la parte edile.',
+          /* La rimozione dell’amianto e riservata alle imprese iscritte
+             all’Albo Gestori Ambientali: qui si dichiara esattamente quale
+             parte eseguiamo noi e quale spetta all’impresa abilitata. */
+          'Vi restiamo accanto lungo tutto il percorso: valutazione dello stato delle lastre, raccordo con l’impresa iscritta all’Albo Gestori Ambientali che esegue la bonifica, e poi la nuova copertura posata dalla nostra squadra interna a cantiere bonificato. Un solo interlocutore per voi, invece di due imprese da mettere d’accordo.',
         ],
       },
     ],
@@ -312,8 +319,8 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Tegole in laterizio e cemento: lo standard che funziona',
         paragrafi: [
-          'La tegola portoghese o marsigliese in laterizio è il compromesso più equilibrato dell’edilizia residenziale: dura 40 fino a 60 anni, si ripara pezzo per pezzo, ha un costo di posa contenuto e un mercato di ricambi praticamente eterno. Le tegole in cemento costano un po’ meno e pesano un po’ di più, con una resa estetica più uniforme.',
-          'Il limite è la pendenza: sotto il 30 percento circa la tenuta all’acqua dipende sempre più dalla membrana sottostante, e sotto certe soglie il manto in tegole semplicemente non è più il prodotto giusto.',
+          'La tegola portoghese o marsigliese in laterizio è il compromesso più equilibrato dell’edilizia residenziale: dura dai 40 ai 60 anni, si ripara pezzo per pezzo, ha un costo di posa contenuto e un mercato di ricambi praticamente eterno. Le tegole in cemento costano un po’ meno e pesano un po’ di più, con una resa estetica più uniforme.',
+          'Il limite è la pendenza: sotto il 30 per cento circa la tenuta all’acqua dipende sempre più dalla membrana sottostante, e sotto certe soglie il manto in tegole semplicemente non è più il prodotto giusto.',
         ],
       },
       {
@@ -333,7 +340,7 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Peso, struttura e grandine: i vincoli concreti',
         paragrafi: [
-          'Un manto in coppi con sottocoppo pesa anche 70 fino a 90 chili al metro quadro, le tegole 40 fino a 50, la lamiera meno di 10. Su strutture datate o orditure leggere questa differenza decide da sola: alleggerire la copertura durante un rifacimento riduce il carico permanente e migliora il comportamento dell’edificio.',
+          'Un manto in coppi con sottocoppo pesa dai 70 ai 90 chili al metro quadro, le tegole fra 40 e 50, la lamiera meno di 10. Su strutture datate o orditure leggere questa differenza decide da sola: alleggerire la copertura durante un rifacimento riduce il carico permanente e migliora il comportamento dell’edificio.',
           'Quanto alla grandine, sempre più frequente nel Nord-Est: il laterizio di qualità e i metalli spessi si difendono bene, i materiali economici e le lastre sottili no. È una domanda da fare esplicitamente su ogni prodotto, con la classe di resistenza alla mano.',
         ],
       },
@@ -348,11 +355,11 @@ export const guide: PaginaSEO[] = [
     faq: [
       {
         q: 'Qual è la pendenza minima per un tetto in tegole?',
-        a: 'Indicativamente il 30 percento per una posa standard; sotto questa soglia servono accorgimenti specifici e sotto ancora si passa a manti continui o metallici. La valutazione esatta dipende da esposizione al vento, lunghezza della falda e prodotto scelto.',
+        a: 'Indicativamente il 30 per cento per una posa standard; sotto questa soglia servono accorgimenti specifici e sotto ancora si passa a manti continui o metallici. La valutazione esatta dipende da esposizione al vento, lunghezza della falda e prodotto scelto.',
       },
       {
         q: 'Si possono riutilizzare i miei vecchi coppi?',
-        a: 'Spesso sì, ed è una pratica che valorizza la casa: i coppi sani si selezionano a mano e si riposano come strato di coperta sopra elementi nuovi. Contate un recupero tipico fra il 40 e il 70 percento, in base all’età e allo stato del manto.',
+        a: 'Spesso sì, ed è una pratica che valorizza la casa: i coppi sani si selezionano a mano e si riposano come strato di coperta sopra elementi nuovi. Contate un recupero tipico fra il 40 e il 70 per cento, in base all’età e allo stato del manto.',
       },
       {
         q: 'La lamiera rende la casa più calda d’estate?',
@@ -377,7 +384,7 @@ export const guide: PaginaSEO[] = [
     eyebrow: 'Guida alla prevenzione',
     h1: 'Manutenzione programmata del tetto: la checklist che evita i danni grossi',
     intro:
-      'Quasi nessun tetto crolla di colpo: si consuma in silenzio, un inverno alla volta, finché un danno da cento euro non è diventato un cantiere da diecimila. Il controllo annuale è la polizza più economica che una copertura possa avere.',
+      'Quasi nessun tetto crolla di colpo: si consuma in silenzio, un inverno alla volta, finché quello che era un intervento da mezza giornata non è diventato un cantiere con ponteggio e settimane di lavoro. Il controllo annuale è la polizza più economica che una copertura possa avere.',
     sezioni: [
       {
         h2: 'Quando controllare: il calendario giusto',
@@ -396,7 +403,7 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Perché i piccoli danni diventano grandi',
         paragrafi: [
-          'Una tegola crepata lascia passare poca acqua: troppo poca per vederla in casa, abbastanza per bagnare listello e membrana a ogni pioggia. Il gelo allarga la crepa, il legno bagnato non si asciuga più, e dopo due o tre stagioni la riparazione da cento euro è diventata la sostituzione di una porzione di tavolato con ponteggio.',
+          'Una tegola crepata lascia passare poca acqua: troppo poca per vederla in casa, abbastanza per bagnare listello e membrana a ogni pioggia. Il gelo allarga la crepa, il legno bagnato non si asciuga più, e dopo due o tre stagioni quella che era la sostituzione di una tegola è diventata la sostituzione di una porzione di tavolato, con ponteggio e giorni di cantiere.',
           'La matematica della manutenzione è tutta qui: intercettare il danno quando costa poco. Su un parco di coperture seguite con regolarità, gli interventi urgenti quasi spariscono.',
         ],
       },
@@ -418,7 +425,7 @@ export const guide: PaginaSEO[] = [
     faq: [
       {
         q: 'Quanto costa un controllo annuale del tetto?',
-        a: 'Per una copertura residenziale standard è una cifra a tre cifre basse, che include salita, verifica completa, pulizia dei canali e report fotografico. Nei contratti di manutenzione programmata il costo unitario scende ulteriormente.',
+        a: 'Costa una frazione di qualsiasi riparazione, ed è tutto il suo senso. La visita comprende salita in sicurezza, verifica di manto, lattonerie e punti critici, pulizia dei canali di gronda e report fotografico datato. Quanto incida sul vostro tetto dipende da superficie, altezza e accessibilità della copertura, e lo scriviamo nel preventivo dopo averla vista. Nei contratti di manutenzione programmata la singola visita pesa ancora meno.',
       },
       {
         q: 'Il controllo col drone sostituisce la salita sul tetto?',
@@ -460,13 +467,13 @@ export const guide: PaginaSEO[] = [
         h2: 'Alluminio e acciaio preverniciato: il compromesso moderno',
         paragrafi: [
           'L’alluminio preverniciato è leggero, non arrugginisce, arriva in decine di colori e con la profilatura in continuo si realizzano canali senza giunti intermedi anche su fronti lunghi. L’acciaio preverniciato è più rigido e regge meglio scale e carichi accidentali, con una gamma colori simile.',
-          'Durata realistica: 25 fino a 40 anni in funzione dell’esposizione. Per la maggior parte dell’edilizia residenziale contemporanea è il miglior rapporto fra prestazioni e prezzo, a patto di non risparmiare sugli spessori.',
+          'Durata realistica: fra i 25 e i 40 anni in funzione dell’esposizione. Per la maggior parte dell’edilizia residenziale contemporanea è il miglior rapporto fra prestazioni e prezzo, a patto di non risparmiare sugli spessori.',
         ],
       },
       {
         h2: 'PVC: quando ha senso e quando no',
         paragrafi: [
-          'Il PVC costa poco, si monta in fretta e non teme la corrosione. Ma si muove molto con il caldo e il freddo, e ogni movimento lavora sui giunti a incastro con le loro guarnizioni: dopo 10 fino a 15 anni di sole e gelo, le perdite ai giunti sono la norma, non l’eccezione. L’esposizione ai raggi solari inoltre lo infragilisce.',
+          'Il PVC costa poco, si monta in fretta e non teme la corrosione. Ma si muove molto con il caldo e il freddo, e ogni movimento lavora sui giunti a incastro con le loro guarnizioni: dopo dieci o quindici anni di sole e gelo, le perdite ai giunti sono la norma, non l’eccezione. L’esposizione ai raggi solari inoltre lo infragilisce.',
           'Ha senso su tettoie, ricoveri e strutture secondarie dove la sostituzione periodica è accettabile. Sulla casa principale è un risparmio iniziale che si ripaga in manutenzione.',
         ],
       },
@@ -496,7 +503,7 @@ export const guide: PaginaSEO[] = [
       },
       {
         q: 'Quanto costa rifare le grondaie di una casa media?',
-        a: 'Dipende da materiale e sviluppo in metri lineari: come ordine di grandezza, un impianto completo in alluminio su una villetta vale poche migliaia di euro, il rame circa il doppio. Nel preventivo trovate metri lineari, sezioni e spessori dichiarati.',
+        a: 'Dipende da tre cose: i metri lineari di sviluppo dei canali, il materiale scelto e il numero di pluviali e pezzi speciali da piegare. L’alluminio preverniciato è la soluzione più contenuta, il rame è il gradino più alto, per materiale e lavorazione. Nel preventivo trovate metri lineari, sezioni e spessori dichiarati, così potete confrontare le offerte voce per voce.',
       },
       {
         q: 'Le griglie parafoglie servono davvero?',
@@ -517,13 +524,13 @@ export const guide: PaginaSEO[] = [
     eyebrow: 'Guida alla verniciatura',
     h1: 'Verniciatura del tetto: quando conviene davvero e come si fa a regola d’arte',
     intro:
-      'La verniciatura è l’intervento più frainteso del settore: venduta spesso come una mano di colore, è in realtà un ciclo tecnico che può regalare quindici anni di vita a una copertura sana, o buttare via migliaia di euro se applicata sul tetto sbagliato.',
+      'La verniciatura è l’intervento più frainteso del settore: venduta spesso come una mano di colore, è in realtà un ciclo tecnico che può regalare quindici anni di vita a una copertura sana, oppure essere denaro buttato via se applicata sul tetto sbagliato.',
     sezioni: [
       {
         h2: 'Quando la verniciatura ha senso',
         paragrafi: [
           'Il candidato ideale è un tetto in tegole di cemento o laterizio strutturalmente sano: niente infiltrazioni attive, manto completo, superficie che si è opacizzata, ha perso il colore e ha iniziato ad assorbire acqua e a farsi colonizzare dal muschio. In questo scenario il ciclo completo ferma il degrado, ripristina l’idrorepellenza e restituisce alla copertura un aspetto uniforme.',
-          'Il momento giusto è proprio questo: quando il manto è ancora recuperabile. Aspettare che le tegole si sfoglino significa passare dalla verniciatura al rifacimento, con un ordine di grandezza di differenza nel costo.',
+          'Il momento giusto è proprio questo: quando il manto è ancora recuperabile. Aspettare che le tegole si sfoglino significa passare dalla verniciatura al rifacimento, cioè da un intervento di manutenzione a un cantiere completo, con tutta la differenza di impegno e di spesa che comporta.',
         ],
       },
       {
@@ -550,7 +557,7 @@ export const guide: PaginaSEO[] = [
       {
         h2: 'Durata, stagioni e manutenzione del trattamento',
         paragrafi: [
-          'Un ciclo completo eseguito su supporto sano dura indicativamente 12 fino a 18 anni, in funzione di esposizione e finitura scelta. La stagione ideale va da tarda primavera a inizio autunno: servono superfici asciutte, niente gelo notturno e qualche giorno stabile per i tempi di ricopertura fra le mani.',
+          'Un ciclo completo eseguito su supporto sano dura indicativamente dai 12 ai 18 anni, in funzione di esposizione e finitura scelta. La stagione ideale va da tarda primavera a inizio autunno: servono superfici asciutte, niente gelo notturno e qualche giorno stabile per i tempi di ricopertura fra le mani.',
           'La manutenzione successiva è minima: un controllo periodico e la rimozione tempestiva di eventuali ricolonizzazioni di muschio nelle zone d’ombra. Il report fotografico di fine cantiere documenta il ciclo applicato, utile anche per la garanzia.',
         ],
       },
@@ -562,7 +569,7 @@ export const guide: PaginaSEO[] = [
       },
       {
         q: 'Quanto dura il cantiere di una verniciatura?',
-        a: 'Su una villetta media il ciclo completo si chiude in 4 fino a 6 giorni lavorativi, meteo permettendo: un giorno di lavaggio e biocida, uno di ripristini, poi primer e le due mani di finitura con i loro tempi di asciugatura.',
+        a: 'Su una villetta media il ciclo completo si chiude fra i 4 e i 6 giorni lavorativi, meteo permettendo: un giorno di lavaggio e biocida, uno di ripristini, poi primer e le due mani di finitura con i loro tempi di asciugatura.',
       },
       {
         q: 'Che colori si possono scegliere?',

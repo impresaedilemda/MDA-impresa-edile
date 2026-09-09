@@ -1,14 +1,41 @@
 ---
 /**
- * Configuratore in 6 passi dentro la card scura del design.
- * Passi 1-4 a scelta singola (selezione + Avanti), passo 5 luogo,
- * passo 6 contatti. I dati partono via email e via WhatsApp.
+ * Configuratore-calcolatore dentro la card scura del design.
+ * Passi: intervento, materiale (dinamico per servizio), edificio,
+ * superficie, urgenza, luogo, contatti. Mentre l'utente sceglie, in fondo
+ * alla card compare una stima indicativa calcolata dal listino in
+ * src/config/calcolatore.ts; la stessa stima parte nell'email insieme a
+ * tutte le risposte. Chi sceglie "Non lo so, vorrei un sopralluogo" salta
+ * il materiale e non riceve nessuna cifra.
  */
 import { quizSteps, quoteSection } from '../config/content'
-import { site } from '../config/site'
+import { site, waLink } from '../config/site'
+import {
+  servizi,
+  fasceSuperficie,
+  fattoriEdificio,
+  fattorePiccolaSuperficie,
+  sogliaSopralluogoObbligatorio,
+  disclaimerStima,
+} from '../config/calcolatore'
 import Icona from './Icona.astro'
 
-const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
+// intervento + materiale + (edificio, superficie, urgenza) + luogo + contatti.
+// Il totale mostrato all'utente e ricalcolato dallo script quando il passo
+// materiale viene saltato.
+const totaleStep = quizSteps.length + 3
+
+// Il listino viaggia nel DOM come JSON: lo script resta un modulo esterno
+// senza define:vars e la pagina non cambia peso percepito.
+// `<` va sfuggito: un solo "</script" dentro un'etichetta futura del listino
+// spezzerebbe il blocco JSON e con lui tutto il configuratore.
+const datiCalcolatore = JSON.stringify({
+  servizi,
+  fasceSuperficie,
+  fattoriEdificio,
+  fattorePiccolaSuperficie,
+  sogliaSopralluogoObbligatorio,
+}).replace(/</g, '\\u003c')
 ---
 
 <section id="preventivo" class="scroll-mt-24 bg-sabbia py-16 md:py-[120px]">
@@ -32,7 +59,16 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
 
     <!-- Card scura del configuratore -->
     <div class="rivela">
-      <div id="quiz" class="rounded-xl bg-nero p-6 text-white shadow-[0_16px_16px_rgba(0,0,0,0.25)] sm:p-12">
+      <div
+        id="quiz"
+        class="relative overflow-hidden rounded-xl bg-nero p-6 text-white shadow-[0_16px_16px_rgba(0,0,0,0.25)] sm:p-12"
+        data-whatsapp={site.whatsapp}
+        data-endpoint={site.formEndpoint}
+        data-chiave={site.formAccessKey}
+        data-telefono={site.phone}
+        data-telefono-href={site.phoneHref}
+        data-totale={totaleStep}
+      >
         <!-- Intestazione + avanzamento -->
         <div id="quiz-avanzamento" class="flex flex-col gap-4">
           <div class="flex items-baseline justify-between gap-4">
@@ -40,7 +76,7 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
               {quoteSection.cardLabel}
             </p>
             <p class="font-sans text-xs font-semibold text-sabbia/80">
-              Fase <span id="quiz-numero">1</span> di {totaleStep}
+              Fase <span id="quiz-numero">1</span> di <span id="quiz-totale">{totaleStep}</span>
             </p>
           </div>
           <div
@@ -52,37 +88,32 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
             aria-valuenow="1"
             id="quiz-barra-contenitore"
           >
-            <div id="quiz-barra" class="h-full bg-sabbia transition-[width] duration-500 ease-out" style="width: 16.6%"></div>
+            <div id="quiz-barra" class="h-full bg-sabbia transition-[width] duration-500 ease-out" style="width: 14.3%"></div>
           </div>
         </div>
 
-        <form id="quiz-form" novalidate class="mt-8">
-          <!-- Passi a scelta singola -->
+        <form id="quiz-form" method="post" novalidate class="mt-8">
+          <!-- Passo 1: intervento -->
           {
-            quizSteps.map((passo, i) => (
-              <fieldset class="quiz-passo" data-passo={i} hidden>
+            [quizSteps[0]].map((passo) => (
+              <fieldset class="quiz-passo" data-passo={0} hidden>
                 <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">{passo.question}</legend>
 
                 <div class="mt-6 grid gap-2.5">
                   {passo.options.map((opzione) => (
-                    <button
-                      type="button"
-                      class="quiz-opzione group flex items-center gap-3.5 rounded-[6px] border border-white/8 bg-nero-2 px-5 py-4 text-left font-sans text-[15px] font-medium text-white transition-all hover:border-white/30"
-                      data-campo={passo.key}
-                      data-valore={opzione.label}
-                      aria-pressed="false"
-                    >
+                    <label class="quiz-opzione group flex cursor-pointer items-center gap-3.5 rounded-[6px] border border-white/8 bg-nero-2 px-5 py-4 text-left font-sans text-[15px] font-medium text-white transition-all hover:border-white/30">
+                      <input type="radio" class="quiz-scelta sr-only" name={passo.key} value={opzione.label} />
                       {opzione.icon && <Icona nome={`quote-form-${opzione.icon}`} class="size-5 shrink-0" />}
                       <span class="flex-1">{opzione.label}</span>
                       <span class="quiz-radio flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-white/60" aria-hidden="true">
                         <span class="hidden size-2 rounded-full bg-nero" />
                       </span>
-                    </button>
+                    </label>
                   ))}
                 </div>
 
                 <div class="mt-7 flex gap-3">
-                  <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1" disabled={i === 0}>
+                  <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1" disabled>
                     Indietro
                   </button>
                   <button type="button" class="quiz-avanti btn btn-bianco flex-1 !shadow-none" disabled>
@@ -93,9 +124,86 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
             ))
           }
 
+          <!-- Passo 2: materiale/dettaglio, opzioni riempite dallo script in base al servizio -->
+          <fieldset class="quiz-passo" data-passo={1} hidden>
+            <legend id="quiz-materiale-domanda" class="font-display text-[1.75rem] font-normal leading-snug text-white">
+              Che tipo di materiale preferisci?
+            </legend>
+
+            <div id="quiz-materiale-opzioni" class="mt-6 grid gap-2.5"></div>
+
+            <template id="quiz-materiale-riga">
+              <label class="quiz-opzione group flex cursor-pointer items-center gap-3.5 rounded-[6px] border border-white/8 bg-nero-2 px-5 py-4 text-left font-sans text-[15px] font-medium text-white transition-all hover:border-white/30">
+                <input type="radio" class="quiz-scelta sr-only" name="materiale" value="" />
+                <span class="flex-1">
+                  <span class="quiz-mat-label block"></span>
+                  <span class="quiz-mat-hint mt-0.5 hidden text-[12.5px] font-normal leading-snug opacity-65"></span>
+                </span>
+                <span class="quiz-radio flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-white/60" aria-hidden="true">
+                  <span class="hidden size-2 rounded-full bg-nero"></span>
+                </span>
+              </label>
+            </template>
+
+            <div class="mt-7 flex gap-3">
+              <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1">Indietro</button>
+              <button type="button" class="quiz-avanti btn btn-bianco flex-1 !shadow-none" disabled>Avanti</button>
+            </div>
+          </fieldset>
+
+          <!-- Passi 3-5: edificio, superficie, urgenza -->
+          {
+            quizSteps.slice(1).map((passo, i) => (
+              <fieldset class="quiz-passo" data-passo={i + 2} hidden>
+                <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">{passo.question}</legend>
+
+                <div class="mt-6 grid gap-2.5">
+                  {passo.options.map((opzione) => (
+                    <label class="quiz-opzione group flex cursor-pointer items-center gap-3.5 rounded-[6px] border border-white/8 bg-nero-2 px-5 py-4 text-left font-sans text-[15px] font-medium text-white transition-all hover:border-white/30">
+                      <input type="radio" class="quiz-scelta sr-only" name={passo.key} value={opzione.label} />
+                      {opzione.icon && <Icona nome={`quote-form-${opzione.icon}`} class="size-5 shrink-0" />}
+                      <span class="flex-1">{opzione.label}</span>
+                      <span class="quiz-radio flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-white/60" aria-hidden="true">
+                        <span class="hidden size-2 rounded-full bg-nero" />
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                {passo.key === 'superficie' && (
+                  <div class="mt-4">
+                    <label for="q-mq" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
+                      Metri quadri esatti, se li conosci <span class="font-normal normal-case tracking-normal text-sabbia/50">(facoltativo)</span>
+                    </label>
+                    <input
+                      id="q-mq"
+                      name="mq_esatti"
+                      type="number"
+                      inputmode="numeric"
+                      min="10"
+                      max="2000"
+                      step="5"
+                      placeholder="Es. 140"
+                      class="campo"
+                      aria-describedby="quiz-mq-avviso"
+                    />
+                    <p id="quiz-mq-avviso" hidden class="mt-2 font-sans text-[12.5px] leading-snug text-sabbia/70"></p>
+                  </div>
+                )}
+
+                <div class="mt-7 flex gap-3">
+                  <button type="button" class="quiz-indietro btn btn-contorno-scuro flex-1">Indietro</button>
+                  <button type="button" class="quiz-avanti btn btn-bianco flex-1 !shadow-none" disabled>
+                    Avanti
+                  </button>
+                </div>
+              </fieldset>
+            ))
+          }
+
           <!-- Passo luogo -->
-          <fieldset class="quiz-passo" data-passo={quizSteps.length} hidden>
-            <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">Dove si trova l'immobile?</legend>
+          <fieldset class="quiz-passo" data-passo={quizSteps.length + 1} hidden>
+            <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">Dove si trova l’immobile?</legend>
             <p class="mt-2 font-sans text-sm text-sabbia/70">Serve a capire se rientra nella nostra zona di intervento.</p>
 
             <div class="mt-6 grid gap-4 sm:grid-cols-2">
@@ -103,7 +211,16 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
                 <label for="q-comune" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
                   Comune
                 </label>
-                <input id="q-comune" name="comune" type="text" autocomplete="address-level2" placeholder={site.city} class="campo" required />
+                <input
+                  id="q-comune"
+                  name="comune"
+                  type="text"
+                  autocomplete="address-level2"
+                  placeholder={site.city}
+                  class="campo"
+                  aria-describedby="quiz-errore"
+                  required
+                />
               </div>
               <div>
                 <label for="q-cap" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
@@ -129,7 +246,7 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
           </fieldset>
 
           <!-- Passo contatti -->
-          <fieldset class="quiz-passo" data-passo={quizSteps.length + 1} hidden>
+          <fieldset class="quiz-passo" data-passo={quizSteps.length + 2} hidden>
             <legend class="font-display text-[1.75rem] font-normal leading-snug text-white">Come ti ricontattiamo?</legend>
             <p class="mt-2 font-sans text-sm text-sabbia/70">
               Ti chiamiamo entro {site.responseHours} ore. Niente call center, niente messaggi automatici.
@@ -141,13 +258,22 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
                   <label for="q-nome" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
                     Nome e cognome
                   </label>
-                  <input id="q-nome" name="nome" type="text" autocomplete="name" class="campo" required />
+                  <input id="q-nome" name="nome" type="text" autocomplete="name" class="campo" aria-describedby="quiz-errore" required />
                 </div>
                 <div>
                   <label for="q-telefono" class="mb-2 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-sabbia/80">
                     Telefono
                   </label>
-                  <input id="q-telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" class="campo" required />
+                  <input
+                    id="q-telefono"
+                    name="telefono"
+                    type="tel"
+                    autocomplete="tel"
+                    inputmode="tel"
+                    class="campo"
+                    aria-describedby="quiz-errore"
+                    required
+                  />
                 </div>
               </div>
 
@@ -167,22 +293,20 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
               </div>
 
               <label class="flex items-start gap-3 font-sans text-[13px] leading-relaxed text-sabbia/80">
-                <input id="q-privacy" name="privacy" type="checkbox" required class="mt-0.5 size-4 shrink-0 accent-[#EAE5DA]" />
+                <input id="q-privacy" name="privacy" type="checkbox" aria-describedby="quiz-errore" required class="mt-0.5 size-4 shrink-0 accent-[#EAE5DA]" />
                 <span>
-                  Ho letto l'<a href="/privacy" class="font-semibold text-sabbia underline underline-offset-2">informativa privacy</a>
-                  e acconsento al trattamento dei dati per essere ricontattato riguardo alla mia richiesta.
+                  Ho preso visione dell'<a href="/privacy/" class="font-semibold text-sabbia underline underline-offset-2">informativa privacy</a>.
                 </span>
               </label>
 
-              <!-- Trappola anti-spam, invisibile agli utenti -->
-              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
-
-              <p id="quiz-errore" class="hidden rounded-[4px] border-l-2 border-red-400 bg-red-950/40 px-4 py-3 font-sans text-sm text-red-200" role="alert"></p>
+              <!-- Trappola anti-spam, invisibile agli utenti. Il nome `botcheck` e
+                   quello riconosciuto anche lato server da Web3Forms. -->
+              <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
 
               <div class="mt-1 flex gap-3">
                 <button type="button" class="quiz-indietro btn btn-contorno-scuro">Indietro</button>
                 <button type="submit" id="quiz-invia" class="btn btn-bianco flex-1 !shadow-none">
-                  <span class="quiz-invia-testo">Ricevi il preventivo</span>
+                  <span class="quiz-invia-testo">Invia la richiesta</span>
                   <svg class="quiz-spinner hidden size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.25" />
                     <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
@@ -190,22 +314,78 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
                 </button>
               </div>
 
-              <p class="text-center font-sans text-[11px] text-sabbia/50">
-                I dati vengono usati solo per rispondere a questa richiesta e non sono ceduti a terzi.
+              <p class="text-center font-sans text-[11px] leading-relaxed text-sabbia/50">
+                Vi richiamiamo per fissare il sopralluogo gratuito: il preventivo nasce da lì, non da
+                questo modulo. I dati servono solo a rispondervi e non vengono ceduti a nessuno.
               </p>
             </div>
           </fieldset>
+
+          <!-- Fuori dai fieldset: cosi il messaggio resta visibile in qualsiasi passo -->
+          <p
+            id="quiz-errore"
+            tabindex="-1"
+            class="mt-4 hidden rounded-[4px] border-l-2 border-red-400 bg-red-950/40 px-4 py-3 font-sans text-sm text-red-200"
+            role="alert"
+          >
+          </p>
         </form>
 
+        <!-- Stima indicativa: compare appena servizio e dettaglio sono scelti
+             e si aggiorna a ogni risposta. aria-live per gli screen reader. -->
+        <div id="quiz-stima" hidden class="mt-7 rounded-[8px] border border-sabbia/25 bg-nero-2 px-5 py-4" aria-live="polite">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <p class="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-sabbia/70">Stima indicativa</p>
+            <p class="font-sans text-[11px] text-sabbia/50">IVA esclusa</p>
+          </div>
+          <p class="mt-1.5 font-display text-[1.9rem] font-normal leading-none text-white">
+            <span id="quiz-stima-valore">&nbsp;</span>
+          </p>
+          <p id="quiz-stima-unita" class="mt-1 font-sans text-xs text-sabbia/60"></p>
+        </div>
+
+        <script id="quiz-dati" type="application/json" set:html={datiCalcolatore} />
+
+        <!-- Senza JavaScript la card resterebbe vuota: i fieldset nascono
+             tutti hidden. Qui restano i contatti diretti, che sono l'unica
+             cosa che questa sezione non puo permettersi di perdere. -->
+        <noscript>
+          <div class="rounded-[8px] border border-sabbia/25 bg-nero-2 px-5 py-5">
+            <p class="font-sans text-sm leading-relaxed text-sabbia/85">
+              Il configuratore richiede JavaScript. Chiamateci o scriveteci: rispondiamo entro {site.responseHours} ore.
+            </p>
+            <a href={`tel:${site.phoneHref}`} class="btn btn-bianco mt-4 w-full !py-4">Chiama {site.phone}</a>
+            <a href={waLink()} target="_blank" rel="noopener" class="btn mt-3 w-full bg-whatsapp !py-4 text-white">
+              Scrivici su WhatsApp
+            </a>
+            <a
+              href={`mailto:${site.email}`}
+              class="mt-4 block text-center font-sans text-sm font-bold text-sabbia underline-offset-4 hover:underline"
+            >
+              {site.email}
+            </a>
+          </div>
+        </noscript>
+
         <!-- Conferma -->
-        <div id="quiz-fatto" hidden class="py-4 text-center">
+        <div id="quiz-fatto" hidden role="status" class="py-4 text-center">
           <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-sabbia">
             <svg class="size-8 text-nero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path d="m4 12.5 5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           </div>
 
-          <h3 class="mt-6 font-display text-3xl font-normal">Richiesta ricevuta</h3>
+          <h3 id="quiz-fatto-titolo" tabindex="-1" class="mt-6 font-display text-3xl font-normal">Richiesta ricevuta</h3>
+
+          <!-- Riepilogo della stima, mostrato solo quando una stima esiste -->
+          <div id="quiz-fatto-stima" hidden class="mx-auto mt-6 max-w-md rounded-[8px] border border-sabbia/25 bg-nero-2 px-6 py-5">
+            <p class="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-sabbia/70">La tua stima indicativa</p>
+            <p class="mt-2 font-display text-4xl font-normal leading-none text-white">
+              <span id="quiz-fatto-stima-valore"></span>
+            </p>
+            <p class="mt-3 font-sans text-xs leading-relaxed text-sabbia/60">{disclaimerStima}</p>
+          </div>
+
           <p class="mx-auto mt-3 max-w-md font-sans text-[15px] leading-relaxed text-sabbia/80">
             Grazie. Abbiamo tutto quello che ci serve per una prima valutazione e ti ricontattiamo entro
             {site.responseHours} ore per fissare il sopralluogo gratuito.
@@ -251,40 +431,142 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
   .campo:focus {
     border-color: var(--color-sabbia);
     box-shadow: 0 0 0 3px rgba(234, 229, 218, 0.15);
-    outline: none;
   }
 
   .campo[aria-invalid='true'] {
     border-color: #f87171;
   }
 
-  /* Opzione selezionata: chiara su scuro, come nel design */
-  .quiz-opzione[aria-pressed='true'] {
+  /* Opzione selezionata: chiara su scuro, come nel design.
+     Il radio nativo e visivamente nascosto, l'aspetto lo guida :checked. */
+  .quiz-opzione:has(.quiz-scelta:checked) {
     background-color: var(--color-sabbia);
     border-color: var(--color-sabbia);
     color: var(--color-nero);
     font-weight: 700;
   }
 
-  .quiz-opzione[aria-pressed='true'] .quiz-radio {
+  .quiz-opzione:has(.quiz-scelta:checked) .quiz-radio {
     border-color: var(--color-nero);
     background-color: var(--color-nero);
   }
 
-  .quiz-opzione[aria-pressed='true'] .quiz-radio > span {
+  .quiz-opzione:has(.quiz-scelta:checked) .quiz-radio > span {
     display: block;
     background-color: var(--color-sabbia);
+  }
+
+  /* Il focus da tastiera si vede sull'etichetta, non sul radio nascosto */
+  .quiz-opzione:has(.quiz-scelta:focus-visible) {
+    outline: 2px solid var(--color-sabbia);
+    outline-offset: 3px;
   }
 
   .btn:disabled {
     opacity: 0.35;
     pointer-events: none;
   }
+
+  /* La stima entra dal basso la prima volta che compare */
+  @keyframes quiz-stima-su {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .quiz-stima-entra {
+    animation: quiz-stima-su 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-stima-entra {
+      animation: none;
+    }
+  }
 </style>
 
-<script define:vars={{ WHATSAPP: site.whatsapp, ENDPOINT: site.formEndpoint, CHIAVE: site.formAccessKey, TOTALE: totaleStep }}>
+<!-- I coriandoli nascono da JavaScript, quindi non ricevono l'attributo di
+     scope di Astro: le loro regole devono restare globali, altrimenti non si
+     applicano mai. Restano comunque circoscritte alla classe .quiz-coriandoli. -->
+<style is:global>
+  .quiz-coriandoli {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .quiz-coriandoli span {
+    position: absolute;
+    top: -14px;
+    width: 8px;
+    height: 12px;
+    opacity: 0;
+    animation-name: quiz-cade;
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes quiz-cade {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    12% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--deriva), 460px, 0) rotate(var(--giro));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-coriandoli span {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { inviaRichiesta } from '../lib/richieste'
+
   const quiz = document.getElementById('quiz')
   if (quiz) {
+    // Valori di configurazione letti dagli attributi data: senza define:vars
+    // lo script resta un modulo differito e non blocca il parser.
+    const WHATSAPP = quiz.dataset.whatsapp
+    const ENDPOINT = quiz.dataset.endpoint
+    const CHIAVE = quiz.dataset.chiave
+    const TELEFONO = quiz.dataset.telefono
+    const TELEFONO_HREF = quiz.dataset.telefonoHref
+
+    // Listino e fattori del calcolatore, serializzati dal build. Se il JSON
+    // fosse illeggibile spariscono solo le cifre: il configuratore continua a
+    // raccogliere il contatto, che e la cosa che non si puo perdere.
+    const VUOTO = { servizi: [], fasceSuperficie: {}, fattoriEdificio: {}, fattorePiccolaSuperficie: { sogliaMq: 0, min: 1, max: 1 }, sogliaSopralluogoObbligatorio: Infinity }
+    let DATI = VUOTO
+    try {
+      DATI = JSON.parse(document.getElementById('quiz-dati').textContent)
+    } catch (err) {
+      console.error('Listino del calcolatore non leggibile, stima disattivata:', err)
+    }
+    const SOPRALLUOGO = 'Non lo so, vorrei un sopralluogo'
+    const SUP_NON_SO = 'Non lo so'
+
+    // La chiave Web3Forms deve essere un UUID: con il segnaposto non
+    // fingiamo mai un invio riuscito.
+    const chiaveValida = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(CHIAVE || '')
+
     const form = document.getElementById('quiz-form')
     const passi = [...quiz.querySelectorAll('.quiz-passo')]
     const barra = document.getElementById('quiz-barra')
@@ -304,16 +586,244 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
       if (typeof window.gtag === 'function') window.gtag('event', nome, dati)
     }
 
-    const mostraPasso = (indice, scorri = true) => {
+    const nascondiErrore = () => {
+      errore.classList.add('hidden')
+      errore.textContent = ''
+    }
+
+    // Prima si mostra il contenitore, poi si scrive il testo: cosi
+    // l'elemento e gia nell'albero di accessibilita.
+    const mostraErrore = (testo) => {
+      errore.classList.remove('hidden')
+      errore.textContent = testo
+    }
+
+    /* --- PASSI ATTIVI ------------------------------------------------------
+       Il passo materiale (indice 1) esiste solo per i servizi a listino: chi
+       sceglie il sopralluogo lo salta e non vede nessuna cifra. La numerazione
+       mostrata all'utente segue i passi attivi, non gli indici del DOM. */
+    const PASSO_MATERIALE = 1
+    const indici = passi.map((p) => Number(p.dataset.passo))
+    let attivi = indici.slice()
+
+    // Unica fonte di verita: il passo si cerca per data-passo, mai per
+    // posizione nell'array, cosi riordinare il markup non rompe niente.
+    const passoCon = (i) => passi.find((p) => Number(p.dataset.passo) === i)
+
+    const servizioScelto = () => DATI.servizi.find((s) => s.intervento === risposte.intervento)
+
+    // Finche l'intervento non e stato scelto il passo materiale resta contato:
+    // altrimenti all'avvio il totale scenderebbe da 7 a 6 per poi risalire a 7
+    // alla prima scelta, e il contatore ballerebbe sotto gli occhi del visitatore.
+    const ricalcolaAttivi = () => {
+      const salta = Boolean(risposte.intervento) && !servizioScelto()
+      attivi = indici.filter((i) => !(salta && i === PASSO_MATERIALE))
+    }
+
+    /* --- CALCOLO DELLA STIMA ---------------------------------------------- */
+    const stimaBox = document.getElementById('quiz-stima')
+    const stimaValore = document.getElementById('quiz-stima-valore')
+    const stimaUnita = document.getElementById('quiz-stima-unita')
+    // it-IT di default non raggruppa i numeri di quattro cifre: "7500" accanto
+    // a "14.500" sembra un errore di battitura. Qui il punto c'e sempre.
+    const nf = { format: (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') }
+    const pigro = matchMedia('(prefers-reduced-motion: reduce)')
+
+    const mqEsatti = () => {
+      const v = Number(document.getElementById('q-mq')?.value)
+      return Number.isFinite(v) && v >= 10 && v <= 2000 ? v : 0
+    }
+
+    // Scaglioni leggibili: nessuna cifra finta-precisa tipo "12.437 euro" in
+    // una stima indicativa. Il minimo scende e il massimo sale, cosi
+    // l'arrotondamento allarga la forbice invece di stringerla.
+    const scaglione = (n) => (n >= 5000 ? 500 : n >= 1000 ? 100 : n >= 300 ? 50 : 10)
+    const giuAl = (n) => Math.floor(n / scaglione(n)) * scaglione(n)
+    const suAl = (n) => Math.ceil(n / scaglione(n)) * scaglione(n)
+
+    // Sviluppo delle lattonerie ricavato dai mq: perimetro di una falda
+    // all'incirca quadrata piu le discese. Unica formula, usata sia con la
+    // fascia sia coi metri esatti, altrimenti lo stesso tetto darebbe due
+    // risposte diverse. E una stima di limite superiore, non una media.
+    const metriLineari = (mq) => Math.round(4 * Math.sqrt(mq) + 12)
+
+    const calcolaStima = () => {
+      const servizio = servizioScelto()
+      if (!servizio) return null
+
+      const voce = servizio.voci.find((v) => v.id === risposte.materiale)
+      if (!voce) return null
+
+      let min = voce.min
+      let max = voce.max
+      let mqUsati = 0
+      let daMetriEsatti = false
+
+      if (voce.unita !== 'euro_forfait') {
+        const esatti = mqEsatti()
+        const fascia = DATI.fasceSuperficie[risposte.superficie]
+        const mq = esatti || fascia?.mq
+        if (!mq) return null
+
+        // Sopra la soglia sono cantieri industriali: il listino residenziale
+        // non si estrapola, si passa direttamente al sopralluogo.
+        if (mq > DATI.sogliaSopralluogoObbligatorio) return { troppoGrande: true }
+
+        mqUsati = mq
+        daMetriEsatti = Boolean(esatti)
+
+        const quantita = voce.unita === 'euro_ml' ? metriLineari(mq) : mq
+        min *= quantita
+        max *= quantita
+
+        // Maggiorazione graduale, non a scalino: a 60 mq vale zero, sotto
+        // cresce in proporzione. Senza questo, 59 mq costava piu di 60.
+        const piccola = DATI.fattorePiccolaSuperficie
+        if (mq < piccola.sogliaMq) {
+          const peso = (piccola.sogliaMq - mq) / piccola.sogliaMq
+          min *= 1 + (piccola.min - 1) * peso
+          max *= 1 + (piccola.max - 1) * peso
+        }
+      }
+
+      const fattore = DATI.fattoriEdificio[risposte.edificio]
+      if (fattore) {
+        min *= fattore.min
+        max *= fattore.max
+      }
+
+      return { min: giuAl(min), max: suAl(max), unita: voce.unita, mqUsati, daMetriEsatti }
+    }
+
+    // Conteggio progressivo: la cifra sale invece di apparire di colpo.
+    let animazione = 0
+    const scriviStima = (elemento, min, max, animata) => {
+      const stampa = (a, b) => (elemento.textContent = `da ${nf.format(a)} a ${nf.format(b)} €`)
+      cancelAnimationFrame(animazione)
+
+      // Il valore finale si scrive SEMPRE per primo: in una scheda in secondo
+      // piano requestAnimationFrame non parte, e senza questa riga la cifra
+      // resterebbe vuota fino al ritorno dell'utente.
+      stampa(min, max)
+
+      if (!animata || pigro.matches) return
+
+      const durata = 550
+      const avvio = performance.now()
+      const passo = (ora) => {
+        const t = Math.min((ora - avvio) / durata, 1)
+        const morbido = 1 - Math.pow(1 - t, 3)
+        stampa(Math.round((min * morbido) / 10) * 10, Math.round((max * morbido) / 10) * 10)
+        if (t < 1) animazione = requestAnimationFrame(passo)
+        else stampa(min, max)
+      }
+      animazione = requestAnimationFrame(passo)
+    }
+
+    let ultimaStima = null
+
+    const aggiornaStima = (animata = true) => {
+      const s = calcolaStima()
+
+      // Nessuna stima possibile: si nasconde tutto.
+      if (!s) {
+        ultimaStima = null
+        stimaBox.hidden = true
+        return
+      }
+
+      // Superficie fuori scala: si dice perche, senza inventare una cifra.
+      if (s.troppoGrande) {
+        ultimaStima = null
+        stimaBox.hidden = false
+        stimaValore.textContent = 'Solo con sopralluogo'
+        stimaUnita.textContent =
+          'Su superfici di queste dimensioni una stima automatica non sarebbe seria: veniamo a misurare e vi diamo un computo metrico vero.'
+        return
+      }
+
+      // Si rianima solo se la cifra e davvero cambiata: rispondere a una
+      // domanda che non entra nel calcolo non deve far ripartire il conteggio.
+      const cambiata = !ultimaStima || ultimaStima.min !== s.min || ultimaStima.max !== s.max
+      const apparsa = stimaBox.hidden
+      ultimaStima = s
+
+      stimaBox.hidden = false
+      if (apparsa && !pigro.matches) {
+        stimaBox.classList.remove('quiz-stima-entra')
+        void stimaBox.offsetWidth
+        stimaBox.classList.add('quiz-stima-entra')
+      }
+
+      scriviStima(stimaValore, s.min, s.max, animata && cambiata)
+
+      const base =
+        s.unita === 'euro_forfait'
+          ? 'Intervento a corpo, si aggiorna a ogni risposta.'
+          : s.daMetriEsatti
+            ? `Calcolata sui ${s.mqUsati} mq che hai indicato. Si aggiorna a ogni risposta.`
+            : 'Valore orientativo per l’intera copertura, si aggiorna a ogni risposta.'
+      stimaUnita.textContent = `${base} Stima non vincolante su parametri medi di mercato: il prezzo si definisce dopo il sopralluogo gratuito.`
+    }
+
+    /* --- PASSO MATERIALE, COSTRUITO AL VOLO -------------------------------- */
+    const materialeDomanda = document.getElementById('quiz-materiale-domanda')
+    const materialeOpzioni = document.getElementById('quiz-materiale-opzioni')
+    const modelloRiga = document.getElementById('quiz-materiale-riga')
+
+    const costruisciMateriale = () => {
+      // La pulizia va fatta SEMPRE, anche quando il servizio scelto non ha
+      // listino: altrimenti chi torna indietro e passa al sopralluogo lascia
+      // in memoria il materiale di prima e se lo ritrova nell'email.
+      materialeOpzioni.replaceChildren()
+      delete risposte.materiale
+      delete risposte.materialeLabel
+      passoCon(PASSO_MATERIALE).querySelector('.quiz-avanti').disabled = true
+
+      const servizio = servizioScelto()
+      if (!servizio) return
+
+      materialeDomanda.textContent = servizio.domanda
+
+      servizio.voci.forEach((voce) => {
+        const riga = modelloRiga.content.cloneNode(true)
+        const input = riga.querySelector('input')
+        input.value = voce.id
+        riga.querySelector('.quiz-mat-label').textContent = voce.label
+        const hint = riga.querySelector('.quiz-mat-hint')
+        if (voce.hint) {
+          hint.textContent = voce.hint
+          hint.classList.remove('hidden')
+        }
+        input.addEventListener('change', () => {
+          if (!input.checked) return
+          risposte.materiale = voce.id
+          risposte.materialeLabel = voce.label
+          passoCon(PASSO_MATERIALE).querySelector('.quiz-avanti').disabled = false
+          aggiornaStima()
+        })
+        materialeOpzioni.append(riga)
+      })
+    }
+
+    // `focalizza` resta falso all'avvio: il configuratore non deve rubare
+    // il focus al caricamento della pagina (skip link e header restano
+    // raggiungibili con Tab).
+    const mostraPasso = (indice, scorri = true, focalizza = true) => {
       corrente = indice
-      passi.forEach((p, i) => (p.hidden = i !== indice))
+      nascondiErrore()
+      passi.forEach((p) => (p.hidden = Number(p.dataset.passo) !== indice))
 
-      barra.style.width = `${((indice + 1) / TOTALE) * 100}%`
-      numero.textContent = String(indice + 1)
-      barraAria.setAttribute('aria-valuenow', String(indice + 1))
+      const posizione = attivi.indexOf(indice) + 1
+      const totale = attivi.length
+      barra.style.width = `${(posizione / totale) * 100}%`
+      numero.textContent = String(posizione)
+      barraAria.setAttribute('aria-valuenow', String(posizione))
+      barraAria.setAttribute('aria-valuemax', String(totale))
+      document.getElementById('quiz-totale').textContent = String(totale)
 
-      const legenda = passi[indice].querySelector('legend')
-      if (legenda) {
+      const legenda = passoCon(indice).querySelector('legend')
+      if (focalizza && legenda) {
         legenda.setAttribute('tabindex', '-1')
         legenda.focus({ preventScroll: true })
       }
@@ -322,24 +832,76 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
         quiz.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
 
-      traccia('preventivo_passo', { passo: indice + 1, totale: TOTALE })
+      traccia('preventivo_passo', { passo: posizione, totale })
     }
 
-    // Selezione di un'opzione: evidenzia e abilita Avanti (design Figma)
-    quiz.querySelectorAll('.quiz-opzione').forEach((opzione) => {
-      opzione.addEventListener('click', () => {
-        risposte[opzione.dataset.campo] = opzione.dataset.valore
+    const vaiAvanti = () => {
+      const i = attivi.indexOf(corrente)
+      mostraPasso(attivi[Math.min(i + 1, attivi.length - 1)])
+    }
+    const vaiIndietro = () => {
+      const i = attivi.indexOf(corrente)
+      mostraPasso(attivi[Math.max(i - 1, 0)])
+    }
 
-        const fieldset = opzione.closest('.quiz-passo')
-        fieldset.querySelectorAll('.quiz-opzione').forEach((o) => o.setAttribute('aria-pressed', String(o === opzione)))
+    // Selezione di un'opzione: sono radio nativi, la deselezione degli altri
+    // la fa il browser. Qui restano solo memoria della risposta e Avanti.
+    quiz.querySelectorAll('.quiz-scelta').forEach((scelta) => {
+      scelta.addEventListener('change', () => {
+        if (!scelta.checked) return
+        risposte[scelta.name] = scelta.value
+
+        const fieldset = scelta.closest('.quiz-passo')
         const avanti = fieldset.querySelector('.quiz-avanti')
         if (avanti) avanti.disabled = false
+
+        if (scelta.name === 'intervento') {
+          ricalcolaAttivi()
+          costruisciMateriale()
+          // Il totale cambia subito, non al click successivo: chi passa al
+          // sopralluogo deve vedere "di 6" mentre e ancora sul passo 1.
+          mostraPasso(corrente, false, false)
+        }
+        aggiornaStima()
       })
+    })
+
+    // Metri quadri esatti: aggiornano la stima mentre si digita e da soli
+    // bastano ad andare avanti. Chi da il dato piu preciso non deve restare
+    // bloccato per non aver bifato anche una fascia.
+    const campoMq = document.getElementById('q-mq')
+    const avvisoMq = document.getElementById('quiz-mq-avviso')
+    const PASSO_SUPERFICIE = 3
+    const fasciaBifata = () => Boolean(quiz.querySelector('input[name="superficie"]:checked'))
+
+    campoMq?.addEventListener('input', () => {
+      const grezzo = campoMq.value.trim()
+      const numero = Number(grezzo)
+      const valido = mqEsatti() > 0
+      const fuoriScala = grezzo !== '' && !valido
+
+      avvisoMq.hidden = !fuoriScala
+      if (fuoriScala) {
+        avvisoMq.textContent =
+          Number.isFinite(numero) && numero > 0
+            ? 'Indica un valore fra 10 e 2000 mq, oppure scegli una fascia qui sopra.'
+            : 'Scrivi solo il numero dei metri quadri, oppure scegli una fascia qui sopra.'
+      }
+
+      // Prima si aggiorna la risposta, poi si decide il pulsante: al contrario
+      // si giudicherebbe sul valore vecchio e Avanti resterebbe attivo a vuoto.
+      if (valido && !fasciaBifata()) risposte.superficie = `${mqEsatti()} mq indicati`
+      else if (!valido && risposte.superficie?.endsWith('mq indicati')) delete risposte.superficie
+
+      const avanti = passoCon(PASSO_SUPERFICIE)?.querySelector('.quiz-avanti')
+      if (avanti) avanti.disabled = !valido && !fasciaBifata()
+
+      aggiornaStima(false)
     })
 
     // Avanti nei passi a scelta
     quiz.querySelectorAll('.quiz-avanti').forEach((pulsante) => {
-      pulsante.addEventListener('click', () => mostraPasso(Math.min(corrente + 1, passi.length - 1)))
+      pulsante.addEventListener('click', vaiAvanti)
     })
 
     // Avanti nel passo luogo: richiede il comune
@@ -347,62 +909,123 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
       pulsante.addEventListener('click', () => {
         const comune = document.getElementById('q-comune')
         if (!comune.value.trim()) {
+          mostraErrore("Indica il comune dove si trova l’immobile.")
           comune.setAttribute('aria-invalid', 'true')
           comune.focus()
           return
         }
         comune.removeAttribute('aria-invalid')
-        mostraPasso(Math.min(corrente + 1, passi.length - 1))
+        nascondiErrore()
+        vaiAvanti()
       })
     })
 
     // Indietro, presente in ogni passo
     quiz.querySelectorAll('.quiz-indietro').forEach((pulsante) => {
-      pulsante.addEventListener('click', () => mostraPasso(Math.max(corrente - 1, 0)))
+      pulsante.addEventListener('click', vaiIndietro)
     })
 
-    document.getElementById('q-cap')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        quiz.querySelector('.quiz-avanti-luogo')?.click()
-      }
+    // Invio da tastiera nel passo luogo: vale sia nel campo obbligatorio
+    // Comune sia in quello facoltativo CAP.
+    ;['q-comune', 'q-cap'].forEach((id) => {
+      document.getElementById(id)?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          quiz.querySelector('.quiz-avanti-luogo')?.click()
+        }
+      })
     })
+
+    const testoStima = () =>
+      ultimaStima ? `da ${nf.format(ultimaStima.min)} a ${nf.format(ultimaStima.max)} € (IVA esclusa)` : null
 
     const riepilogo = (dati) =>
       [
         `Intervento: ${risposte.intervento || 'non indicato'}`,
+        risposte.materialeLabel ? `Materiale / dettaglio: ${risposte.materialeLabel}` : null,
         `Edificio: ${risposte.edificio || 'non indicato'}`,
-        `Superficie: ${risposte.superficie || 'non indicata'}`,
+        `Superficie: ${risposte.superficie || 'non indicata'}${dati.mq_esatti ? ` (indicati ${dati.mq_esatti} mq)` : ''}`,
         `Tempistica: ${risposte.urgenza || 'non indicata'}`,
+        '',
+        `STIMA MOSTRATA AL CLIENTE: ${testoStima() || 'nessuna, ha chiesto direttamente il sopralluogo'}`,
+        '',
         `Comune: ${dati.comune}${dati.cap ? ` (${dati.cap})` : ''}`,
         `Nome: ${dati.nome}`,
         `Telefono: ${dati.telefono}`,
         dati.email ? `Email: ${dati.email}` : null,
         dati.note ? `Note: ${dati.note}` : null,
       ]
-        .filter(Boolean)
+        .filter((r) => r !== null)
         .join('\n')
+
+    const ripristinaPulsante = () => {
+      invia.disabled = false
+      invia.querySelector('.quiz-invia-testo').textContent = 'Invia la richiesta'
+      invia.querySelector('.quiz-spinner').classList.add('hidden')
+    }
+
+    const linkErrore = (href, etichetta, nuovaScheda = false) => {
+      const a = document.createElement('a')
+      a.href = href
+      a.className = 'font-bold underline underline-offset-2'
+      a.textContent = etichetta
+      if (nuovaScheda) {
+        a.target = '_blank'
+        a.rel = 'noopener'
+      }
+      return a
+    }
+
+    // Invio fallito: il configuratore resta aperto, nessun evento di
+    // conversione, e offriamo subito telefono e WhatsApp precompilato.
+    const mostraErroreInvio = (testo) => {
+      ripristinaPulsante()
+      errore.classList.remove('hidden')
+      errore.textContent = 'Non siamo riusciti a inviare la richiesta. Chiamaci allo '
+      errore.append(
+        linkErrore(`tel:${TELEFONO_HREF}`, TELEFONO),
+        ' oppure scrivici su ',
+        linkErrore(
+          `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, ho compilato il preventivo sul sito.\n\n${testo}`)}`,
+          'WhatsApp',
+          true,
+        ),
+        '.',
+      )
+      errore.focus()
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault()
-      errore.classList.add('hidden')
+      nascondiErrore()
 
       const fd = new FormData(form)
       const dati = Object.fromEntries(fd.entries())
 
-      if (dati._gotcha) return
+      if (dati.botcheck) return
 
-      if (!dati.nome?.trim() || !dati.telefono?.trim()) {
-        errore.textContent = 'Inserisci il nome e un numero di telefono per poterti ricontattare.'
-        errore.classList.remove('hidden')
+      const nome = document.getElementById('q-nome')
+      const telefono = document.getElementById('q-telefono')
+      const campoVuoto = !dati.nome?.trim() ? nome : !dati.telefono?.trim() ? telefono : null
+
+      if (campoVuoto) {
+        mostraErrore('Inserisci il nome e un numero di telefono per poterti ricontattare.')
+        nome.setAttribute('aria-invalid', String(!dati.nome?.trim()))
+        telefono.setAttribute('aria-invalid', String(!dati.telefono?.trim()))
+        campoVuoto.focus()
         return
       }
+      nome.removeAttribute('aria-invalid')
+      telefono.removeAttribute('aria-invalid')
 
-      if (!document.getElementById('q-privacy').checked) {
-        errore.textContent = 'Per poterti ricontattare serve il consenso al trattamento dei dati.'
-        errore.classList.remove('hidden')
+      const privacy = document.getElementById('q-privacy')
+      if (!privacy.checked) {
+        mostraErrore("Per procedere serve la presa visione dell’informativa privacy.")
+        privacy.setAttribute('aria-invalid', 'true')
+        privacy.focus()
         return
       }
+      privacy.removeAttribute('aria-invalid')
 
       const testo = riepilogo(dati)
 
@@ -410,44 +1033,140 @@ const totaleStep = quizSteps.length + 2 // scelte + luogo + contatti
       invia.querySelector('.quiz-invia-testo').textContent = 'Invio in corso'
       invia.querySelector('.quiz-spinner').classList.remove('hidden')
 
+      // Coriandoli: cadono dall'alto della card, durano poco e si rimuovono
+      // da soli. Niente libreria esterna, niente lavoro se l'utente ha
+      // chiesto meno animazioni.
+      const coriandoli = () => {
+        if (pigro.matches) return
+        const tinte = ['#EAE5DA', '#8E7E6A', '#F7F4EB', '#C9BCA6']
+        const pista = document.createElement('div')
+        pista.className = 'quiz-coriandoli'
+        pista.setAttribute('aria-hidden', 'true')
+
+        for (let i = 0; i < 34; i++) {
+          const pezzo = document.createElement('span')
+          pezzo.style.left = `${Math.random() * 100}%`
+          pezzo.style.background = tinte[i % tinte.length]
+          pezzo.style.animationDelay = `${Math.random() * 0.45}s`
+          pezzo.style.animationDuration = `${1.5 + Math.random() * 1.1}s`
+          pezzo.style.setProperty('--deriva', `${(Math.random() - 0.5) * 130}px`)
+          pezzo.style.setProperty('--giro', `${Math.random() * 720 - 360}deg`)
+          if (i % 3 === 0) pezzo.style.borderRadius = '50%'
+          pista.append(pezzo)
+        }
+
+        quiz.append(pista)
+        setTimeout(() => pista.remove(), 3200)
+      }
+
       const concludi = () => {
         document.getElementById('quiz-whatsapp').href =
           `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, ho compilato il preventivo sul sito.\n\n${testo}`)}`
         form.hidden = true
         avanzamento.hidden = true
+        stimaBox.hidden = true
         fatto.hidden = false
+
+        // La stima torna grande sulla schermata finale, se esiste.
+        if (ultimaStima) {
+          const riquadro = document.getElementById('quiz-fatto-stima')
+          riquadro.hidden = false
+          scriviStima(document.getElementById('quiz-fatto-stima-valore'), ultimaStima.min, ultimaStima.max, true)
+        }
+
+        document.getElementById('quiz-fatto-titolo').focus({ preventScroll: true })
         fatto.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        coriandoli()
+
         traccia('preventivo_inviato', {
           intervento: risposte.intervento,
+          materiale: risposte.materiale,
           superficie: risposte.superficie,
           urgenza: risposte.urgenza,
+          stima_min: ultimaStima?.min,
+          stima_max: ultimaStima?.max,
         })
       }
 
-      try {
+      // La richiesta parte per due strade insieme: il database, dove il
+      // cliente la ritrova nel pannello con tutte le risposte del
+      // configuratore anche se l'email non arriva, e Web3Forms per l'email.
+      // Basta che una delle due vada in porto.
+      const richiesta = {
+        tipo: 'preventivo',
+        nome: dati.nome,
+        telefono: dati.telefono,
+        email: dati.email || '',
+        comune: dati.comune || '',
+        cap: dati.cap || '',
+        servizio: risposte.intervento || '',
+        messaggio: dati.note || '',
+        dettagli: {
+          intervento: risposte.intervento || null,
+          materiale: risposte.materialeLabel || null,
+          edificio: risposte.edificio || null,
+          superficie: risposte.superficie || null,
+          mq_esatti: dati.mq_esatti || null,
+          urgenza: risposte.urgenza || null,
+          stima_min: ultimaStima ? ultimaStima.min : null,
+          stima_max: ultimaStima ? ultimaStima.max : null,
+          stima: testoStima() || null,
+        },
+        pagina: location.pathname,
+        // Lo aggiunge inviaRichiesta, che sa se la persona è arrivata da un link.
+        codice_link: null,
+      }
+
+      const viaEmail = async () => {
         const risposta = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            access_key: CHIAVE,
-            subject: `Nuova richiesta preventivo: ${risposte.intervento || 'tetto'}`,
-            from_name: 'Sito MDA Impresa Edile',
             ...risposte,
+            materiale: risposte.materialeLabel || '',
             ...dati,
+            access_key: CHIAVE,
+            subject: `Nuova richiesta preventivo: ${risposte.intervento || 'tetto'}${testoStima() ? ` (stima ${testoStima()})` : ''}`,
+            from_name: 'Sito MDA Impresa Edile',
+            stima_mostrata: testoStima() || 'nessuna',
             riepilogo: testo,
           }),
         })
-
         if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
-        concludi()
+        return true
+      }
+
+      try {
+        // Senza una chiave Web3Forms valida l'email non si tenta nemmeno:
+        // resta il database, che da solo basta a non perdere la richiesta.
+        const [nelDatabase, perEmail] = await Promise.allSettled([
+          inviaRichiesta(richiesta),
+          chiaveValida ? viaEmail() : Promise.reject(new Error('Chiave Web3Forms non configurata')),
+        ])
+        const salvata = nelDatabase.status === 'fulfilled' && nelDatabase.value === true
+        const inviata = perEmail.status === 'fulfilled' && perEmail.value === true
+
+        if (salvata || inviata) {
+          concludi()
+          return
+        }
+
+        const motivoEmail =
+          perEmail.status === 'rejected' && perEmail.reason instanceof Error ? perEmail.reason.message : 'errore sconosciuto'
+        throw new Error(`database non raggiungibile; email: ${motivoEmail}`)
       } catch (err) {
-        // L'email non e partita: mostriamo comunque la conferma e spingiamo
-        // sul canale WhatsApp, cosi il contatto non si perde.
+        // Né il database né l'email hanno preso la richiesta: NON mostriamo la
+        // conferma e NON tracciamo una conversione che non è mai avvenuta.
         console.error('Invio preventivo non riuscito:', err)
-        concludi()
+        if (import.meta.env.DEV && !chiaveValida) {
+          console.warn('[MDA] site.formAccessKey e ancora il segnaposto: nessun invio reale e possibile.')
+        }
+        mostraErroreInvio(testo)
+        traccia('preventivo_invio_fallito', { motivo: err instanceof Error ? err.message : 'errore sconosciuto' })
       }
     })
 
-    mostraPasso(0, false)
+    ricalcolaAttivi()
+    mostraPasso(0, false, false)
   }
 </script>

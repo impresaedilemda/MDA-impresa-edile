@@ -2,6 +2,8 @@
 import '../styles/global.css'
 import { site } from '../config/site'
 import Schema from '../components/Schema.astro'
+import ControlloLegale from '../components/ControlloLegale.astro'
+import BannerCookie from '../components/BannerCookie.astro'
 
 interface Props {
   title: string
@@ -9,11 +11,40 @@ interface Props {
   image?: string
   /** true solo sulla homepage, dove le FAQ dello schema sono visibili */
   schemaFaq?: boolean
+  /** 'article' sulle pagine editoriali (guide) */
+  ogType?: 'website' | 'article'
+  /** data ISO di pubblicazione, usata solo con ogType 'article' */
+  articleDate?: string
+  /** forza il preload del corsivo; se omesso si deduce dalla rotta */
+  corsivo?: boolean
+  /** forza il preload del serif 600; se omesso si deduce dalla rotta */
+  serifSemi?: boolean
 }
 
-const { title, description, image = '/images/og-image.jpg', schemaFaq = false } = Astro.props
+const {
+  title,
+  description,
+  image = '/images/og-image.jpg',
+  schemaFaq = false,
+  ogType = 'website',
+  articleDate,
+  corsivo,
+  serifSemi,
+} = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site).href
 const ogImage = new URL(image, Astro.site).href
+
+// Preload solo di ciò che la pagina usa davvero, altrimenti si ruba banda
+// al CSS. Il corsivo vive nell'<em> dell'hero, nel 404 e nelle pagine zona;
+// il serif 600 nei <summary> delle pagine editoriali.
+const percorso = Astro.url.pathname
+const dettaglioDi = (radice: string) => new RegExp(`^/${radice}/[^/]+`).test(percorso)
+const preloadCorsivo = corsivo ?? (percorso === '/' || percorso.startsWith('/404') || dettaglioDi('zone'))
+const preloadSerifSemi = serifSemi ?? (dettaglioDi('guide') || dettaglioDi('servizi'))
+
+// Testo neutro: le foto del sito sono ancora segnaposto, quindi l'alt non
+// può descrivere un lavoro come se fosse già realizzato.
+const testoImmagine = `${site.name}, specialisti in tetti e coperture`
 ---
 
 <!doctype html>
@@ -22,23 +53,55 @@ const ogImage = new URL(image, Astro.site).href
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- I font partono subito, in parallelo al CSS: niente sfarfallio del testo.
-         Precarichiamo solo i pesi above-the-fold: serif 300 (titoli) e Manrope. -->
+    {/* I font partono subito, in parallelo al CSS: niente sfarfallio del testo.
+         Precarichiamo solo i pesi above-the-fold della pagina corrente:
+         serif 300 (titoli), serif 400 (h2) e Manrope ovunque; il corsivo e
+         il serif 600 soltanto dove servono davvero. */}
     <link rel="preload" href="/fonts/cormorant-300.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/cormorant-400-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/cormorant-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {
+      preloadCorsivo && (
+        <link
+          rel="preload"
+          href="/fonts/cormorant-400-italic.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
+    {
+      preloadSerifSemi && (
+        <link
+          rel="preload"
+          href="/fonts/cormorant-600.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
 
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Indicizzazione -->
+    {/* Indicizzazione */}
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <meta name="geo.region" content={`IT-${site.province}`} />
     <meta name="geo.placename" content={site.city} />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    {/* Open Graph */}
+    <meta property="og:type" content={ogType} />
+    {
+      ogType === 'article' && articleDate && (
+        <>
+          <meta property="article:published_time" content={articleDate} />
+          <meta property="article:modified_time" content={articleDate} />
+        </>
+      )
+    }
     <meta property="og:locale" content={site.locale} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
@@ -47,26 +110,28 @@ const ogImage = new URL(image, Astro.site).href
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={testoImmagine} />
 
-    <!-- Twitter -->
+    {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={testoImmagine} />
 
-    <!-- Icone -->
+    {/* Icone */}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#151613" />
 
     <Schema conFaq={schemaFaq} />
 
-    <!-- Dati strutturati aggiuntivi per pagina (es. breadcrumb delle zone) -->
+    {/* Dati strutturati aggiuntivi per pagina (es. breadcrumb delle zone) */}
     <slot name="head" />
 
-    <!-- Marca il documento come "JS attivo": le animazioni di entrata
+    {/* Marca il documento come "JS attivo": le animazioni di entrata
          si applicano solo in questo caso, così senza JS il contenuto
-         resta comunque visibile. -->
+         resta comunque visibile. */}
     <script is:inline>
       document.documentElement.classList.add('js')
     </script>
@@ -84,8 +149,9 @@ const ogImage = new URL(image, Astro.site).href
 
     <script>
       // Animazione di entrata delle sezioni e delle file di carte.
-      // Failsafe: dopo 2s tutto viene mostrato comunque, anche se
-      // l'observer non ha mai emesso (succede in alcune webview).
+      // Il failsafe è una rete di sicurezza per le webview in cui
+      // l'observer non emette mai, non un timer che gira sempre: se
+      // l'observer ha già emesso, non tocca niente.
       const elementi = document.querySelectorAll<HTMLElement>('.rivela, .rivela-fila')
 
       // Le carte di una fila entrano scaglionate: 80ms l'una dall'altra
@@ -98,27 +164,77 @@ const ogImage = new URL(image, Astro.site).href
       const mostra = (el: Element) => el.classList.add('visibile')
 
       if ('IntersectionObserver' in window) {
+        let haEmesso = false
+        let daMostrare = elementi.length
+
         const observer = new IntersectionObserver(
           (voci) => {
             for (const voce of voci) {
-              if (voce.isIntersecting) {
-                mostra(voce.target)
-                observer.unobserve(voce.target)
-              }
+              if (!voce.isIntersecting) continue
+              // Solo qui: il callback parte anche all'observe iniziale con
+              // isIntersecting false, e in quel caso il failsafe deve restare.
+              haEmesso = true
+              mostra(voce.target)
+              observer.unobserve(voce.target)
+              if (--daMostrare === 0) observer.disconnect()
             }
           },
           { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
         )
         elementi.forEach((el) => observer.observe(el))
-        window.setTimeout(() => elementi.forEach(mostra), 2000)
+
+        // Rivela a piccoli lotti, un frame per lotto: niente ricalcolo di
+        // stile su tutto il documento in un solo task.
+        const rivelaAScaglioni = (lista: HTMLElement[], allaFine?: () => void) => {
+          const coda = [...lista]
+          const passo = () => {
+            coda.splice(0, 4).forEach(mostra)
+            if (coda.length) requestAnimationFrame(passo)
+            else allaFine?.()
+          }
+          passo()
+        }
+
+        // Primo giro: se l'observer non ha dato segno di vita, mostriamo
+        // soltanto ciò che è già sullo schermo. Il resto resta animabile.
+        window.setTimeout(() => {
+          if (haEmesso) return
+          rivelaAScaglioni(
+            [...elementi].filter((el) => el.getBoundingClientRect().top < window.innerHeight * 1.2),
+          )
+        }, 2000)
+
+        // Ultima rete: observer davvero morto, si mostra tutto e si stacca.
+        window.setTimeout(() => {
+          if (haEmesso) return
+          rivelaAScaglioni([...elementi], () => observer.disconnect())
+        }, 8000)
       } else {
         elementi.forEach(mostra)
       }
     </script>
 
-    <!-- Scorrimento: nativo, di proposito. Come fanno i siti Apple: nessun
+    {/* Contatore delle visite: nessun cookie, nessun IP, nessuna impronta.
+         E la ragione per cui questo sito non ha il banner dei cookie: non
+         c'e niente da far consentire. Si spegne da solo se le chiavi di
+         Supabase non ci sono, quindi in locale non manda nulla. */}
+    <script>
+      import { registraVisita } from '../lib/traccia'
+      registraVisita()
+    </script>
+
+    {/* Banner del consenso. Si disegna da solo soltanto se PUBLIC_GA_ID e
+         configurato: senza Google Analytics non c'e niente da far consentire
+         e un banner sarebbe una dichiarazione falsa su cosa fa il sito. */}
+    <BannerCookie />
+
+    {/* Promemoria dei dati ancora segnaposto. Il controllo è doppio: qui e
+         dentro il componente, così non può finire nel sito pubblicato. */}
+    {import.meta.env.DEV && <ControlloLegale />}
+
+    {/* Scorrimento: nativo, di proposito. Come fanno i siti Apple: nessun
          motore sopra la rotella, solo gli anchor del menu scorrono morbidi
          via CSS (scroll-behavior: smooth). Il custom smooth-scroll provato
-         qui e stato rimosso su richiesta: dava una sensazione di ritardo. -->
+         qui e stato rimosso su richiesta: dava una sensazione di ritardo. */}
   </body>
 </html>

@@ -43,7 +43,23 @@
   font-style: normal;
   font-display: swap;
   font-weight: 200 800;
-  src: url('/fonts/manrope-latin.woff2') format('woff2-variations');
+  src: url('/fonts/manrope-latin.woff2') format('woff2');
+}
+
+/* Faccia di riserva con le metriche di Cormorant: mentre il serif carica,
+   Georgia viene ridotta alla stessa x-height (386/481 = 80,2%), così i
+   titoli non cambiano altezza allo swap. Dove Georgia non esiste (Android,
+   quasi tutte le distribuzioni Linux) questa faccia non ha sorgente e lo
+   stack scende semplicemente su Georgia/serif, come prima. */
+@font-face {
+  font-family: 'Cormorant riserva';
+  src:
+    local('Georgia'),
+    local('Times New Roman');
+  size-adjust: 80.2%;
+  ascent-override: 115.2%;
+  descent-override: 35.8%;
+  line-gap-override: 0%;
 }
 
 /* ===========================================================================
@@ -62,7 +78,8 @@
   --color-nero-2: #282924; /* card interne su pannelli scuri */
 
   /* Accento */
-  --color-taupe: #8e7e6a; /* occhielli, link, numeri, stelle */
+  --color-taupe: #8e7e6a; /* uso decorativo: numeri, stelle, righe, focus */
+  --color-taupe-testo: #736552; /* stessa famiglia, ma 4.5:1 sui fondi chiari */
 
   /* Segnali */
   --color-verde: #22c55e; /* pallino disponibilita, etichetta DOPO */
@@ -70,7 +87,7 @@
   --color-whatsapp: #25d366;
 
   /* Tipografia */
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: 'Cormorant Garamond', 'Cormorant riserva', Georgia, 'Times New Roman', serif;
   --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
 
   --ease-fuori: cubic-bezier(0.22, 1, 0.36, 1);
@@ -83,7 +100,16 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 6.5rem;
+    /* La barra fissa in basso (BarraMobile, lg:hidden) non deve coprire
+       l'elemento appena messo a fuoco con Tab. */
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
     -webkit-text-size-adjust: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-bottom: 0;
+    }
   }
 
   body {
@@ -159,7 +185,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-taupe);
+    color: var(--color-taupe-testo);
   }
 
   /* Titolo di sezione: Cormorant Light 52px desktop */
@@ -222,6 +248,18 @@
     background-color: var(--color-sabbia);
   }
 
+  /* Variante chiara: bordo scuro su fondo chiaro. Serve ai pulsanti
+     secondari delle pagine legali e al rifiuto nel banner dei cookie, dove
+     "Rifiuta" deve pesare quanto "Accetta". */
+  .btn-contorno {
+    border: 1px solid color-mix(in srgb, var(--color-nero) 30%, transparent);
+    color: var(--color-nero);
+  }
+
+  .btn-contorno:hover {
+    background-color: color-mix(in srgb, var(--color-nero) 7%, transparent);
+  }
+
   .btn-contorno-scuro {
     border: 1px solid rgba(255, 255, 255, 0.25);
     color: #fff;
@@ -267,7 +305,7 @@
   }
 
   .prose-legale a {
-    color: var(--color-taupe);
+    color: var(--color-taupe-testo);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -277,7 +315,7 @@
     padding-top: 1.5rem;
     border-top: 1px solid rgba(21, 22, 19, 0.08);
     font-size: 0.85rem;
-    color: color-mix(in srgb, var(--color-nero) 55%, transparent);
+    color: color-mix(in srgb, var(--color-nero) 70%, transparent);
   }
 }
 
@@ -289,31 +327,31 @@
 @layer utilities {
   .js .rivela {
     opacity: 0;
-    transform: translateY(22px);
+    translate: 0 22px;
     transition:
       opacity 0.75s var(--ease-fuori),
-      transform 0.75s var(--ease-fuori);
+      translate 0.75s var(--ease-fuori);
   }
 
   .js .rivela.visibile {
     opacity: 1;
-    transform: none;
+    translate: none;
   }
 
   /* Le carte dentro una griglia entrano una dopo l'altra: lo script assegna
      --ritardo in base alla posizione. */
   .js .rivela-fila > * {
     opacity: 0;
-    transform: translateY(26px);
+    translate: 0 26px;
     transition:
       opacity 0.7s var(--ease-fuori),
-      transform 0.7s var(--ease-fuori);
+      translate 0.7s var(--ease-fuori);
     transition-delay: var(--ritardo, 0ms);
   }
 
   .js .rivela-fila.visibile > * {
     opacity: 1;
-    transform: none;
+    translate: none;
   }
 
   /* Sollevamento delle carte al passaggio del mouse */
@@ -356,6 +394,7 @@
     .js .rivela-fila > * {
       opacity: 1;
       transform: none;
+      translate: none;
       transition: none;
     }
 
@@ -364,8 +403,87 @@
       transition: none;
     }
 
+    /* Il pallino di disponibilità pulsa all'infinito: qui si ferma.
+       Lo spinner di invio resta, è l'unico segnale che la richiesta parte. */
+    .animate-ping {
+      animation: none;
+    }
+
     html {
       scroll-behavior: auto;
     }
+  }
+}
+
+/* ===========================================================================
+ *  PROSA DEL BLOG
+ *  Il testo degli articoli arriva da src/lib/testo.ts senza nessuna classe:
+ *  lo stile lo dà il contenitore .prosa. Così la pagina generata alla build
+ *  e quella che si disegna nel browser (blog/articolo.astro) escono uguali,
+ *  e il pannello ha la sua versione compatta in .adm-prosa.
+ * ======================================================================== */
+@layer components {
+  .prosa h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1.375;
+    color: var(--color-nero);
+    margin: 2rem 0 0.75rem;
+  }
+
+  .prosa p {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.8;
+    color: color-mix(in srgb, var(--color-nero) 80%, transparent);
+    margin: 0 0 1.1rem;
+  }
+
+  .prosa ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 0 0 1.1rem;
+  }
+
+  .prosa li {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.8;
+    color: color-mix(in srgb, var(--color-nero) 80%, transparent);
+    margin: 0.35rem 0;
+  }
+
+  .prosa strong {
+    font-weight: 700;
+    color: var(--color-nero);
+  }
+
+  .prosa a {
+    color: var(--color-taupe-testo);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prosa img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .prosa figure {
+    margin: 1.5rem 0;
+  }
+
+  .prosa figcaption {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-taupe-testo);
+    margin-top: 0.5rem;
+  }
+
+  /* Il primo blocco parte a filo del contenitore, senza il margine del titolo. */
+  .prosa > :first-child {
+    margin-top: 0;
   }
 }

@@ -1,0 +1,286 @@
+---
+/**
+ * =============================================================================
+ *  GUSCIO PER GLI ARTICOLI PUBBLICATI DOPO L'ULTIMA BUILD
+ * =============================================================================
+ *  Vercel riscrive /blog/<slug>/ su questa pagina quando non esiste il file
+ *  statico (vedi vercel.json): succede per gli articoli pubblicati dal
+ *  pannello dopo l'ultimo deploy, fino alla build successiva. La pagina ha
+ *  lo stesso vestito di [slug].astro ma nasce vuota: lo script legge lo slug
+ *  dall'indirizzo, chiede l'articolo al database e lo disegna con
+ *  testo-dom.ts, nodo per nodo, mai con innerHTML. Se l'articolo non c'è lo
+ *  dice e rimanda al blog.
+ *
+ *  È noindex: la versione da indicizzare è quella statica, che arriva alla
+ *  build successiva. Fra due meta robots vince sempre la più restrittiva,
+ *  quindi il tag nello slot head annulla l'index, follow del layout.
+ * =============================================================================
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import { site } from '../../config/site'
+import { remoto } from '../../lib/remoto'
+import { dataIso, dataItaliana, indirizzoArticolo, schedaDi, slugValido } from '../../lib/blog-cliente'
+
+/* La colonna laterale mostra gli ultimi articoli della build: sono veri e
+   hanno già la loro pagina statica. Lo script toglie l'eventuale doppione
+   dell'articolo che si sta leggendo. */
+const altri = remoto.articoli
+  .filter((a) => slugValido(a.slug))
+  .slice(0, 3)
+  .map(schedaDi)
+
+const title = `Blog | ${site.name}`
+const description = `Un articolo dal blog di ${site.name}: tetti, coperture e manutenzione spiegati bene.`
+---
+
+<Base title={title} description={description} ogType="article">
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto" data-nome-sito={site.name}>
+    <!-- Intestazione scura -->
+    <section class="bg-nero py-14 text-white md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+          <span aria-hidden="true" class="mx-2">·</span>
+          <a href="/blog/" class="transition-colors hover:text-white">Blog</a>
+        </nav>
+        <p class="occhiello !text-sabbia">Blog</p>
+        <h1 id="articolo-titolo" class="font-display text-4xl font-light leading-[1.1] md:text-5xl" aria-live="polite">
+          Un attimo
+        </h1>
+        <p
+          id="articolo-riga"
+          hidden
+          class="flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[15px] text-sabbia/75"
+        >
+          <span>Pubblicato il <time id="articolo-data"></time></span>
+          <span aria-hidden="true">·</span>
+          <span id="articolo-minuti"></span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Corpo -->
+    <section class="bg-crema py-14 md:py-20">
+      <div class="contenitore grid gap-14 lg:grid-cols-[minmax(0,760px)_1fr] lg:gap-20">
+        <div class="flex flex-col gap-10">
+          <figure id="articolo-copertina" hidden class="overflow-hidden rounded-lg bg-carta">
+            <img id="articolo-immagine" alt="" class="aspect-video w-full object-cover" decoding="async" />
+          </figure>
+
+          <article id="articolo-corpo" class="prosa"></article>
+
+          <!-- Senza JavaScript non c'è modo di leggere lo slug e chiedere l'articolo. -->
+          <noscript>
+            <p class="font-sans text-[15px] leading-relaxed text-nero/75">
+              Questo articolo è appena stato pubblicato e per leggerlo serve JavaScript.
+              <a href="/blog/" class="text-taupe-testo underline underline-offset-3">Torna al blog</a>
+              per vedere tutti gli articoli.
+            </p>
+          </noscript>
+
+          <!-- Quando lo slug non corrisponde a nessun articolo pubblicato -->
+          <div id="articolo-non-trovato" hidden class="rounded-lg border border-nero/8 bg-white p-7 md:p-9">
+            <p class="occhiello">Nessun risultato</p>
+            <p class="mt-3 max-w-[560px] font-sans text-[15px] leading-relaxed text-nero/75">
+              Il collegamento che hai seguito non porta a nessun articolo pubblicato: forse è stato
+              ritirato, o l’indirizzo è scritto male. Tutti gli articoli sono nel blog.
+            </p>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+              <a href="/blog/" class="btn btn-nero !px-7 !py-4">Vai al blog</a>
+              <a href="/guide/" class="btn !px-7 !py-4 border border-nero/20 text-nero hover:bg-nero hover:text-white">
+                Leggi le guide
+              </a>
+            </div>
+          </div>
+
+          <!-- Chiusura: il sopralluogo, visibile solo ad articolo caricato -->
+          <aside id="articolo-sopralluogo" hidden class="rounded-lg border border-nero/8 bg-carta p-7 md:p-9">
+            <p class="occhiello">Sopralluogo gratuito</p>
+            <h2 class="mt-3 font-display text-[1.75rem] font-normal leading-snug text-nero">
+              Ti serve un sopralluogo?
+            </h2>
+            <p class="mt-3 max-w-[560px] font-sans text-[15px] leading-relaxed text-nero/75">
+              Veniamo a vedere il tetto di persona e lasciamo un preventivo scritto, gratuito e senza
+              impegno. Rispondiamo entro {site.responseHours} ore.
+            </p>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+              <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Preventivo gratuito</a>
+              <a
+                href={`tel:${site.phoneHref}`}
+                class="btn !px-7 !py-4 border border-nero/20 text-nero hover:bg-nero hover:text-white"
+              >
+                <Icona nome="hero-phone-call" class="size-4" />
+                {site.phone}
+              </a>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Colonna laterale -->
+        <aside class="flex flex-col gap-8 lg:sticky lg:top-28 lg:self-start">
+          {
+            altri.length > 0 && (
+              <div class="rounded-lg border border-nero/8 bg-carta p-7">
+                <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">
+                  Altri articoli
+                </h2>
+                <ul class="mt-4 flex flex-col gap-4">
+                  {altri.map((a) => (
+                    <li data-altro-slug={a.slug}>
+                      <a
+                        href={indirizzoArticolo(a.slug)}
+                        class="group flex items-start justify-between gap-3 font-sans text-[15px] font-semibold leading-snug text-nero transition-colors hover:text-taupe"
+                      >
+                        <span>
+                          {a.titolo}
+                          <time datetime={dataIso(a.creato)} class="mt-1 block text-[13px] font-normal text-nero/55">
+                            {dataItaliana(a.creato)}
+                          </time>
+                        </span>
+                        <Icona nome="services-arrow-right" class="mt-1.5 size-3.5 shrink-0 text-taupe transition-transform group-hover:translate-x-1" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="/blog/"
+                  class="mt-5 inline-block font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe underline-offset-4 hover:underline"
+                >
+                  Tutti gli articoli
+                </a>
+              </div>
+            )
+          }
+
+          <div class="rounded-lg bg-nero p-7 text-white">
+            <p class="font-display text-xl font-normal leading-snug">Un dubbio sul vostro tetto?</p>
+            <p class="mt-2 font-sans text-sm leading-relaxed text-sabbia/75">
+              Sopralluogo e preventivo scritto gratuiti fra {site.regions[0]} e {site.regions[1]}.
+            </p>
+            <a href="/#preventivo" class="btn btn-bianco mt-5 w-full !shadow-none">Preventivo gratuito</a>
+            <a
+              href={`tel:${site.phoneHref}`}
+              class="mt-3 block text-center font-sans text-sm font-bold text-sabbia underline-offset-4 hover:underline"
+            >
+              {site.phone}
+            </a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+
+  <script>
+    import {
+      dataIso,
+      dataItaliana,
+      indirizzoArticolo,
+      leggiArticoloPerSlug,
+      schedaDi,
+      slugValido,
+    } from '../../lib/blog-cliente'
+    import { disegnaTesto } from '../../lib/testo-dom'
+
+    const principale = document.getElementById('contenuto')
+    const nomeSito = principale?.getAttribute('data-nome-sito') || 'MDA Impresa Edile'
+
+    const titolo = document.getElementById('articolo-titolo')
+    const riga = document.getElementById('articolo-riga')
+    const data = document.getElementById('articolo-data')
+    const minuti = document.getElementById('articolo-minuti')
+    const copertina = document.getElementById('articolo-copertina')
+    const immagine = document.getElementById('articolo-immagine')
+    const corpo = document.getElementById('articolo-corpo')
+    const sopralluogo = document.getElementById('articolo-sopralluogo')
+    const nonTrovato = document.getElementById('articolo-non-trovato')
+
+    /**
+     * L'ultimo pezzo dell'indirizzo: /blog/<slug>/. Su /blog/articolo/ aperto
+     * direttamente lo slug sarebbe "articolo", che slugValido scarta.
+     */
+    function slugDalPercorso(): string {
+      const segmenti = location.pathname.split('/').filter(Boolean)
+      if (segmenti.length < 2) return ''
+      let ultimo = segmenti[segmenti.length - 1]
+      try {
+        ultimo = decodeURIComponent(ultimo)
+      } catch {
+        /* percentuali malformate: si prova con quello che c'è */
+      }
+      return ultimo.trim()
+    }
+
+    function mostraNonTrovato(): void {
+      if (titolo) titolo.textContent = 'Articolo non trovato'
+      if (nonTrovato) nonTrovato.hidden = false
+      document.title = `Articolo non trovato | ${nomeSito}`
+    }
+
+    /** Titolo della scheda, descrizione e canonical seguono l'articolo vero. */
+    function impostaTesta(titoloArticolo: string, descrizione: string, slug: string): void {
+      document.title = `${titoloArticolo} | ${nomeSito}`
+      document.querySelector('meta[name="description"]')?.setAttribute('content', descrizione)
+      document
+        .querySelector('link[rel="canonical"]')
+        ?.setAttribute('href', new URL(indirizzoArticolo(slug), location.origin).href)
+    }
+
+    async function avvia(): Promise<void> {
+      const slug = slugDalPercorso()
+      if (!slugValido(slug)) {
+        mostraNonTrovato()
+        return
+      }
+
+      const articolo = await leggiArticoloPerSlug(slug)
+      if (!articolo) {
+        mostraNonTrovato()
+        return
+      }
+
+      const scheda = schedaDi(articolo)
+      impostaTesta(articolo.titolo, scheda.estratto, slug)
+
+      if (titolo) titolo.textContent = articolo.titolo
+      if (data) {
+        data.textContent = dataItaliana(articolo.creato)
+        data.setAttribute('datetime', dataIso(articolo.creato))
+      }
+      if (minuti) minuti.textContent = `${scheda.minuti} min di lettura`
+      if (riga) riga.hidden = false
+
+      if (scheda.copertina && immagine && copertina) {
+        immagine.setAttribute('src', scheda.copertina)
+        immagine.setAttribute('alt', articolo.titolo)
+        copertina.hidden = false
+      }
+
+      // Il testo entra come nodi veri, costruiti da testo-dom.ts: nessuna
+      // stringa scritta dal cliente finisce mai dentro l'HTML.
+      if (corpo) corpo.append(...disegnaTesto(articolo.contenuto))
+      if (sopralluogo) sopralluogo.hidden = false
+
+      // Nella colonna laterale non si consiglia l'articolo che si sta leggendo.
+      document.querySelectorAll('[data-altro-slug]').forEach((voce) => {
+        if (voce.getAttribute('data-altro-slug') === slug) voce.remove()
+      })
+    }
+
+    avvia()
+  </script>
+</Base>

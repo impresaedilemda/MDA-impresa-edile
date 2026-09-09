@@ -4,3 +4,14 @@ dist/
 .vercel/
 .DS_Store
 *.log
+.audit/
+
+# Variabili d'ambiente: la chiave anon e pubblica per progetto, ma il file
+# resta fuori dal repo (che e pubblico) per non invitare a incollarci dentro
+# anche la service_role, che pubblica sarebbe un disastro.
+.env
+.env.*
+!.env.example
+
+# Foto generate per il pannello: si caricano da /admin, non stanno nel sito
+foto-cantieri/

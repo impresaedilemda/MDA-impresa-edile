@@ -1,111 +1,216 @@
 ---
-import Base from '../layouts/Base.astro'
-import Header from '../components/Header.astro'
-import Footer from '../components/Footer.astro'
-import { site } from '../config/site'
+/**
+ * Informativa privacy, artt. 13 e 14 GDPR.
+ *
+ * Aggiornata il 9 settembre 2026. La versione precedente elencava due soli
+ * destinatari, Vercel e Web3Forms, ed era rimasta indietro: da quando esiste
+ * il pannello, le richieste dei moduli finiscono anche nel database Supabase
+ * dell'impresa, che e la copia che il cliente legge davvero. Un responsabile
+ * del trattamento non dichiarato e una violazione dell'art. 13, comma 1,
+ * lettera e, non una dimenticanza redazionale.
+ *
+ * Aggiunte rispetto a prima:
+ *  - Supabase fra i responsabili, con il ruolo che ha davvero;
+ *  - il contatore di visite, descritto come trattamento a se, con la sua base
+ *    giuridica (legittimo interesse) e il modo per opporsi;
+ *  - Google Analytics, subordinato al consenso, presente solo se configurato;
+ *  - la minimizzazione: quali campi sono obbligatori e perche gli altri no.
+ */
+import PaginaLegale from '../components/PaginaLegale.astro'
+import DatiTitolare from '../components/DatiTitolare.astro'
+import { denominazione, site } from '../config/site'
+
+const conStatistiche = Boolean(site.gaId)
 ---
 
-<Base
-  title={`Privacy Policy | ${site.name}`}
-  description={`Informativa sul trattamento dei dati personali di ${site.legalName} ai sensi del Regolamento UE 2016/679.`}
+<PaginaLegale
+  titolo={`Privacy Policy | ${site.name}`}
+  descrizione={`Informativa sul trattamento dei dati personali di ${denominazione} ai sensi del Regolamento UE 2016/679.`}
+  h1="Privacy Policy"
+  sottotitolo="Informativa resa ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679 (GDPR)."
 >
-  <Header />
+  <h2>1. Titolare del trattamento</h2>
+  <p>
+    Il titolare del trattamento è l'impresa indicata qui sotto. Per qualsiasi questione relativa ai
+    vostri dati potete scrivere o telefonare direttamente: rispondiamo noi, non un servizio esterno.
+  </p>
 
-  <main id="contenuto" class="bg-sabbia-50 py-20 md:py-24">
-    <div class="contenitore max-w-3xl">
-      <p class="occhiello">Note legali</p>
-      <h1 class="mt-5 text-4xl md:text-5xl">Privacy Policy</h1>
-      <p class="mt-5 text-grafite">
-        Informativa resa ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679 (GDPR).
-      </p>
+  <DatiTitolare />
 
-      <div class="prose-legale mt-12">
-        <h2>1. Titolare del trattamento</h2>
-        <p>
-          Il titolare del trattamento e {site.legalName}, con sede in {site.street}, {site.postalCode}
-          {site.city} ({site.province}), partita IVA {site.vat}. Per qualsiasi questione relativa ai
-          dati personali potete scrivere a <a href={`mailto:${site.email}`}>{site.email}</a> o
-          telefonare al {site.phone}.
-        </p>
+  <p>
+    Non abbiamo nominato un Responsabile della protezione dei dati (DPO) perché non ricorre nessuno
+    dei casi in cui l'articolo 37 del GDPR lo rende obbligatorio: non siamo un ente pubblico, non
+    facciamo monitoraggio sistematico su larga scala e non trattiamo categorie particolari di dati
+    su larga scala.
+  </p>
 
-        <h2>2. Quali dati raccogliamo</h2>
-        <p>Attraverso questo sito raccogliamo esclusivamente i dati che ci fornite volontariamente:</p>
-        <ul>
-          <li>
-            <strong>Dati del modulo di richiesta preventivo:</strong> nome e cognome, numero di
-            telefono, indirizzo email se lo indicate, comune e CAP dell'immobile, tipo di intervento
-            richiesto, tipo di edificio, superficie approssimativa, tempistica desiderata ed eventuali
-            note che scegliete di aggiungere.
-          </li>
-          <li>
-            <strong>Dati di navigazione:</strong> il sito non utilizza cookie di profilazione. Vedi la
-            <a href="/cookie">Cookie Policy</a> per il dettaglio.
-          </li>
-        </ul>
+  <h2>2. Quali dati raccogliamo, e quali no</h2>
+  <p>Attraverso questo sito trattiamo soltanto tre gruppi di dati.</p>
+  <ul>
+    <li>
+      <strong>Modulo di richiamo rapido:</strong> il tipo di intervento che vi serve, il
+      <strong>numero di telefono</strong> e, se volete, un messaggio. È tutto: nessun nome, nessun
+      indirizzo. Per richiamarvi serve solo il numero.
+    </li>
+    <li>
+      <strong>Configuratore del preventivo:</strong> le risposte alle domande sul tetto (tipo di
+      intervento, tipo di immobile, superficie, materiale, tempistica), il <strong>comune e il
+      CAP</strong> dell'immobile, il <strong>nome</strong> e il <strong>numero di telefono</strong>.
+      L'indirizzo email e le note sono facoltativi. Non chiediamo l'indirizzo civico: quello serve
+      solo dopo, quando fissiamo il sopralluogo, e ce lo dite a voce.
+    </li>
+    <li>
+      <strong>Dati di visita in forma aggregata:</strong> pagina aperta, dominio di provenienza,
+      tipo di dispositivo e un numero di sessione casuale. Il dettaglio è al punto 5 e nella
+      <a href="/cookie/">Cookie Policy</a>.
+    </li>
+  </ul>
+  <p>
+    <strong>Quello che non raccogliamo:</strong> non c'è registrazione, non c'è area riservata per i
+    visitatori, non chiediamo data di nascita, codice fiscale, documenti, dati di pagamento né
+    l'indirizzo esatto dell'immobile. Non trattiamo categorie particolari di dati (salute,
+    convinzioni, opinioni) e non prendiamo nessuna decisione automatizzata sul vostro conto: la
+    stima che il configuratore mostra è un calcolo indicativo che non produce effetti giuridici e
+    non sostituisce il preventivo.
+  </p>
 
-        <h2>3. Perché li trattiamo e su quale base giuridica</h2>
-        <ul>
-          <li>
-            <strong>Rispondere alla vostra richiesta di preventivo</strong> e fissare il sopralluogo.
-            Base giuridica: esecuzione di misure precontrattuali adottate su vostra richiesta, articolo
-            6, paragrafo 1, lettera b del GDPR.
-          </li>
-          <li>
-            <strong>Adempiere agli obblighi di legge</strong> di natura contabile e fiscale, qualora la
-            richiesta si trasformi in un incarico. Base giuridica: articolo 6, paragrafo 1, lettera c.
-          </li>
-        </ul>
-        <p>
-          Non utilizziamo i vostri dati per invii commerciali non richiesti e non li cediamo a terzi
-          per finalità di marketing.
-        </p>
+  <h2>3. Perché li trattiamo e su quale base giuridica</h2>
+  <ul>
+    <li>
+      <strong>Rispondere alla vostra richiesta</strong> e fissare il sopralluogo. Base giuridica:
+      esecuzione di misure precontrattuali adottate su vostra richiesta, articolo 6, paragrafo 1,
+      lettera b del GDPR. Per questo il consenso non è la base giuridica del modulo: la casella che
+      spuntate serve a confermare che avete letto questa informativa, non a "autorizzare" un
+      trattamento che è già lecito perché siete voi a chiederci di essere ricontattati.
+    </li>
+    <li>
+      <strong>Adempiere agli obblighi di legge</strong> contabili e fiscali, se la richiesta diventa
+      un incarico. Base giuridica: articolo 6, paragrafo 1, lettera c.
+    </li>
+    <li>
+      <strong>Difendere un nostro diritto</strong> in caso di contestazione su un lavoro eseguito.
+      Base giuridica: legittimo interesse, articolo 6, paragrafo 1, lettera f.
+    </li>
+    <li>
+      <strong>Contare le visite</strong> per capire quali pagine servono davvero. Base giuridica:
+      legittimo interesse a mantenere efficiente il proprio sito, articolo 6, paragrafo 1, lettera
+      f, con dati minimizzati che non permettono di identificarvi.
+    </li>
+    {
+      conStatistiche && (
+        <li>
+          <strong>Statistiche con Google Analytics.</strong> Base giuridica: il vostro consenso,
+          articolo 6, paragrafo 1, lettera a, raccolto dal banner e revocabile in ogni momento.
+        </li>
+      )
+    }
+  </ul>
+  <p>
+    Non usiamo i vostri dati per invii commerciali non richiesti, non facciamo profilazione e non li
+    cediamo a nessuno per finalità di marketing.
+  </p>
 
-        <h2>4. A chi possono essere comunicati</h2>
-        <p>
-          I dati possono essere trattati da personale autorizzato e da fornitori di servizi che
-          agiscono come responsabili del trattamento, in particolare il fornitore dell'hosting del
-          sito e il servizio di inoltro dei moduli. Non trasferiamo dati al di fuori dello Spazio
-          Economico Europeo, salvo verso fornitori che garantiscono un livello di protezione adeguato
-          ai sensi degli articoli 44 e seguenti del GDPR.
-        </p>
+  <h2>4. A chi vengono comunicati</h2>
+  <p>
+    I dati sono trattati da chi in azienda deve occuparsi della vostra richiesta e da fornitori che
+    agiscono come responsabili del trattamento ai sensi dell'articolo 28 del GDPR:
+  </p>
+  <ul>
+    <li>
+      <strong>Vercel Inc.</strong> — ospita le pagine e i file del sito
+      (<a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">informativa</a>).
+    </li>
+    <li>
+      <strong>Supabase Inc.</strong> — è il database dell'impresa. Vi si conserva la copia delle
+      richieste ricevute dai moduli, che il titolare consulta dal proprio pannello, e i conteggi di
+      visita in forma aggregata
+      (<a href="https://supabase.com/privacy" target="_blank" rel="noopener">informativa</a>).
+    </li>
+    <li>
+      <strong>Web3Forms</strong> — riceve i dati del modulo e li recapita alla nostra casella di
+      posta. Quando premete invio, i dati vengono trasmessi direttamente dal vostro browser a questo
+      fornitore
+      (<a href="https://web3forms.com/privacy" target="_blank" rel="noopener">informativa</a>).
+    </li>
+    <li>
+      <strong>Google</strong> — il fornitore della casella di posta su cui riceviamo le richieste.
+    </li>
+    {
+      conStatistiche && (
+        <li>
+          <strong>Google Ireland Limited</strong> — Google Analytics, solo dopo il vostro consenso
+          (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">informativa</a>
+          ).
+        </li>
+      )
+    }
+  </ul>
+  <p>
+    Fuori da questi casi non comunichiamo i vostri dati a terzi, salvo un obbligo di legge o una
+    richiesta dell'autorità. Se il lavoro lo richiede possiamo doverli condividere con un tecnico
+    abilitato o con la nostra compagnia assicurativa, ma solo dopo avervelo detto.
+  </p>
+  <p>
+    Alcuni di questi fornitori possono trattare i dati anche fuori dallo Spazio Economico Europeo.
+    In quel caso il trasferimento avviene sulla base delle garanzie degli articoli 44 e seguenti del
+    GDPR, in particolare delle clausole contrattuali tipo approvate dalla Commissione europea
+    (articolo 46). Potete chiederci copia delle garanzie adottate scrivendo a
+    <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
 
-        <h2>5. Per quanto tempo li conserviamo</h2>
-        <p>
-          Le richieste di preventivo non seguite da un incarico vengono conservate per un massimo di
-          24 mesi dall'ultimo contatto. In caso di incarico, i dati sono conservati per la durata del
-          rapporto e per i successivi 10 anni, come previsto dagli obblighi civilistici e fiscali.
-        </p>
+  <h2>5. Il contatore di visite</h2>
+  <p>
+    Il conteggio delle visite è un trattamento a sé, ed è costruito per non identificarvi: non
+    registriamo l'indirizzo IP, non creiamo impronte del browser, non vi riconosciamo alla visita
+    successiva e non incrociamo questi dati con le richieste che ci inviate. Del referrer teniamo
+    solo il nome del dominio, mai l'indirizzo completo, che potrebbe contenere ciò che avevate
+    cercato.
+  </p>
+  <p>
+    Il contatore si disattiva da solo se il vostro browser invia il segnale "Do Not Track" o il
+    Global Privacy Control. Potete comunque opporvi al trattamento in ogni momento: come farlo è
+    spiegato nella <a href="/cookie/">Cookie Policy</a>.
+  </p>
 
-        <h2>6. I vostri diritti</h2>
-        <p>
-          Potete in ogni momento chiedere l'accesso ai vostri dati, la loro rettifica o cancellazione,
-          la limitazione del trattamento, la portabilità, e opporvi al trattamento. Potete inoltre
-          revocare il consenso prestato, senza che ciò pregiudichi la liceità del trattamento svolto
-          in precedenza. Per esercitare questi diritti scrivete a
-          <a href={`mailto:${site.email}`}>{site.email}</a>.
-        </p>
-        <p>
-          Se ritenete che il trattamento violi la normativa, avete diritto di proporre reclamo al
-          Garante per la protezione dei dati personali (<a
-            href="https://www.garanteprivacy.it"
-            target="_blank"
-            rel="noopener">www.garanteprivacy.it</a
-          >).
-        </p>
+  <h2>6. Per quanto tempo li conserviamo</h2>
+  <ul>
+    <li>
+      <strong>Richieste senza seguito:</strong> massimo 24 mesi dall'ultimo contatto, poi vengono
+      cancellate.
+    </li>
+    <li>
+      <strong>Richieste diventate un incarico:</strong> per la durata del rapporto e per i 10 anni
+      successivi, come impongono gli obblighi civilistici e fiscali.
+    </li>
+    <li>
+      <strong>Conteggi di visita:</strong> conservati in forma aggregata, senza dati che vi
+      riguardino individualmente.
+    </li>
+  </ul>
 
-        <h2>7. Natura del conferimento</h2>
-        <p>
-          Il conferimento di nome e numero di telefono è necessario per poter dare seguito alla
-          richiesta di preventivo: senza questi dati non siamo in grado di ricontattarvi. Gli altri
-          campi sono facoltativi e servono solo a rendere più accurata la nostra valutazione.
-        </p>
+  <h2>7. I vostri diritti</h2>
+  <p>
+    Potete in ogni momento chiedere l'accesso ai vostri dati, la rettifica, la cancellazione, la
+    limitazione del trattamento e la portabilità, e potete opporvi ai trattamenti fondati sul
+    legittimo interesse. Se un trattamento si basa sul consenso, potete revocarlo quando volete,
+    senza che questo tolga validità a quanto fatto prima. Per esercitare questi diritti basta
+    scrivere a <a href={`mailto:${site.email}`}>{site.email}</a>: rispondiamo entro un mese.
+  </p>
+  <p>
+    Se ritenete che il trattamento violi la normativa avete diritto di proporre reclamo al Garante
+    per la protezione dei dati personali (<a
+      href="https://www.garanteprivacy.it"
+      target="_blank"
+      rel="noopener">www.garanteprivacy.it</a
+    >) o di rivolgervi all'autorità giudiziaria.
+  </p>
 
-        <p class="nota">Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}</p>
-      </div>
-
-      <a href="/" class="btn btn-contorno mt-12">Torna alla home</a>
-    </div>
-  </main>
-
-  <Footer />
-</Base>
+  <h2>8. Se dovete darci per forza i vostri dati</h2>
+  <p>
+    Nessun campo è obbligatorio per navigare il sito. Nei moduli, l'unico dato davvero necessario è
+    il <strong>numero di telefono</strong>, senza il quale non possiamo richiamarvi, e il
+    <strong>nome</strong> nel configuratore, per sapere chi stiamo chiamando. Tutto il resto è
+    facoltativo e serve soltanto a rendere più preciso il nostro preventivo: se non lo compilate, la
+    richiesta parte lo stesso.
+  </p>
+</PaginaLegale>

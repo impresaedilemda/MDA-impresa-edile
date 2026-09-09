@@ -1,0 +1,280 @@
+---
+/**
+ * =============================================================================
+ *  IL BLOG: l'elenco degli articoli scritti dal pannello
+ * =============================================================================
+ *  Gli articoli arrivano da Supabase al momento della build (src/lib/remoto.ts)
+ *  e diventano card statiche, con lo stesso vestito delle guide. In più la
+ *  pagina, una volta aperta, chiede al database l'elenco più fresco: se il
+ *  cliente ha pubblicato o ritirato qualcosa dopo l'ultimo deploy, la griglia
+ *  si ridisegna da sola clonando il <template> in fondo alla pagina.
+ *
+ *  Mai innerHTML: i titoli e gli estratti li scrive il cliente, e nel DOM
+ *  entrano solo come testo. La card statica e quella del template sono lo
+ *  stesso markup scritto due volte: chi ne tocca una tocca anche l'altra.
+ * =============================================================================
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import Logo from '../../components/Logo.astro'
+import { site } from '../../config/site'
+import { remoto } from '../../lib/remoto'
+import { dataIso, dataItaliana, indirizzoArticolo, jsonLd, schedaDi, slugValido } from '../../lib/blog-cliente'
+
+/* Solo gli articoli con uno slug che può diventare un indirizzo: gli altri
+   non hanno una pagina, e una card senza destinazione confonderebbe. */
+const schede = remoto.articoli.filter((a) => slugValido(a.slug)).map(schedaDi)
+
+const title = `Blog su tetti, coperture e manutenzione | ${site.name}`
+const description = `Articoli dal cantiere di ${site.name}: casi reali, manutenzione del tetto, materiali a confronto e consigli pratici per chi ha una copertura da tenere in ordine.`
+
+const assoluto = (indirizzo: string) => new URL(indirizzo, site.url).href
+
+/* Stesso editore delle guide: il riferimento @id all'impresa dichiarata in
+   Schema.astro, ripetuto con nome e logo così il nodo si legge anche da solo.
+   Il logo è l'unico file marchiato presente in public/, come nello schema
+   globale. */
+const editore = {
+  '@id': `${site.url}/#organizzazione`,
+  '@type': ['RoofingContractor', 'GeneralContractor'],
+  name: site.name,
+  logo: `${site.url}/apple-touch-icon.png`,
+}
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${site.url}/blog/` },
+      ],
+    },
+    {
+      '@type': 'Blog',
+      '@id': `${site.url}/blog/#blog`,
+      name: `Il blog di ${site.name}`,
+      url: `${site.url}/blog/`,
+      description,
+      inLanguage: 'it-IT',
+      publisher: editore,
+      /* blogPost solo con articoli veri: un elenco vuoto dichiarato è rumore. */
+      ...(schede.length > 0
+        ? {
+            blogPost: schede.map((s) => ({
+              '@type': 'BlogPosting',
+              headline: s.titolo,
+              url: assoluto(indirizzoArticolo(s.slug)),
+              datePublished: s.creato,
+              ...(s.copertina ? { image: assoluto(s.copertina) } : {}),
+            })),
+          }
+        : {}),
+    },
+  ],
+}
+---
+
+<Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd(schema)} />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto">
+    <!-- Intestazione scura -->
+    <section class="bg-nero py-14 text-white md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+        </nav>
+        <p class="occhiello !text-sabbia">Dal cantiere</p>
+        <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">
+          Il blog di MDA: tetti, coperture e manutenzione spiegati bene
+        </h1>
+        <p class="max-w-[720px] font-sans text-lg leading-relaxed text-sabbia/85">
+          Quello che vediamo ogni settimana sui tetti fra {site.regions[0]} e {site.regions[1]},
+          raccontato senza giri di parole: casi reali, errori da evitare e le piccole manutenzioni
+          che allungano la vita di una copertura.
+        </p>
+      </div>
+    </section>
+
+    <!-- Griglia degli articoli -->
+    <section class="bg-crema py-14 md:py-20">
+      <div class="contenitore">
+        <ul id="blog-elenco" class="rivela-fila grid gap-6 md:grid-cols-2 lg:gap-8">
+          {
+            schede.length > 0 ? (
+              schede.map((s) => (
+                <li class="solleva overflow-hidden rounded-lg border border-nero/8 bg-white" data-slug={s.slug}>
+                  <a href={indirizzoArticolo(s.slug)} class="group flex h-full flex-col">
+                    <div class="zoom-foto aspect-video bg-carta">
+                      {s.copertina ? (
+                        <img src={s.copertina} alt="" loading="lazy" decoding="async" class="size-full object-cover" />
+                      ) : (
+                        <div class="flex size-full items-center justify-center">
+                          <Logo class="h-12 w-auto opacity-50" />
+                        </div>
+                      )}
+                    </div>
+                    <div class="flex flex-1 flex-col gap-4 p-8 md:p-9">
+                      <p class="font-sans text-[13px] font-semibold text-nero/55">
+                        <time datetime={dataIso(s.creato)}>{dataItaliana(s.creato)}</time>
+                        <span aria-hidden="true" class="mx-1.5">·</span>
+                        <span>{s.minuti} min di lettura</span>
+                      </p>
+                      <h2 class="font-display text-2xl font-normal leading-snug text-nero transition-colors group-hover:text-taupe">
+                        {s.titolo}
+                      </h2>
+                      <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75">{s.estratto}</p>
+                      <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+                        Leggi l’articolo
+                        <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </a>
+                </li>
+              ))
+            ) : (
+              <li class="rounded-lg border border-nero/8 bg-white p-8 md:col-span-2 md:p-9">
+                <p class="occhiello">In preparazione</p>
+                <h2 class="mt-3 font-display text-2xl font-normal leading-snug text-nero">
+                  I primi articoli stanno arrivando
+                </h2>
+                <p class="mt-3 max-w-[620px] font-sans text-[15px] leading-relaxed text-nero/75">
+                  Stiamo scrivendo i primi pezzi. Nel frattempo le guide raccolgono già le risposte alle
+                  domande che ci fanno più spesso: costi, infiltrazioni, isolamento e materiali.
+                </p>
+                <a href="/guide/" class="btn btn-nero mt-6">Vai alle guide</a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- La card vuota che lo script clona quando il database ha un elenco
+       diverso da quello reso. Contiene sia l'immagine sia il riquadro col
+       logo: lo script tiene quello giusto e toglie l'altro. -->
+  <template id="blog-modello">
+    <li class="solleva overflow-hidden rounded-lg border border-nero/8 bg-white">
+      <a href="/blog/" class="group flex h-full flex-col">
+        <div class="zoom-foto aspect-video bg-carta">
+          <img alt="" loading="lazy" decoding="async" class="size-full object-cover" data-immagine />
+          <div class="flex size-full items-center justify-center" data-senza-foto>
+            <Logo class="h-12 w-auto opacity-50" />
+          </div>
+        </div>
+        <div class="flex flex-1 flex-col gap-4 p-8 md:p-9">
+          <p class="font-sans text-[13px] font-semibold text-nero/55">
+            <time data-data></time>
+            <span aria-hidden="true" class="mx-1.5">·</span>
+            <span data-minuti></span>
+          </p>
+          <h2
+            class="font-display text-2xl font-normal leading-snug text-nero transition-colors group-hover:text-taupe"
+            data-titolo
+          >
+          </h2>
+          <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75" data-estratto></p>
+          <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+            Leggi l’articolo
+            <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
+          </span>
+        </div>
+      </a>
+    </li>
+  </template>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+
+  <script>
+    import {
+      dataIso,
+      dataItaliana,
+      indirizzoArticolo,
+      leggiArticoliPubblicati,
+      schedaDi,
+      slugValido,
+      type Scheda,
+    } from '../../lib/blog-cliente'
+
+    const elenco = document.getElementById('blog-elenco')
+    const modello = document.getElementById('blog-modello')
+
+    /** Gli slug delle card già in pagina, nell'ordine in cui stanno. */
+    function slugResi(radice: HTMLElement): string[] {
+      return [...radice.querySelectorAll<HTMLElement>('[data-slug]')].map((li) => li.getAttribute('data-slug') ?? '')
+    }
+
+    /** Una card nuova dal template, riempita solo con textContent e attributi. */
+    function card(modello: HTMLTemplateElement, scheda: Scheda): HTMLElement | null {
+      const nodo = modello.content.firstElementChild?.cloneNode(true)
+      if (!(nodo instanceof HTMLElement)) return null
+
+      nodo.setAttribute('data-slug', scheda.slug)
+      nodo.querySelector('a')?.setAttribute('href', indirizzoArticolo(scheda.slug))
+
+      const immagine = nodo.querySelector<HTMLImageElement>('[data-immagine]')
+      const senzaFoto = nodo.querySelector<HTMLElement>('[data-senza-foto]')
+      if (scheda.copertina) {
+        immagine?.setAttribute('src', scheda.copertina)
+        senzaFoto?.remove()
+      } else {
+        immagine?.remove()
+      }
+
+      const data = nodo.querySelector<HTMLElement>('[data-data]')
+      if (data) {
+        data.textContent = dataItaliana(scheda.creato)
+        data.setAttribute('datetime', dataIso(scheda.creato))
+      }
+      const minuti = nodo.querySelector<HTMLElement>('[data-minuti]')
+      if (minuti) minuti.textContent = `${scheda.minuti} min di lettura`
+      const titolo = nodo.querySelector<HTMLElement>('[data-titolo]')
+      if (titolo) titolo.textContent = scheda.titolo
+      const estratto = nodo.querySelector<HTMLElement>('[data-estratto]')
+      if (estratto) estratto.textContent = scheda.estratto
+
+      return nodo
+    }
+
+    /**
+     * Confronta l'elenco del database con quello reso e ricostruisce la
+     * griglia solo se sono diversi: nel caso normale la pagina non si muove.
+     */
+    async function aggiorna(radice: HTMLElement, modello: HTMLTemplateElement): Promise<void> {
+      const articoli = await leggiArticoliPubblicati()
+      // Senza risposta, o con un elenco vuoto, resta la pagina della build:
+      // un database che tace non deve cancellare quello che c'era.
+      if (!articoli || articoli.length === 0) return
+
+      const freschi = articoli.filter((a) => slugValido(a.slug))
+      const nuovi = freschi.map((a) => a.slug)
+      const resi = slugResi(radice)
+      if (nuovi.length === resi.length && nuovi.every((slug, i) => slug === resi[i])) return
+
+      const carte = freschi.map((a) => card(modello, schedaDi(a))).filter((c): c is HTMLElement => c !== null)
+      if (carte.length === 0) return
+
+      while (radice.firstChild) radice.removeChild(radice.firstChild)
+      carte.forEach((carta, i) => {
+        // Stesso scaglionamento dell'entrata delle carte in Base.astro.
+        carta.style.setProperty('--ritardo', `${Math.min(i * 80, 480)}ms`)
+        radice.append(carta)
+      })
+    }
+
+    if (elenco && modello instanceof HTMLTemplateElement) aggiorna(elenco, modello)
+  </script>
+</Base>

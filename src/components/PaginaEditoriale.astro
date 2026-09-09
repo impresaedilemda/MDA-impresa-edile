@@ -73,7 +73,7 @@ const correlatiGuide = pagina.correlati.guide.map((g) => guidaPerSlug(g)).filter
           <div class="flex flex-col gap-4">
             {
               pagina.faq.map((f, i) => (
-                <details class="group rounded-lg bg-carta" open={i === 0}>
+                <details class="group rounded-lg bg-carta" name="faq-pagina" open={i === 0}>
                   <summary class="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 font-display text-[1.2rem] font-semibold text-nero transition-colors hover:text-taupe">
                     <h3 class="text-[1.2rem] font-semibold leading-snug">{f.q}</h3>
                     <span class="flex size-5 shrink-0 items-center justify-center" aria-hidden="true">

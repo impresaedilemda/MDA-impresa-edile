@@ -37,24 +37,51 @@ Fiecare e marcat acolo cu `// TODO CLIENTE`.
 
 ## Partea legală, ca să nu iei amendă
 
-Un site de firmă în Italia trebuie să afișeze datele de identificare (art. 7 D.Lgs. 70/2003, iar pentru societăți și art. 2250 Cod Civil). Site-ul are deja structura completă, dar **valorile sunt încă provizorii**.
+Detaliile complete, în italiană, ca să le poți trimite clientului sau
+contabilului lui: [`docs/CONFORMITA-LEGALE.md`](docs/CONFORMITA-LEGALE.md).
 
-**Cel mai mare risc chiar acum:** partita IVA afișată în footer e `00000000000`, adică inventată. O partita IVA falsă publicată e mai gravă decât una lipsă, pentru că apare ca dată de identificare falsă. Nu se publică până nu vine cea reală.
+Un site de firmă în Italia trebuie să afișeze datele de identificare (art. 7
+D.Lgs. 70/2003, iar pentru societăți și art. 2250 Cod Civil). Structura e
+completă, **valorile sunt încă provizorii**.
 
-Ce e deja pus la punct:
-- Footer cu ragione sociale, sediu legal, P.IVA și REA
-- Privacy policy și cookie policy, pagini separate
-- Consimțământ GDPR bifabil în **ambele** formulare, cu link către informativă
-- Fără cookie-uri de profilare, deci nu e nevoie de banner de consimțământ (cookie policy descrie corect situația)
-- Fără iframe Google Maps, care ar trimite date la Google înainte de consimțământ
+**Cel mai mare risc chiar acum:** partita IVA din config e `IT00000000000`, adică
+inventată. Codul o ascunde peste tot, deci pe build-ul nou nu se publică. Dar
+versiunea de pe domeniul live e mai veche și o **afișează**: `P.IVA e C.F.
+00000000000 | REA BS-000000`. Se rezolvă cu un deploy al versiunii curente.
 
-Ce lipsește: valorile reale (punctele 8 până la 12 de mai sus).
+Ce e gata în cod:
 
-**Ai un ajutor automat:** în timp ce lucrezi cu `npm run dev`, în colțul din dreapta jos apare un panou roșu care listează exact ce mai e provizoriu. La `npm run build` același avertisment apare în terminal. Panoul nu ajunge niciodată pe site-ul publicat.
+- Cinci pagini legale: `/privacy/`, `/cookie/`, `/termini/`, `/recesso/`,
+  `/crediti/`, toate legate din footer și între ele
+- Datele societare apar doar dacă sunt reale; ce lipsește pur și simplu nu se
+  afișează, iar în locul lor apare o notă onestă cu „cereți-ne datele"
+- Consimțământ GDPR bifabil în **ambele** formulare, cu link spre informativă
+- Banner de cookie-uri **scris și testat**, dar care apare doar dacă e setat
+  `PUBLIC_GA_ID`. Fără Google Analytics nu se instalează nimic care să ceară
+  consimțământ, iar un banner atunci ar fi o declarație falsă
+- Recenziile inventate: **șterse**. Secțiunea nu se mai desenează deloc până nu
+  există recenzii reale în panou
+- Portofoliul: pozele rămân, dar secțiunea nu le mai prezintă ca șantiere
+  executate. Localitățile inventate au dispărut, etichetele spun „tipic", iar
+  deasupra pozelor e un avertisment vizibil
+- „Dal 2009" și „da N anni" nu mai apar nicăieri până nu confirmă clientul anul
 
-Recomandare: privacy și cookie policy să fie citite de contabilul sau consulentul clientului înainte de lansare. Sunt scrise corect, dar cine semnează pentru ele e firma.
+### Cum se pornește Google Analytics
 
----
+O singură variabilă pe Vercel:
+
+```
+PUBLIC_GA_ID=G-XXXXXXXXXX
+```
+
+Restul se aprinde singur: bannerul, secțiunile despre GA din cookie policy și
+privacy policy, butonul „Gestisci i cookie" din footer. GA nu se încarcă înainte
+de accept, Consent Mode v2 pleacă de la `denied`, iar refuzul ține șase luni.
+CSP-ul din `vercel.json` are deja domeniile Google trecute.
+
+Recomandare: privacy, cookie, termeni și recesso să fie citite de contabilul sau
+consulentul clientului înainte de lansare. Sunt scrise corect, dar cine semnează
+pentru ele e firma.
 
 ## Conținut de cerut
 
@@ -64,14 +91,14 @@ Recomandare: privacy și cookie policy să fie citite de contabilul sau consulen
 | 18 | **Recenzii reale** | La fel. Recenziile inventate încalcă regulile Google și pot atrage penalizare manuală. Ideal: link către profilul Google al firmei, de unde le luăm |
 | 19 | Logo-ul în format vectorial (SVG sau AI), dacă îl are | Acum e reconstruit în SVG din poza trimisă. Merge foarte bine, dar originalul e mereu mai sigur |
 
-După ce sosesc pozele reale și recenziile, se pun pe `false` cele două steaguri din [`src/config/content.ts`](src/config/content.ts):
+Pozele reale și recenziile reale se încarcă din panou, nu din cod. După ce
+clientul pune primul șantier real, avertismentul și etichetele „tipic" dispar
+singure; după prima recenzie reală, secțiunea de recenzii reapare singură.
 
-```
-export const portfolioIsPlaceholder = false
-export const reviewsArePlaceholder = false
-```
-
-Al doilea activează și datele structurate `AggregateRating`, care afișează stelele în rezultatele Google.
+`reviews` din [`src/config/content.ts`](src/config/content.ts) rămâne **gol
+intenționat**. Nu se pun recenzii scrise de noi: e practică comercială
+înșelătoare în sine (anexa I din Codul consumului, după D.Lgs. 26/2023), cu
+amendă AGCM de la 5.000 €.
 
 ---
 

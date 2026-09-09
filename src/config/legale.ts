@@ -24,7 +24,7 @@ type Verifica = {
 }
 
 /** Valori chiaramente segnaposto, da non pubblicare mai. */
-function eSegnaposto(valore: string): boolean {
+export function eSegnaposto(valore: string): boolean {
   const v = valore.trim().toLowerCase()
   return (
     v === '' ||
@@ -77,8 +77,9 @@ export const verificheLegali: Verifica[] = [
   {
     campo: 'Dominio del sito',
     valore: site.url,
-    ok: !site.url.includes('mdaimpresaedile.it') || true,
-    perche: 'Deve corrispondere al dominio reale, usato in canonical, sitemap e dati strutturati.',
+    ok: site.url.startsWith('https://') && !site.url.includes('vercel.app') && !eSegnaposto(site.url),
+    perche:
+      'Deve corrispondere al dominio definitivo, usato in canonical, sitemap e dati strutturati, e deve già risolvere nel DNS con certificato valido: un canonical verso un dominio che non risponde vale come assente.',
   },
   {
     campo: 'Chiave del modulo',

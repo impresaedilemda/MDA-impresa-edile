@@ -1,7 +1,9 @@
 ---
 /**
- * Pagina guida: articolo di approfondimento con schema Article,
- * FAQPage e BreadcrumbList propri.
+ * Pagina guida: articolo di approfondimento con schema Article e
+ * BreadcrumbList propri. Le FAQ restano visibili in pagina ma senza nodo
+ * FAQPage: dal 2023 Google non concede piu il risultato ricco alle guide
+ * commerciali, quindi il blocco pesava senza rendere nulla.
  */
 import Base from '../../layouts/Base.astro'
 import Header from '../../components/Header.astro'
@@ -18,6 +20,24 @@ export function getStaticPaths() {
 
 const { pagina } = Astro.props
 
+/* Date e immagine dell'articolo: campi opzionali di guide.ts. Finche non
+   sono compilati non vengono emessi, cosi non si dichiarano date inventate. */
+const datiArticolo = pagina as typeof pagina & {
+  dataPubblicata?: string
+  dataAggiornata?: string
+  immagine?: string
+}
+
+/* L'entita dell'impresa vive nel blocco globale di Schema.astro: qui il
+   riferimento @id viene ripetuto con nome e logo, cosi il nodo resta
+   leggibile anche quando un validatore analizza il blocco da solo. */
+const editore = {
+  '@id': `${site.url}/#organizzazione`,
+  '@type': ['RoofingContractor', 'GeneralContractor'],
+  name: site.name,
+  logo: `${site.url}/apple-touch-icon.png`,
+}
+
 const schema = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -26,22 +46,17 @@ const schema = {
       headline: pagina.h1,
       description: pagina.metaDescription,
       inLanguage: 'it-IT',
-      author: { '@type': 'Organization', name: site.name, url: site.url },
-      publisher: { '@id': `${site.url}/#organizzazione` },
+      author: { '@type': 'Organization', name: site.name, url: `${site.url}/` },
+      publisher: editore,
       mainEntityOfPage: `${site.url}/guide/${pagina.slug}/`,
-    },
-    {
-      '@type': 'FAQPage',
-      mainEntity: pagina.faq.map((f) => ({
-        '@type': 'Question',
-        name: f.q,
-        acceptedAnswer: { '@type': 'Answer', text: f.a },
-      })),
+      ...(datiArticolo.dataPubblicata ? { datePublished: datiArticolo.dataPubblicata } : {}),
+      ...(datiArticolo.dataAggiornata ? { dateModified: datiArticolo.dataAggiornata } : {}),
+      ...(datiArticolo.immagine ? { image: new URL(datiArticolo.immagine, site.url).href } : {}),
     },
     {
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
         { '@type': 'ListItem', position: 2, name: 'Guide', item: `${site.url}/guide/` },
         { '@type': 'ListItem', position: 3, name: pagina.h1, item: `${site.url}/guide/${pagina.slug}/` },
       ],

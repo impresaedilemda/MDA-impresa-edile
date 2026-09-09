@@ -1,0 +1,195 @@
+---
+/**
+ * Diritto di recesso e rimborsi.
+ *
+ * Perche una pagina a se: un'impresa edile firma quasi sempre a casa del
+ * cliente, dopo il sopralluogo. Sono contratti "fuori dei locali
+ * commerciali", quindi il consumatore ha quattordici giorni per ripensarci
+ * (art. 52 del Codice del consumo, d.lgs. 206/2005) e l'impresa ha
+ * l'obbligo di informarlo PRIMA (art. 49).
+ *
+ * Le due trappole vere, entrambe spiegate nel testo:
+ *  - se l'informazione sul recesso non viene data, il termine non e piu di
+ *    14 giorni ma di 12 mesi e 14 giorni (art. 53);
+ *  - se i lavori iniziano dentro i 14 giorni senza richiesta espressa del
+ *    consumatore su supporto durevole, in caso di recesso il consumatore non
+ *    deve pagare nulla di quanto e stato fatto (art. 57, comma 3).
+ *
+ * Il modulo di recesso riproduce il modello dell'allegato I, parte B, del
+ * Codice del consumo.
+ */
+import PaginaLegale from '../components/PaginaLegale.astro'
+import DatiTitolare from '../components/DatiTitolare.astro'
+import { denominazione, site } from '../config/site'
+---
+
+<PaginaLegale
+  titolo={`Diritto di recesso e rimborsi | ${site.name}`}
+  descrizione="Quando potete annullare un lavoro già firmato, entro quanto tempo, come si chiede e come vengono restituiti gli acconti."
+  h1="Diritto di recesso e rimborsi"
+  sottotitolo="Quando potete cambiare idea dopo aver firmato, che cosa dovete fare e come tornano indietro i soldi già versati."
+>
+  <h2>1. In due righe</h2>
+  <p>
+    Se siete consumatori, cioè persone che fanno eseguire lavori per motivi estranei alla propria
+    attività professionale, e il contratto è stato firmato <strong>a casa vostra</strong> dopo il
+    sopralluogo oppure <strong>a distanza</strong> (telefono, email, WhatsApp), avete
+    <strong>quattordici giorni</strong> per ripensarci. Non dovete spiegare il motivo e non dovete
+    pagare nessuna penale.
+  </p>
+
+  <h2>2. Chi è il destinatario del recesso</h2>
+  <DatiTitolare />
+
+  <h2>3. Quando si applica</h2>
+  <ul>
+    <li>
+      <strong>Contratto firmato fuori dai nostri locali:</strong> a casa vostra, in cantiere, o
+      comunque in un luogo che non sia la nostra sede. È il caso più frequente, perché il preventivo
+      si firma quasi sempre dopo il sopralluogo.
+    </li>
+    <li>
+      <strong>Contratto concluso a distanza:</strong> per telefono, per email, per messaggio, senza
+      che ci siamo mai visti di persona.
+    </li>
+  </ul>
+
+  <h2>4. Quando non si applica</h2>
+  <ul>
+    <li>
+      Se <strong>non siete consumatori</strong>: imprese, professionisti, condomìni che agiscono
+      nell'ambito di un'attività, enti. In quel caso valgono le sole regole del contratto firmato.
+    </li>
+    <li>
+      Se il contratto è stato firmato <strong>presso la nostra sede</strong>, dopo esserci venuti
+      appositamente.
+    </li>
+    <li>
+      Se si tratta di un intervento fuori sede di <strong>importo non superiore a 50 euro</strong>
+      (art. 47, comma 2, del Codice del consumo).
+    </li>
+    <li>
+      Se avete <strong>chiesto espressamente</strong> che il lavoro cominciasse subito e il lavoro è
+      stato <strong>completato interamente</strong> entro i quattordici giorni: a servizio finito il
+      diritto si esaurisce, ma solo se prima vi avevamo avvertito per iscritto che sarebbe successo
+      (art. 59, comma 1, lettera a).
+    </li>
+  </ul>
+
+  <h2>5. Da quando contano i quattordici giorni</h2>
+  <p>
+    Per i lavori, che sono un servizio, i quattordici giorni partono <strong>dal giorno della
+    firma</strong> del contratto. Se il termine cade di sabato, domenica o in un giorno festivo,
+    slitta al primo giorno lavorativo successivo.
+  </p>
+  <p>
+    <strong>Se non vi avessimo informati di questo diritto</strong>, il termine non sarebbe di
+    quattordici giorni: si allungherebbe fino a dodici mesi e quattordici giorni (art. 53 del Codice
+    del consumo). Questa pagina è l'informazione che la legge ci impone di darvi prima della firma:
+    se al momento del sopralluogo non ve la richiamiamo, chiedetecela.
+  </p>
+
+  <h2>6. Se i lavori iniziano prima che scadano i quattordici giorni</h2>
+  <p>
+    Capita spesso: c'è una perdita in corso e aspettare due settimane non ha senso. In quel caso la
+    legge chiede una cosa precisa, e noi la rispettiamo:
+  </p>
+  <ul>
+    <li>
+      dovete <strong>chiederci espressamente per iscritto</strong> di iniziare subito, e vi lasciamo
+      copia di quella richiesta. Una richiesta a voce non basta: la legge pretende un supporto
+      durevole, e serve a proteggere voi prima ancora che noi;
+    </li>
+    <li>
+      se poi recedete a lavori già cominciati, pagate <strong>solo la parte già eseguita</strong>, in
+      proporzione a quanto pattuito complessivamente. Nient'altro: nessuna penale, nessun rimborso
+      di spese generali;
+    </li>
+    <li>
+      se invece i lavori fossero iniziati <strong>senza</strong> quella richiesta scritta,
+      recedendo <strong>non dovreste pagare nulla</strong> per quanto già fatto (art. 57, comma 3,
+      del Codice del consumo).
+    </li>
+  </ul>
+
+  <h2>7. Come si comunica il recesso</h2>
+  <p>Basta una dichiarazione chiara, con qualsiasi mezzo che lasci traccia. Per esempio:</p>
+  <ul>
+    <li>una email a <a href={`mailto:${site.email}`}>{site.email}</a>;</li>
+    <li>una raccomandata alla sede indicata sopra;</li>
+    <li>il modulo qui sotto, compilato e inviato via email.</li>
+  </ul>
+  <p>
+    Conta la data in cui <strong>spedite</strong> la comunicazione, non quella in cui la leggiamo:
+    se la inviate il quattordicesimo giorno siete nei termini. Vi confermiamo la ricezione senza
+    ritardo.
+  </p>
+
+  <div class="my-8 rounded-lg border border-nero/15 bg-white/70 p-6">
+    <p class="font-sans text-xs font-bold uppercase tracking-[0.1em] text-taupe-testo">
+      Modulo di recesso tipo
+    </p>
+    <p class="mt-3 font-sans text-[13px] text-nero/60">
+      Da compilare e inviare solo se volete recedere dal contratto. Riproduce il modello
+      dell'allegato I, parte B, del Codice del consumo.
+    </p>
+    <p class="mt-5 whitespace-pre-line font-sans text-[15px] leading-relaxed text-nero">
+      {`Destinatario: ${denominazione}
+Email: ${site.email}
+Telefono: ${site.phone}
+
+Con la presente io/noi comunichiamo il recesso dal contratto di fornitura dei seguenti servizi:
+
+.......................................................................
+
+Ordinato/firmato il: ....................................
+
+Nome del consumatore: ...................................
+
+Indirizzo del consumatore: ..............................
+
+Firma del consumatore (solo se il modulo è inviato in forma cartacea):
+
+.......................................................................
+
+Data: ...................................`}
+    </p>
+  </div>
+
+  <h2>8. Rimborsi: quanto, quando e come</h2>
+  <ul>
+    <li>
+      <strong>Entro quattordici giorni</strong> dal momento in cui riceviamo il recesso vi
+      restituiamo tutto quello che avete versato: acconti, caparre, anticipi sui materiali.
+    </li>
+    <li>
+      <strong>Con lo stesso mezzo</strong> con cui avete pagato, salvo che ci chiediate diversamente.
+      Il rimborso non vi costa nulla: nessuna trattenuta, nessuna commissione.
+    </li>
+    <li>
+      L'unica somma che possiamo trattenere è quella corrispondente ai lavori già eseguiti su vostra
+      richiesta scritta, nei limiti spiegati al punto 6. Ve la dettagliamo voce per voce.
+    </li>
+  </ul>
+
+  <h2>9. Se il recesso non si applica: acconti e disdette</h2>
+  <p>
+    Fuori dai casi di recesso, quello che succede agli acconti dipende da come è scritto il
+    preventivo che avete firmato, e la differenza è concreta: un <strong>acconto</strong> è un
+    anticipo sul prezzo e in caso di annullamento consensuale torna indietro al netto delle spese
+    già sostenute; una <strong>caparra confirmatoria</strong>, invece, segue le regole dell'articolo
+    1385 del codice civile e chi rinuncia la perde. Sono due cose diverse e devono essere scritte
+    per esteso nel preventivo: se leggendolo non è chiaro quale delle due state versando, fatevelo
+    scrivere <strong>prima</strong> di firmare. Se il dubbio riguarda un nostro preventivo,
+    chiamateci: {site.phone}.
+  </p>
+
+  <h2>10. Se il lavoro è stato fatto male</h2>
+  <p>
+    Il recesso è il ripensamento, ed è un'altra cosa dalla contestazione di un difetto. Se il lavoro
+    presenta vizi o difformità restano intatte le garanzie di legge (articoli 1667 e 1669 del codice
+    civile) e la nostra garanzia scritta di {site.warrantyYears} anni: il dettaglio è nei
+    <a href="/termini/">Termini e condizioni</a>. In quel caso non serve nessun modulo: chiamateci e
+    veniamo a vedere.
+  </p>
+</PaginaLegale>

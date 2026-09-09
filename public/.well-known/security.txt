@@ -1,4 +1,8 @@
 # Segnalazioni di sicurezza per mdaimpresaedile.it
 Contact: mailto:impresaedilemda@gmail.com
 Preferred-Languages: it, en
-Expires: 2027-12-31T23:59:59.000Z
+# Canonical viene riallineato a PUBLIC_SITE_URL durante la build (astro.config.mjs).
+Canonical: https://mda-impresa-edile.vercel.app/.well-known/security.txt
+# RFC 9116 chiede meno di un anno: da rinnovare entro luglio 2027,
+# un security.txt scaduto vale come inesistente per chi scansiona.
+Expires: 2027-08-01T23:59:59.000Z

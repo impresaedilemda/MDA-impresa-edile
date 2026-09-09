@@ -5,11 +5,12 @@
  * Chi vuole un preventivo articolato usa il configuratore piu in basso.
  */
 import { site } from '../config/site'
-import { services, verniciatura } from '../config/content'
+import { services } from '../config/content'
 
-const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Verniciatura Tetto' : '', 'Non lo so, ho bisogno di un parere'].filter(
-  Boolean,
-)
+// L'etichetta della verniciatura resta scritta qui finche content.ts non
+// espone un campo `shortTitle` nel blocco `verniciatura`: `titleAccent`
+// e un frammento di titolo, non un interruttore.
+const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo so, ho bisogno di un parere']
 ---
 
 <div class="rounded-xl bg-crema p-6 text-nero shadow-[0_20px_50px_rgba(0,0,0,0.35)] sm:p-8">
@@ -21,7 +22,17 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
     </p>
   </div>
 
-  <form id="form-rapido" novalidate class="mt-6 flex flex-col gap-3.5">
+  <form
+    id="form-rapido"
+    method="post"
+    novalidate
+    class="mt-6 flex flex-col gap-3.5"
+    data-whatsapp={site.whatsapp}
+    data-endpoint={site.formEndpoint}
+    data-chiave={site.formAccessKey}
+    data-telefono={site.phone}
+    data-telefono-href={site.phoneHref}
+  >
     <div>
       <label for="r-servizio" class="mb-1.5 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-taupe">
         Di cosa hai bisogno
@@ -43,13 +54,14 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
         autocomplete="tel"
         placeholder="Es. 340 1234567"
         class="campo-chiaro"
+        aria-describedby="r-errore"
         required
       />
     </div>
 
     <div>
       <label for="r-messaggio" class="mb-1.5 block font-sans text-xs font-bold uppercase tracking-[0.08em] text-taupe">
-        Messaggio <span class="font-normal normal-case tracking-normal text-taupe/70">(facoltativo)</span>
+        Messaggio <span class="font-normal normal-case tracking-normal text-nero/60">(facoltativo)</span>
       </label>
       <textarea
         id="r-messaggio"
@@ -60,17 +72,17 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
     </div>
 
     <label class="flex items-start gap-2.5 font-sans text-[12px] leading-relaxed text-nero/70">
-      <input id="r-privacy" name="privacy" type="checkbox" required class="mt-0.5 size-3.5 shrink-0 accent-[#151613]" />
+      <input id="r-privacy" name="privacy" type="checkbox" aria-describedby="r-errore" required class="mt-0.5 size-3.5 shrink-0 accent-[#151613]" />
       <span>
-        Ho letto l'<a href="/privacy" class="font-semibold text-taupe underline underline-offset-2">informativa privacy</a>
-        e acconsento al trattamento dei dati per essere ricontattato.
+        Ho preso visione dell'<a href="/privacy/" class="font-semibold text-taupe underline underline-offset-2">informativa privacy</a>.
       </span>
     </label>
 
-    <!-- Trappola anti-spam, invisibile agli utenti -->
-    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
+    <!-- Trappola anti-spam, invisibile agli utenti. Il nome `botcheck` e
+         quello riconosciuto anche lato server da Web3Forms. -->
+    <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
 
-    <p id="r-errore" class="hidden rounded-[4px] border-l-2 border-red-600 bg-red-50 px-3 py-2 font-sans text-[13px] text-red-800" role="alert"></p>
+    <p id="r-errore" tabindex="-1" class="hidden rounded-[4px] border-l-2 border-red-600 bg-red-50 px-3 py-2 font-sans text-[13px] text-red-800" role="alert"></p>
 
     <button type="submit" id="r-invia" class="btn btn-nero mt-1 w-full !py-4">
       <span class="r-invia-testo">Richiedi di essere richiamato</span>
@@ -80,20 +92,20 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
       </svg>
     </button>
 
-    <p class="text-center font-sans text-[11px] text-nero/50">
+    <p class="text-center font-sans text-xs text-nero/70">
       Oppure chiama subito
       <a href={`tel:${site.phoneHref}`} class="font-bold text-nero underline underline-offset-2">{site.phone}</a>
     </p>
   </form>
 
   <!-- Conferma -->
-  <div id="r-fatto" hidden class="py-8 text-center">
+  <div id="r-fatto" hidden role="status" class="py-8 text-center">
     <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-nero">
       <svg class="size-7 text-crema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
         <path d="m4 12.5 5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </div>
-    <h3 class="mt-5 font-display text-2xl font-normal">Richiesta ricevuta</h3>
+    <h3 id="r-fatto-titolo" tabindex="-1" class="mt-5 font-display text-2xl font-normal">Richiesta ricevuta</h3>
     <p class="mx-auto mt-2 max-w-xs font-sans text-sm leading-relaxed text-nero/70">
       Ti richiamiamo entro {site.responseHours} ore. Se preferisci, scrivici subito su WhatsApp.
     </p>
@@ -125,7 +137,6 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
   .campo-chiaro:focus {
     border-color: var(--color-nero);
     box-shadow: 0 0 0 3px rgba(142, 126, 106, 0.25);
-    outline: none;
   }
 
   .campo-chiaro[aria-invalid='true'] {
@@ -142,38 +153,104 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
   }
 </style>
 
-<script define:vars={{ WHATSAPP: site.whatsapp, ENDPOINT: site.formEndpoint, CHIAVE: site.formAccessKey }}>
+<script>
+  import { inviaRichiesta } from '../lib/richieste'
+
   const form = document.getElementById('form-rapido')
 
   if (form) {
+    // Valori di configurazione letti dagli attributi data: senza define:vars
+    // lo script resta un modulo differito e non blocca il parser.
+    const WHATSAPP = form.dataset.whatsapp
+    const ENDPOINT = form.dataset.endpoint
+    const CHIAVE = form.dataset.chiave
+    const TELEFONO = form.dataset.telefono
+    const TELEFONO_HREF = form.dataset.telefonoHref
+
+    // La chiave Web3Forms deve essere un UUID: con il segnaposto non
+    // fingiamo mai un invio riuscito.
+    const chiaveValida = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(CHIAVE || '')
+
     const errore = document.getElementById('r-errore')
     const invia = document.getElementById('r-invia')
     const fatto = document.getElementById('r-fatto')
 
+    const traccia = (nome, dati = {}) => {
+      window.dataLayer = window.dataLayer || []
+      window.dataLayer.push({ event: nome, ...dati })
+    }
+
+    const nascondiErrore = () => {
+      errore.classList.add('hidden')
+      errore.textContent = ''
+    }
+
+    // Prima si mostra il contenitore, poi si scrive il testo: cosi
+    // l'elemento e gia nell'albero di accessibilita.
+    const mostraErrore = (testo) => {
+      errore.classList.remove('hidden')
+      errore.textContent = testo
+    }
+
+    const ripristinaPulsante = () => {
+      invia.disabled = false
+      invia.querySelector('.r-invia-testo').textContent = 'Richiedi di essere richiamato'
+      invia.querySelector('.r-spinner').classList.add('hidden')
+    }
+
+    const linkErrore = (href, etichetta, nuovaScheda = false) => {
+      const a = document.createElement('a')
+      a.href = href
+      a.className = 'font-bold underline underline-offset-2'
+      a.textContent = etichetta
+      if (nuovaScheda) {
+        a.target = '_blank'
+        a.rel = 'noopener'
+      }
+      return a
+    }
+
+    // Invio fallito: il modulo resta aperto, nessun evento di conversione,
+    // e offriamo subito telefono e WhatsApp precompilato.
+    const mostraErroreInvio = (testo) => {
+      ripristinaPulsante()
+      errore.classList.remove('hidden')
+      errore.textContent = 'Non siamo riusciti a inviare la richiesta. Chiamaci allo '
+      errore.append(
+        linkErrore(`tel:${TELEFONO_HREF}`, TELEFONO),
+        ' oppure scrivici su ',
+        linkErrore(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, vi scrivo dal sito.\n\n${testo}`)}`, 'WhatsApp', true),
+        '.',
+      )
+      errore.focus()
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault()
-      errore.classList.add('hidden')
+      nascondiErrore()
 
       const dati = Object.fromEntries(new FormData(form).entries())
 
       // Trappola anti-spam: se e compilata, e un bot
-      if (dati._gotcha) return
+      if (dati.botcheck) return
 
       const telefono = document.getElementById('r-telefono')
       if (!dati.telefono?.trim()) {
-        errore.textContent = 'Serve un numero di telefono per poterti richiamare.'
-        errore.classList.remove('hidden')
+        mostraErrore('Serve un numero di telefono per poterti richiamare.')
         telefono.setAttribute('aria-invalid', 'true')
         telefono.focus()
         return
       }
       telefono.removeAttribute('aria-invalid')
 
-      if (!document.getElementById('r-privacy').checked) {
-        errore.textContent = 'Per poterti ricontattare serve il consenso al trattamento dei dati.'
-        errore.classList.remove('hidden')
+      const privacy = document.getElementById('r-privacy')
+      if (!privacy.checked) {
+        mostraErrore("Per procedere serve la presa visione dell’informativa privacy.")
+        privacy.setAttribute('aria-invalid', 'true')
+        privacy.focus()
         return
       }
+      privacy.removeAttribute('aria-invalid')
 
       const testo = [
         `Servizio: ${dati.servizio}`,
@@ -192,29 +269,71 @@ const servizi = [...services.map((s) => s.title), verniciatura.titleAccent ? 'Ve
           `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Buongiorno, vi scrivo dal sito.\n\n${testo}`)}`
         form.hidden = true
         fatto.hidden = false
-        window.dataLayer = window.dataLayer || []
-        window.dataLayer.push({ event: 'richiamo_richiesto', servizio: dati.servizio })
+        document.getElementById('r-fatto-titolo').focus()
+        traccia('richiamo_richiesto', { servizio: dati.servizio })
       }
 
-      try {
+      // La richiesta parte per due strade insieme: il database, dove il
+      // cliente la ritrova nel pannello anche se l'email non arriva, e
+      // Web3Forms per l'email. Basta che una delle due vada in porto.
+      const richiesta = {
+        tipo: 'richiamo',
+        nome: '',
+        telefono: dati.telefono,
+        email: '',
+        comune: '',
+        cap: '',
+        servizio: dati.servizio,
+        messaggio: dati.messaggio || '',
+        dettagli: {},
+        pagina: location.pathname,
+        // Lo aggiunge inviaRichiesta, che sa se la persona è arrivata da un link.
+        codice_link: null,
+      }
+
+      const viaEmail = async () => {
         const risposta = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
+            ...dati,
             access_key: CHIAVE,
             subject: `Richiesta di richiamo: ${dati.servizio}`,
             from_name: 'Sito MDA Impresa Edile',
-            ...dati,
             riepilogo: testo,
           }),
         })
         if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
-        concludi()
+        return true
+      }
+
+      try {
+        // Senza una chiave Web3Forms valida l'email non si tenta nemmeno:
+        // resta il database, che da solo basta a non perdere la richiesta.
+        const [nelDatabase, perEmail] = await Promise.allSettled([
+          inviaRichiesta(richiesta),
+          chiaveValida ? viaEmail() : Promise.reject(new Error('Chiave Web3Forms non configurata')),
+        ])
+        const salvata = nelDatabase.status === 'fulfilled' && nelDatabase.value === true
+        const inviata = perEmail.status === 'fulfilled' && perEmail.value === true
+
+        if (salvata || inviata) {
+          concludi()
+          return
+        }
+
+        const motivoEmail =
+          perEmail.status === 'rejected' && perEmail.reason instanceof Error ? perEmail.reason.message : 'errore sconosciuto'
+        throw new Error(`database non raggiungibile; email: ${motivoEmail}`)
       } catch (err) {
-        // L'email non e partita: non perdiamo il contatto, mostriamo comunque
-        // la conferma e spingiamo sul canale WhatsApp.
+        // Né il database né l'email hanno preso la richiesta: NON mostriamo la
+        // conferma e NON tracciamo una conversione che non è mai avvenuta.
         console.error('Invio richiesta rapida non riuscito:', err)
-        concludi()
+        if (import.meta.env.DEV && !chiaveValida) {
+          console.warn('[MDA] site.formAccessKey e ancora il segnaposto: nessun invio reale e possibile.')
+        }
+        mostraErroreInvio(testo)
+        traccia('richiamo_invio_fallito', { motivo: err instanceof Error ? err.message : 'errore sconosciuto' })
       }
     })
   }

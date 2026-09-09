@@ -10,7 +10,7 @@ import Footer from '../../components/Footer.astro'
 import BarraMobile from '../../components/BarraMobile.astro'
 import ContattoRapido from '../../components/ContattoRapido.astro'
 import Icona from '../../components/Icona.astro'
-import { site, yearsActive, waLink } from '../../config/site'
+import { anzianitaPubblicabile, site, yearsActive, waLink } from '../../config/site'
 import { services, verniciatura, faqs } from '../../config/content'
 import { zoneSecondarie } from '../../config/zone'
 
@@ -20,7 +20,7 @@ export function getStaticPaths() {
 
 const { zona } = Astro.props
 
-const title = `Rifacimento Tetti ${zona.nome} | ${site.name}`
+const title = `Rifacimento Tetti ${zona.nome} | MDA Edile`
 const description = `Rifacimento, manutenzione, guaine e verniciatura tetti a ${zona.nome}. Sopralluogo e preventivo scritto gratuiti, squadra interna, garanzia ${site.warrantyYears} anni.`
 
 /* Le tre FAQ piu utili per chi arriva da una ricerca locale */
@@ -36,7 +36,7 @@ const breadcrumb = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
     { '@type': 'ListItem', position: 2, name: 'Zone servite', item: `${site.url}/zone/` },
     { '@type': 'ListItem', position: 3, name: zona.nome, item: `${site.url}/zone/${zona.slug}/` },
   ],
@@ -68,8 +68,9 @@ const breadcrumb = {
         </h1>
 
         <p class="mt-6 max-w-[720px] font-sans text-lg leading-relaxed text-crema">
-          Da {yearsActive} anni la nostra squadra interna interviene anche a {zona.nome} e nei comuni
-          vicini: rifacimenti completi, riparazioni, impermeabilizzazioni, lattonerie e verniciature.
+          {anzianitaPubblicabile ? `Da ${yearsActive} anni la` : 'La'} nostra squadra interna interviene
+          anche a {zona.nome} e nei comuni vicini: rifacimenti completi, riparazioni,
+          impermeabilizzazioni, lattonerie e verniciature.
           {zona.taglio}
         </p>
 
@@ -97,11 +98,14 @@ const breadcrumb = {
               <li class="flex flex-col gap-3 rounded-lg border border-nero/8 bg-white p-7">
                 <h3 class="font-display text-2xl font-normal text-nero">{s.title}</h3>
                 <p class="flex-1 font-sans text-[14px] leading-relaxed text-nero/75">{s.text}</p>
+                {/* Il collegamento va alla pagina del servizio, non all'ancora
+                    della home: e quella pagina che deve posizionarsi. Il testo
+                    del link porta il servizio e il comune. */}
                 <a
-                  href={`/#${s.id}`}
+                  href={`/servizi/${s.id}/`}
                   class="group inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe transition-colors hover:text-nero"
                 >
-                  Scopri di più
+                  {s.title} a {zona.nome}
                   <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
                 </a>
               </li>
@@ -121,7 +125,7 @@ const breadcrumb = {
             Saliamo sulla copertura, la fotografiamo e vi mostriamo qual è il problema reale. Entro
             pochi giorni ricevete un preventivo scritto voce per voce, con prezzo bloccato: quello
             firmato è quello finale. Sopralluogo e preventivo non vi costano nulla, anche se poi
-            scegliete un'altra impresa.
+            scegliete un’altra impresa.
           </p>
           <div class="flex flex-col gap-3 sm:flex-row">
             <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Richiedi il sopralluogo</a>

@@ -1,0 +1,79 @@
+---
+/**
+ * Blocco di identificazione dell'impresa, ripetuto in tutte le pagine legali.
+ *
+ * Obblighi coperti:
+ *  - art. 7 d.lgs. 70/2003: nome, sede, estremi che permettono di contattare
+ *    rapidamente il prestatore, numero di partita IVA;
+ *  - art. 2250 c.c.: per le societa iscritte al registro delle imprese, sede,
+ *    ufficio del registro, numero di iscrizione e, per le societa di capitali,
+ *    capitale sociale versato.
+ *
+ * Regola valida ovunque nel sito: un valore ancora segnaposto NON si pubblica.
+ * Una partita IVA inventata non e un campo vuoto, e un dato identificativo
+ * falso. Le voci mancanti semplicemente non compaiono, e in fondo resta un
+ * avviso onesto invece di numeri finti.
+ */
+import { denominazione, site } from '../config/site'
+import { eSegnaposto } from '../config/legale'
+
+const vero = (valore: string) => Boolean(valore) && !eSegnaposto(valore)
+
+const sedeCompleta = vero(site.street) && vero(site.postalCode)
+
+const voci: { etichetta: string; valore: string }[] = [
+  { etichetta: 'Denominazione', valore: vero(denominazione) ? denominazione : '' },
+  {
+    etichetta: 'Sede legale',
+    valore: sedeCompleta ? `${site.street}, ${site.postalCode} ${site.city} (${site.province})` : '',
+  },
+  { etichetta: 'Partita IVA e codice fiscale', valore: vero(site.vat) ? site.vat.replace(/^IT/, '') : '' },
+  { etichetta: 'Registro delle imprese', valore: vero(site.registroImprese) ? site.registroImprese : '' },
+  { etichetta: 'Numero REA', valore: vero(site.rea) ? site.rea : '' },
+  { etichetta: 'Capitale sociale', valore: vero(site.capitaleSociale) ? site.capitaleSociale : '' },
+  { etichetta: 'PEC', valore: vero(site.pec) ? site.pec : '' },
+].filter((v) => v.valore !== '')
+
+/** Cosa manca ancora, per dirlo invece di fingere che ci sia. */
+const mancano = !vero(site.vat) || !sedeCompleta || site.formaGiuridica === 'da-confermare'
+---
+
+<div class="my-6 rounded-lg border border-nero/10 bg-white/60 p-5">
+  <p class="font-sans text-xs font-bold uppercase tracking-[0.1em] text-taupe-testo">
+    Chi è il titolare
+  </p>
+
+  <dl class="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-[auto_1fr]">
+    {
+      voci.map((voce) => (
+        <>
+          <dt class="font-sans text-[13px] font-semibold text-nero/60">{voce.etichetta}</dt>
+          <dd class="font-sans text-[15px] text-nero">{voce.valore}</dd>
+        </>
+      ))
+    }
+    <dt class="font-sans text-[13px] font-semibold text-nero/60">Telefono</dt>
+    <dd class="font-sans text-[15px] text-nero">
+      <a href={`tel:${site.phoneHref}`} class="underline underline-offset-2">{site.phone}</a>
+    </dd>
+    <dt class="font-sans text-[13px] font-semibold text-nero/60">Email</dt>
+    <dd class="font-sans text-[15px] text-nero">
+      <a href={`mailto:${site.email}`} class="underline underline-offset-2">{site.email}</a>
+    </dd>
+    <dt class="font-sans text-[13px] font-semibold text-nero/60">Zona di intervento</dt>
+    <dd class="font-sans text-[15px] text-nero">{site.regions.join(' e ')}</dd>
+  </dl>
+
+  {
+    mancano && (
+      <p class="mt-4 border-t border-nero/10 pt-4 font-sans text-[13px] leading-relaxed text-nero/60">
+        Alcuni dati di iscrizione non sono ancora pubblicati su questo sito. Nel frattempo potete
+        richiederli scrivendo a{' '}
+        <a href={`mailto:${site.email}`} class="underline underline-offset-2">
+          {site.email}
+        </a>{' '}
+        o telefonando al {site.phone}: vi vengono forniti subito.
+      </p>
+    )
+  }
+</div>

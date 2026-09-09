@@ -6,12 +6,29 @@
  */
 import { problemiLegali, avvisaSeIncompleto } from '../config/legale'
 import { portfolioIsPlaceholder, reviewsArePlaceholder } from '../config/content'
+import { listinoConfermato } from '../config/calcolatore'
+import { site } from '../config/site'
 
-avvisaSeIncompleto()
+// Il pannello è montato nel layout, quindi il componente gira su ogni pagina:
+// l'avviso in console va stampato una volta sola per build.
+const globale = globalThis as unknown as { __mdaAvvisoLegale?: boolean }
+if (!globale.__mdaAvvisoLegale) {
+  globale.__mdaAvvisoLegale = true
+  avvisaSeIncompleto()
+}
 
 const contenutiFinti = [
-  portfolioIsPlaceholder && 'Progetti e foto del portfolio',
-  reviewsArePlaceholder && 'Recensioni, nomi e foto profilo',
+  portfolioIsPlaceholder &&
+    'Portfolio: le coppie prima/dopo sono nostre illustrazioni. La sezione lo dichiara con un avviso visibile e le etichette dicono "tipico". Con le foto vere si mette portfolioIsPlaceholder a false.',
+  reviewsArePlaceholder &&
+    'Recensioni: la sezione non esiste finche non ce ne sono di vere. NON rimettere recensioni scritte da noi (allegato I Codice del consumo, d.lgs. 26/2023).',
+  !listinoConfermato && 'Listino del calcolatore di stima: intervalli di mercato da far rivedere al cliente (src/config/calcolatore.ts)',
+  !site.foundedYearConfermato &&
+    `Anno di fondazione non confermato: "dal ${site.foundedYear}" e "da N anni" restano nascosti ovunque (site.foundedYearConfermato).`,
+  site.formaGiuridica === 'da-confermare' &&
+    'Forma giuridica da confermare con la visura: se e una S.r.l. serve anche il capitale sociale versato in footer (art. 2250 c.c.).',
+  !site.gaId &&
+    'PUBLIC_GA_ID non impostato: nessun Google Analytics e nessun banner cookie. Appena la variabile esiste su Vercel, il banner compare da solo.',
 ].filter(Boolean)
 
 const tutto = problemiLegali.length + contenutiFinti.length
@@ -57,7 +74,7 @@ const tutto = problemiLegali.length + contenutiFinti.length
             ))}
           </ul>
           <p class="mt-2 font-sans text-[11px] leading-snug text-neutral-600">
-            Lavori e recensioni inventati sono pubblicita ingannevole (Codice del Consumo) e violano
+            Lavori e recensioni inventati sono pubblicità ingannevole (Codice del Consumo) e violano
             le linee guida di Google.
           </p>
         </>

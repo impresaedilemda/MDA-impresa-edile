@@ -10,12 +10,31 @@ import ContattoRapido from '../../components/ContattoRapido.astro'
 import PaginaEditoriale from '../../components/PaginaEditoriale.astro'
 import { site } from '../../config/site'
 import { serviziPagine } from '../../config/servizi-pagine'
+import { services, verniciatura } from '../../config/content'
 
 export function getStaticPaths() {
   return serviziPagine.map((pagina) => ({ params: { slug: pagina.slug }, props: { pagina } }))
 }
 
 const { pagina } = Astro.props
+
+/* Categoria breve del servizio: serviceType vuole il tipo, non il titolo
+   della pagina. Se manca la voce si ricade sull'h1 come prima. */
+const tipiServizio: Record<string, string> = {
+  'rifacimento-tetto': 'Rifacimento tetto',
+  'manutenzione-tetto': 'Manutenzione tetto',
+  'impermeabilizzazione-guaine': 'Impermeabilizzazione tetto',
+  'grondaie-lattonerie': 'Grondaie e lattonerie',
+  'verniciatura-tetto': 'Verniciatura tetto',
+}
+const tipoServizio = tipiServizio[pagina.slug] ?? pagina.h1.split(':')[0]
+
+/* Immagine di ogni servizio, la stessa usata nella sezione della home */
+const immagini: Record<string, string> = Object.fromEntries([
+  ...services.map((s) => [s.id, s.image]),
+  [verniciatura.id, verniciatura.image],
+])
+const immagine = immagini[pagina.slug]
 
 const schema = {
   '@context': 'https://schema.org',
@@ -24,10 +43,18 @@ const schema = {
       '@type': 'Service',
       name: pagina.h1,
       description: pagina.metaDescription,
-      serviceType: pagina.h1.split(':')[0],
-      provider: { '@id': `${site.url}/#organizzazione` },
+      serviceType: tipoServizio,
+      /* L'entita dell'impresa vive nel blocco globale di Schema.astro: qui
+         il riferimento @id porta con se anche il nome, cosi il nodo non
+         risulta vuoto a chi valida un blocco alla volta. */
+      provider: {
+        '@id': `${site.url}/#organizzazione`,
+        '@type': ['RoofingContractor', 'GeneralContractor'],
+        name: site.name,
+      },
       areaServed: site.regions.map((r) => ({ '@type': 'AdministrativeArea', name: r })),
       url: `${site.url}/servizi/${pagina.slug}/`,
+      ...(immagine ? { image: new URL(immagine, site.url).href } : {}),
     },
     {
       '@type': 'FAQPage',
@@ -40,7 +67,7 @@ const schema = {
     {
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
         { '@type': 'ListItem', position: 2, name: 'Servizi', item: `${site.url}/servizi/` },
         { '@type': 'ListItem', position: 3, name: pagina.h1, item: `${site.url}/servizi/${pagina.slug}/` },
       ],

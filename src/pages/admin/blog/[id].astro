@@ -1,0 +1,16 @@
+---
+/**
+ * Modifica di un articolo. Il sito e statico e gli identificativi nascono
+ * dopo la compilazione, quindi non si possono generare le pagine una per
+ * articolo: si genera un solo segnaposto e l'identificativo vero lo legge il
+ * pannello dall'indirizzo. Il rewrite in vercel.json manda qui ogni
+ * /admin/blog/<qualcosa>.
+ */
+import Admin from '../../../layouts/Admin.astro'
+
+export function getStaticPaths() {
+  return [{ params: { id: 'articolo' } }]
+}
+---
+
+<Admin sezione="blog-modifica" titolo="Modifica articolo | Admin MDA" />

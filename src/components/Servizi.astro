@@ -5,6 +5,13 @@
  */
 import { services, servicesSection, verniciatura } from '../config/content'
 import Icona from './Icona.astro'
+
+/* Le varianti responsive stanno in public/images/ con lo stesso nome piu il
+   suffisso della larghezza (es. servizio-grondaie-480.webp). Il file senza
+   suffisso resta l'originale, usato solo come fallback nel src.
+   ATTENZIONE: sostituendo una foto vanno rigenerate anche le sue varianti,
+   altrimenti il srcset punta a file inesistenti. */
+const variante = (percorso: string, larghezza: number) => percorso.replace(/\.webp$/, `-${larghezza}.webp`)
 ---
 
 <section id="servizi" class="scroll-mt-24 bg-crema py-16 md:py-[120px]">
@@ -25,9 +32,11 @@ import Icona from './Icona.astro'
           >
             <img
               src={servizio.image}
+              srcset={`${variante(servizio.image, 480)} 480w, ${variante(servizio.image, 768)} 768w, ${variante(servizio.image, 864)} 864w`}
+              sizes="(max-width: 639px) 100vw, 240px"
               alt={servizio.alt}
-              width="480"
-              height="640"
+              width="864"
+              height="1184"
               loading="lazy"
               decoding="async"
               class="h-48 w-full shrink-0 object-cover sm:h-auto sm:w-[240px]"
@@ -59,9 +68,11 @@ import Icona from './Icona.astro'
     >
       <img
         src={verniciatura.image}
+        srcset={`${variante(verniciatura.image, 400)} 400w, ${variante(verniciatura.image, 640)} 640w, ${variante(verniciatura.image, 832)} 832w`}
+        sizes="(max-width: 1023px) 100vw, 400px"
         alt={verniciatura.alt}
-        width="800"
-        height="1200"
+        width="832"
+        height="1248"
         loading="lazy"
         decoding="async"
         class="h-64 w-full shrink-0 object-cover lg:h-auto lg:w-[400px]"

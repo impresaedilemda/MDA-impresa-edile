@@ -1,0 +1,46 @@
+---
+/**
+ * Guscio delle pagine del pannello. Niente header, footer o dati strutturati
+ * del sito pubblico: qui non c'e nulla da indicizzare, solo un ufficio.
+ *
+ * Il pannello e TypeScript puro, senza framework, come tutto il resto del
+ * sito. Lo script vive in un modulo esterno perche la CSP non ammette blocchi
+ * inline: ci pensa l'integrazione in astro.config.mjs a estrarlo.
+ */
+import '../styles/global.css'
+import '../admin/admin.css'
+import type { Sezione } from '../admin/telaio'
+
+interface Props {
+  sezione: Sezione
+  titolo: string
+}
+
+const { sezione, titolo } = Astro.props
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titolo}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#151613" />
+  </head>
+  <body>
+    <div id="admin" data-sezione={sezione}></div>
+
+    <script>
+      import { avvia } from '../admin/avvio'
+      avvia()
+    </script>
+
+    <noscript>
+      <p style="font-family: system-ui; padding: 2rem; max-width: 40rem;">
+        Il pannello di amministrazione richiede JavaScript.
+      </p>
+    </noscript>
+  </body>
+</html>

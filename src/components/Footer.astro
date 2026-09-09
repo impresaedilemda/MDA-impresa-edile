@@ -5,14 +5,54 @@
  * Nota: nel design l'icona del bottone WhatsApp era un glifo "circle-x"
  * (artefatto dell'AI di Figma); qui usiamo il logo WhatsApp reale.
  */
-import { site, waLink } from '../config/site'
+import { anzianitaPubblicabile, denominazione, site, waLink } from '../config/site'
 import { zoneSecondarie } from '../config/zone'
 import { serviziPagine } from '../config/servizi-pagine'
 import { guide } from '../config/guide'
+import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
 const anno = new Date().getFullYear()
+
+/** Il pulsante di revoca ha senso solo se c'e uno strumento da consentire. */
+const conStatistiche = Boolean(site.gaId)
+
+/* Il link al blog compare solo con almeno un articolo pubblicato, come nel menu. */
+const blogAttivo = remoto.articoli.length > 0
+
+/**
+ * Dati societari dell'art. 2250 c.c. (esteso allo spazio elettronico dal
+ * comma 7): sede legale, P.IVA e C.F., registro delle imprese con numero REA,
+ * capitale sociale, piu la PEC.
+ *
+ * Regola: un valore ancora segnaposto NON si pubblica come dato di fatto,
+ * perche una P.IVA o un REA inventati sono peggio di un campo assente. Finche
+ * il cliente non manda i dati veri, la voce semplicemente non compare.
+ */
+function eSegnaposto(valore: string): boolean {
+  const v = valore.trim().toLowerCase()
+  return v === '' || v.includes('esempio') || v.includes('your-') || /0{6,}/.test(v)
+}
+
+/* Dal 9 settembre 2026 questi tre campi vivono in src/config/site.ts e si
+   possono anche scrivere dal pannello. Restano stringhe vuote finche il
+   cliente non manda la visura: una voce vuota semplicemente non compare. */
+const { registroImprese, capitaleSociale, pec } = site
+
+const datiSocietari = [
+  !eSegnaposto(site.street) && !eSegnaposto(site.postalCode)
+    ? `Sede legale: ${site.street}, ${site.postalCode} ${site.city} (${site.province})`
+    : '',
+  !eSegnaposto(site.vat) ? `P.IVA e C.F. ${site.vat.replace('IT', '')}` : '',
+  !eSegnaposto(site.rea)
+    ? registroImprese
+      ? `Iscritta al ${registroImprese}, REA ${site.rea}`
+      : `REA ${site.rea}`
+    : '',
+  !eSegnaposto(capitaleSociale) ? `Capitale sociale ${capitaleSociale}` : '',
+  !eSegnaposto(pec) ? `PEC ${pec}` : '',
+].filter(Boolean)
 ---
 
 <footer class="bg-nero text-white">
@@ -22,9 +62,14 @@ const anno = new Date().getFullYear()
       <div class="flex flex-col gap-6">
         <Logo variante="chiaro" class="h-16 w-auto" />
 
+        {/* "Dal 2009" e una affermazione di fatto sull'anzianita dell'impresa:
+            esce solo se il cliente ha confermato l'anno di fondazione
+            (site.foundedYearConfermato). Altrimenti la frase funziona lo
+            stesso, senza la data. */}
         <p class="max-w-sm font-sans text-[15px] leading-relaxed text-sabbia/80">
-          Dal {site.foundedYear} specializzati esclusivamente nella progettazione, posa, manutenzione e
-          rifacimento di coperture residenziali e industriali in {site.region}.
+          {anzianitaPubblicabile ? `Dal ${site.foundedYear} specializzati` : 'Specializzati'} esclusivamente
+          nella progettazione, posa, manutenzione e rifacimento di coperture residenziali e industriali
+          in {site.region}.
         </p>
 
         <div class="flex gap-3">
@@ -63,6 +108,11 @@ const anno = new Date().getFullYear()
                 </li>
               ))
             }
+            <li>
+              <a href="/servizi/" class="font-sans text-[13px] font-bold text-sabbia transition-colors hover:text-white">
+                Tutti i servizi
+              </a>
+            </li>
           </ul>
         </div>
         <div class="flex flex-col gap-5">
@@ -82,6 +132,15 @@ const anno = new Date().getFullYear()
                 Tutte le guide
               </a>
             </li>
+            {
+              blogAttivo && (
+                <li>
+                  <a href="/blog/" class="font-sans text-[13px] font-bold text-sabbia transition-colors hover:text-white">
+                    Il blog
+                  </a>
+                </li>
+              )
+            }
           </ul>
         </div>
       </nav>
@@ -138,9 +197,20 @@ const anno = new Date().getFullYear()
           {site.email}
         </a>
 
-        <p class="mt-1 font-sans text-[13px] leading-relaxed text-sabbia/50">
-          {site.street}, {site.postalCode}
-          {site.city} ({site.province})<br />
+        <p class="mt-1 font-sans text-[13px] leading-relaxed text-sabbia/60">
+          {
+            !eSegnaposto(site.street) && !eSegnaposto(site.postalCode) ? (
+              <>
+                {site.street}, {site.postalCode} {site.city} ({site.province})
+                <br />
+              </>
+            ) : (
+              <>
+                {site.city} ({site.province}) e provincia
+                <br />
+              </>
+            )
+          }
           {site.hours.label}
         </p>
       </div>
@@ -148,18 +218,41 @@ const anno = new Date().getFullYear()
 
     <!-- Riga legale -->
     <div class="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
-      <p class="font-sans text-[13px] text-sabbia/50">
-        &copy; {anno} {site.legalName}. Tutti i diritti riservati.
-        <span class="mt-1 block text-sabbia/40">
-          Sede legale: {site.street}, {site.postalCode} {site.city} ({site.province})
-          {' | '}P.IVA e C.F. {site.vat.replace('IT', '')}
-          {site.rea && <>{' | '}REA {site.rea}</>}
-        </span>
+      <p class="font-sans text-[13px] text-sabbia/60">
+        &copy; {anno} {denominazione} · Tutti i diritti riservati.
+        {
+          datiSocietari.length > 0 && (
+            <span class="mt-1 block text-sabbia/60">{datiSocietari.join(' | ')}</span>
+          )
+        }
       </p>
-      <nav aria-label="Note legali" class="flex gap-2 font-sans text-[13px] text-sabbia/50">
-        <a href="/privacy" class="transition-colors hover:text-white">Privacy Policy</a>
+      <nav aria-label="Note legali" class="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-[13px] text-sabbia/60">
+        <a href="/privacy/" class="transition-colors hover:text-white">Privacy</a>
         <span aria-hidden="true">·</span>
-        <a href="/cookie" class="transition-colors hover:text-white">Cookie Policy</a>
+        <a href="/cookie/" class="transition-colors hover:text-white">Cookie</a>
+        <span aria-hidden="true">·</span>
+        <a href="/termini/" class="transition-colors hover:text-white">Termini</a>
+        <span aria-hidden="true">·</span>
+        <a href="/recesso/" class="transition-colors hover:text-white">Recesso e rimborsi</a>
+        <span aria-hidden="true">·</span>
+        <a href="/crediti/" class="transition-colors hover:text-white">Crediti</a>
+        {
+          /* Revoca del consenso: obbligatoria e sempre raggiungibile, ma solo
+             se c'e un consenso da revocare. Senza Google Analytics il
+             pulsante non aprirebbe niente. */
+          conStatistiche && (
+            <>
+              <span aria-hidden="true">·</span>
+              <button
+                type="button"
+                data-apri-consenso
+                class="underline underline-offset-2 transition-colors hover:text-white"
+              >
+                Gestisci i cookie
+              </button>
+            </>
+          )
+        }
       </nav>
     </div>
   </div>

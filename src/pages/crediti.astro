@@ -1,0 +1,103 @@
+---
+/**
+ * Crediti e licenze: da dove vengono immagini, caratteri e icone.
+ *
+ * Serve a due cose diverse.
+ *  1. Diritto d'autore: dichiarare la provenienza di ogni risorsa e la
+ *     licenza con cui viene usata. I caratteri Cormorant Garamond e Manrope
+ *     sono sotto SIL Open Font License 1.1, che chiede di conservare e
+ *     rendere disponibile la licenza insieme ai file. Le icone del design
+ *     seguono la famiglia Lucide, licenza ISC, che chiede di riportare la
+ *     nota di copyright.
+ *  2. Trasparenza sulle immagini: le fotografie di questo sito sono
+ *     elaborazioni realizzate da noi, non scatti di cantieri conclusi.
+ *     Dichiararlo apertamente e cio che tiene la vetrina dalla parte giusta
+ *     della pubblicita ingannevole.
+ */
+import PaginaLegale from '../components/PaginaLegale.astro'
+import { site } from '../config/site'
+---
+
+<PaginaLegale
+  titolo={`Crediti e licenze | ${site.name}`}
+  descrizione="Da dove vengono le immagini, i caratteri tipografici e le icone di questo sito, e con quale licenza sono utilizzati."
+  h1="Crediti e licenze"
+  sottotitolo="Da dove viene ogni cosa che vedete in queste pagine. Nessuna immagine presa in giro per il web, nessun carattere usato senza licenza."
+  occhiello="Trasparenza"
+>
+  <h2>1. Le immagini</h2>
+  <p>
+    <strong>Le immagini di questo sito sono state realizzate da noi.</strong> Non sono fotografie di
+    archivio comprate altrove, non sono immagini prese da altri siti e non ritraggono lavori di
+    altre imprese. Le abbiamo prodotte per mostrare le tipologie di copertura e di intervento di cui
+    ci occupiamo.
+  </p>
+  <p>
+    Questo significa anche una cosa che preferiamo dire chiaramente: <strong>le coppie prima e dopo
+    nella sezione dei lavori sono illustrazioni, non il consuntivo fotografico di cantieri
+    conclusi.</strong> Servono a far capire che aspetto ha un problema e che aspetto ha la sua
+    soluzione. Le foto dei nostri cantieri reali prenderanno il loro posto man mano che saranno
+    disponibili, e da quel momento la sezione lo dirà da sola.
+  </p>
+  <p>
+    Se un'immagine di questo sito vi sembra riprodurre un'opera vostra o una fotografia di cui siete
+    autori, scriveteci a <a href={`mailto:${site.email}`}>{site.email}</a>: la verifichiamo e, se il
+    rilievo è fondato, la rimuoviamo subito.
+  </p>
+
+  <h2>2. I caratteri tipografici</h2>
+  <p>
+    Tutti i caratteri sono ospitati sui nostri server, non caricati da servizi esterni: aprire una
+    pagina non manda nessun dato a Google Fonts o ad altri fornitori.
+  </p>
+  <ul>
+    <li>
+      <strong>Cormorant Garamond</strong>, di Christian Thalmann (Catharsis Fonts), distribuito con
+      <a
+        href="https://openfontlicense.org"
+        target="_blank"
+        rel="noopener">SIL Open Font License 1.1</a
+      >.
+    </li>
+    <li>
+      <strong>Manrope</strong>, di Mikhail Sharanda e Mirko Velimirović, distribuito con SIL Open
+      Font License 1.1.
+    </li>
+  </ul>
+  <p>
+    Il testo integrale delle licenze è disponibile insieme ai file dei caratteri, all'indirizzo
+    <a href="/fonts/LICENSE.txt">/fonts/LICENSE.txt</a>, come richiesto dalla licenza stessa.
+  </p>
+
+  <h2>3. Le icone</h2>
+  <p>
+    Le icone dell'interfaccia derivano dalla libreria <strong>Lucide</strong>, distribuita con
+    licenza ISC, che a sua volta discende da Feather Icons (copyright Cole Bemis, licenza MIT). La
+    licenza consente l'uso commerciale e chiede di conservare la nota di copyright, che è riportata
+    qui e nel file <a href="/fonts/LICENSE.txt">/fonts/LICENSE.txt</a> insieme alle altre.
+  </p>
+  <p>
+    I marchi e i loghi di WhatsApp, Instagram e Facebook restano dei rispettivi titolari e compaiono
+    unicamente per indicare i nostri profili e i canali con cui potete contattarci.
+  </p>
+
+  <h2>4. I marchi dei produttori</h2>
+  <p>
+    Quando citiamo marchi di materiali da costruzione lo facciamo per indicare in modo verificabile
+    che cosa posiamo. I marchi appartengono ai rispettivi titolari e la citazione non implica né una
+    partnership né un'approvazione da parte loro.
+  </p>
+
+  <h2>5. Il sito</h2>
+  <p>
+    Testi, struttura, grafica e codice di questo sito sono opera dell'impresa e di chi lo ha
+    realizzato per suo conto. Il sito è costruito con software libero: Astro e Tailwind CSS, entrambi
+    con licenza MIT. È ospitato da Vercel Inc.
+  </p>
+
+  <h2>6. Segnalazioni</h2>
+  <p>
+    Per qualsiasi questione su diritti d'autore, marchi o attribuzioni scrivete a
+    <a href={`mailto:${site.email}`}>{site.email}</a>. Rispondiamo e, dove serve, correggiamo.
+  </p>
+</PaginaLegale>

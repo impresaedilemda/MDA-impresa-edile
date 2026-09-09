@@ -1,0 +1,178 @@
+---
+/**
+ * Termini e condizioni: due cose in una pagina sola, tenute separate.
+ *
+ *  1. Le condizioni d'uso del sito (chi lo gestisce, cosa ci si trova, cosa
+ *     valgono i contenuti). Sono l'adempimento dell'art. 7 del d.lgs.
+ *     70/2003 sui servizi della societa dell'informazione.
+ *  2. Le condizioni con cui nasce un lavoro (preventivo, prezzo, garanzie),
+ *     perche il sito raccoglie richieste di preventivo e la persona ha
+ *     diritto di sapere prima come funziona.
+ *
+ *  Cosa NON c'e, di proposito:
+ *   - clausole di foro esclusivo diverse dal foro del consumatore: sarebbero
+ *     vessatorie e nulle (art. 33, comma 2, lettera u del Codice del consumo);
+ *   - il link alla piattaforma ODR europea, dismessa il 20 luglio 2025 dal
+ *     regolamento UE 2024/3228: rimandare a una piattaforma che non esiste
+ *     piu e peggio che non citarla;
+ *   - condizioni commerciali inventate (percentuali di acconto, penali,
+ *     validita del preventivo). Quelle le decide l'impresa e vanno scritte
+ *     nel preventivo firmato, non qui.
+ */
+import PaginaLegale from '../components/PaginaLegale.astro'
+import DatiTitolare from '../components/DatiTitolare.astro'
+import { site } from '../config/site'
+---
+
+<PaginaLegale
+  titolo={`Termini e condizioni | ${site.name}`}
+  descrizione={`Condizioni d'uso del sito di ${site.name} e regole con cui nascono preventivi e lavori.`}
+  h1="Termini e condizioni"
+  sottotitolo="Come funziona questo sito e come nasce un lavoro con noi. Scritto in italiano corrente, senza rimandi a norme che non vi riguardano."
+>
+  <h2>1. Chi gestisce questo sito</h2>
+  <p>
+    Il sito è gestito dall'impresa indicata qui sotto, che è anche il soggetto con cui si conclude
+    ogni eventuale contratto di lavori.
+  </p>
+
+  <DatiTitolare />
+
+  <h2>2. Che cosa è questo sito, e che cosa non è</h2>
+  <p>
+    Questo è un sito informativo. Presenta i lavori che eseguiamo sulle coperture e permette di
+    chiederci di essere richiamati o di ricevere un preventivo.
+  </p>
+  <p>
+    <strong>Su questo sito non si acquista niente e non si firma niente.</strong> Non è un negozio
+    online: non ci sono pagamenti, carrelli, prenotazioni vincolanti o contratti che si concludono
+    premendo un pulsante. Compilare un modulo significa chiederci un contatto, e non impegna né voi
+    né noi.
+  </p>
+
+  <h2>3. Il preventivo e la stima automatica</h2>
+  <ul>
+    <li>
+      <strong>La stima del configuratore è indicativa.</strong> È calcolata su intervalli medi di
+      mercato e sulle risposte che date, senza aver visto il tetto. Non è un'offerta, non è
+      vincolante e non ci obbliga a lavorare a quelle cifre.
+    </li>
+    <li>
+      <strong>Il sopralluogo è gratuito e senza impegno.</strong> Serve a misurare, guardare la
+      struttura e capire cosa serve davvero.
+    </li>
+    <li>
+      <strong>Il preventivo scritto è l'unico documento che vale.</strong> Riporta le lavorazioni,
+      i materiali con marca e modello, i tempi e il prezzo. Diventa vincolante quando lo firmate:
+      da quel momento è il contratto fra noi.
+    </li>
+    <li>
+      Se durante i lavori emerge un imprevisto che il sopralluogo non poteva vedere, ve lo
+      documentiamo e ve lo quantifichiamo per iscritto. Si procede solo dopo il vostro sì, mai a
+      voce a lavori iniziati.
+    </li>
+  </ul>
+
+  <h2>4. Prezzi, IVA e pagamenti</h2>
+  <p>
+    Gli importi indicati nel configuratore sono al netto dell'IVA. L'aliquota applicabile viene
+    indicata nel preventivo, perché sui lavori edilizi dipende dal tipo di intervento e
+    dall'immobile. Le modalità e le scadenze di pagamento sono quelle scritte nel preventivo che
+    firmate: non ci sono costi che compaiono dopo.
+  </p>
+
+  <h2>5. Garanzie</h2>
+  <p>Sul lavoro finito valgono, insieme, tre cose diverse. Vale la pena distinguerle:</p>
+  <ul>
+    <li>
+      <strong>Le garanzie di legge</strong>, che spettano comunque e non possono essere ridotte da
+      nessun accordo. Per i lavori edilizi sono principalmente quelle degli articoli 1667 e 1669 del
+      codice civile: la responsabilità dell'impresa per difformità e vizi dell'opera e, per i gravi
+      difetti che compromettono un edificio destinato a lunga durata, la responsabilità decennale.
+      Se siete consumatori, valgono anche le tutele del Codice del consumo.
+    </li>
+    <li>
+      <strong>La garanzia dei produttori</strong> sui materiali posati (tegole, membrane, lamiere,
+      vernici), nei termini e con le condizioni che ciascun produttore stabilisce. Ve ne
+      consegniamo la documentazione.
+    </li>
+    <li>
+      <strong>La nostra garanzia scritta di {site.warrantyYears} anni</strong> sul lavoro eseguito.
+      È una garanzia commerciale che offriamo noi e che <strong>si aggiunge</strong> alle
+      precedenti: non le sostituisce, non le limita e non è un modo per riformulare un diritto che
+      la legge già vi riconosce. Il certificato che consegniamo a fine lavori indica per iscritto
+      che cosa copre, per quanto tempo e come si attiva.
+    </li>
+  </ul>
+  <p>
+    Se compare un problema, la strada più veloce è chiamarci: {site.phone}. Veniamo a vedere.
+  </p>
+
+  <h2>6. Diritto di recesso</h2>
+  <p>
+    Se siete consumatori e il contratto viene firmato a casa vostra dopo il sopralluogo, oppure a
+    distanza (telefono, email, messaggi), avete quattordici giorni per ripensarci, senza dover dare
+    spiegazioni. È un diritto di legge e non ve lo può togliere nessuna clausola. Le regole precise,
+    i casi in cui non si applica e il modulo pronto da compilare sono nella pagina
+    <a href="/recesso/">Diritto di recesso e rimborsi</a>.
+  </p>
+
+  <h2>7. I contenuti informativi del sito</h2>
+  <p>
+    Le guide, le domande frequenti e gli articoli servono a farvi capire come funziona un tetto e
+    cosa chiedere a chi vi fa un preventivo. Sono scritti con cura, ma restano informazioni
+    generali: <strong>non sostituiscono un sopralluogo</strong>, né una perizia, né il parere di un
+    tecnico abilitato sul vostro caso. Prima di decidere su un immobile vincolato, su una struttura
+    ammalorata o su una pratica edilizia, fate verificare la situazione da chi la vede dal vivo.
+  </p>
+  <p>
+    Facciamo il possibile per tenere le informazioni aggiornate, ma normative, prezzi e prodotti
+    cambiano: non possiamo garantire che ogni riga sia sempre allineata all'ultimo aggiornamento
+    normativo.
+  </p>
+
+  <h2>8. Proprietà dei contenuti</h2>
+  <p>
+    Testi, immagini, illustrazioni, marchio e struttura del sito appartengono all'impresa o sono
+    utilizzati con licenza. Potete leggerli, stamparli e condividerne il collegamento liberamente.
+    Non potete ricopiarli su un altro sito o riutilizzarli a fini commerciali senza il nostro
+    consenso scritto. La provenienza delle immagini, dei caratteri tipografici e delle icone è
+    dettagliata nella pagina <a href="/crediti/">Crediti e licenze</a>.
+  </p>
+
+  <h2>9. Collegamenti verso altri siti</h2>
+  <p>
+    Alcuni collegamenti portano fuori da questo sito, per esempio ai nostri profili social o ai siti
+    dei produttori di materiali. Su quei siti valgono le loro regole e le loro informative, sulle
+    quali non abbiamo controllo.
+  </p>
+
+  <h2>10. Disponibilità del sito</h2>
+  <p>
+    Facciamo in modo che il sito sia sempre raggiungibile, ma può capitare che sia fermo per
+    manutenzione o per un problema tecnico del fornitore di hosting. Se un modulo non parte,
+    chiamateci al {site.phone}: nessuna richiesta si perde per colpa di una pagina che non
+    risponde.
+  </p>
+
+  <h2>11. Reclami, legge applicabile e giudice competente</h2>
+  <p>
+    Se qualcosa non va, scriveteci a <a href={`mailto:${site.email}`}>{site.email}</a>: proviamo
+    sempre prima a risolvere parlando. Se non basta, potete rivolgervi a un organismo di mediazione
+    o di conciliazione, per esempio presso la Camera di commercio competente, oppure a
+    un'associazione dei consumatori.
+  </p>
+  <p>
+    Ai rapporti si applica la legge italiana. Se siete consumatori, per qualsiasi controversia è
+    competente il giudice del luogo in cui avete la residenza o il domicilio, e questa regola non
+    può essere derogata a vostro svantaggio.
+  </p>
+
+  <h2>12. Modifiche</h2>
+  <p>
+    Questi termini possono cambiare, per esempio se cambiano i servizi o la normativa. La versione
+    valida è quella pubblicata qui, con la data di aggiornamento indicata in fondo. Alle richieste
+    già inviate e ai contratti già firmati continua ad applicarsi la versione in vigore in quel
+    momento.
+  </p>
+</PaginaLegale>

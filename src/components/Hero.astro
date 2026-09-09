@@ -11,6 +11,8 @@ import FormRapido from './FormRapido.astro'
   <div class="absolute inset-0 -z-10 overflow-hidden">
     <picture>
       <source media="(max-width: 767px)" srcset="/images/hero-mobile.webp" width="900" height="1170" />
+      <!-- Variante intermedia: i portatili fino a 1400 px non scaricano il file da 1920. -->
+      <source media="(max-width: 1400px)" srcset="/images/hero-1440.webp" width="1440" height="810" />
       <img
         id="hero-foto"
         src="/images/hero.webp"
@@ -18,8 +20,9 @@ import FormRapido from './FormRapido.astro'
         width="1920"
         height="1080"
         fetchpriority="high"
+        loading="eager"
         decoding="async"
-        class="size-full scale-[1.1] object-cover object-center will-change-transform"
+        class="size-full scale-[1.1] object-cover object-center"
       />
     </picture>
     <!-- Filtro scuro, come prima -->
@@ -70,24 +73,56 @@ import FormRapido from './FormRapido.astro'
   // ha margine per muoversi senza scoprire i bordi. Disattivato se l'utente
   // preferisce ridurre il movimento.
   const foto = document.getElementById('hero-foto')
+  const sezione = foto ? foto.closest('section') : null
 
-  if (foto && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (foto && sezione && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     let ticking = false
+    let attivo = false
+
     const aggiorna = () => {
-      // Solo finche l'hero e in vista
+      ticking = false
+      if (!attivo) return
       const y = Math.min(window.scrollY, window.innerHeight)
       foto.style.transform = `scale(1.1) translateY(${y * 0.12}px)`
-      ticking = false
     }
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          ticking = true
-          requestAnimationFrame(aggiorna)
-        }
-      },
-      { passive: true },
-    )
+
+    const alloScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(aggiorna)
+      }
+    }
+
+    // Il listener e will-change vivono solo mentre l'hero e davvero in vista:
+    // tenere un livello compositato per tutta la pagina spreca memoria GPU.
+    const accendi = () => {
+      if (attivo) return
+      attivo = true
+      foto.style.willChange = 'transform'
+      window.addEventListener('scroll', alloScroll, { passive: true })
+      alloScroll()
+    }
+
+    const spegni = () => {
+      if (!attivo) return
+      attivo = false
+      window.removeEventListener('scroll', alloScroll)
+      foto.style.willChange = ''
+    }
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (voci) => {
+          for (const voce of voci) {
+            if (voce.isIntersecting) accendi()
+            else spegni()
+          }
+        },
+        { rootMargin: '100px' },
+      ).observe(sezione)
+    } else {
+      // Senza IntersectionObserver resta il comportamento di prima.
+      accendi()
+    }
   }
 </script>

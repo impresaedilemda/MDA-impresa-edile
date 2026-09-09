@@ -1,0 +1,164 @@
+---
+/**
+ * =============================================================================
+ *  ATTERRAGGIO DEI LINK DI TRACCIAMENTO: /l/codice
+ * =============================================================================
+ *  Il pannello genera indirizzi come www.mdaimpresaedile.it/l/volantino-settembre
+ *  da stampare su volantini, biglietti, annunci. Vercel riscrive /l/<codice>
+ *  su questa pagina, che fa tre cose e poi sparisce:
+ *
+ *    1. legge il codice dall'ultimo pezzo dell'indirizzo;
+ *    2. lo ricorda per tutta la sessione (traccia.ts lo appende a ogni
+ *       visualizzazione, così nel pannello si vede quanto ha reso ogni link);
+ *    3. chiede al database la destinazione del link e ci porta la persona.
+ *
+ *  Nessun layout, nessun header, nessun contatore: questa non è una pagina
+ *  del sito, è un corridoio. Chi ci passa non deve accorgersene: entro tre
+ *  secondi, qualunque cosa succeda alla rete, si è già sul sito. Se il link
+ *  non esiste o il database non risponde, si va alla home con ?ref=codice,
+ *  così l'attribuzione non si perde comunque.
+ * =============================================================================
+ */
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MDA Impresa Edile</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- Senza JavaScript non si può leggere il codice: si va dritti sul sito. -->
+    <noscript><meta http-equiv="refresh" content="0; url=/" /></noscript>
+    <style is:global>
+      html {
+        background-color: #f7f4eb;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        box-sizing: border-box;
+        background-color: #f7f4eb;
+        color: #151613;
+        font-family: 'Manrope Variable', Manrope, ui-sans-serif, system-ui, sans-serif;
+        text-align: center;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.5;
+        letter-spacing: 0.01em;
+        color: #736552;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Un attimo, ti portiamo sul sito.</p>
+
+    <script>
+      import { ricordaCodice } from '../../lib/traccia'
+
+      const URL_BASE = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.replace(/\/+$/, '')
+      const CHIAVE = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined
+
+      /** Al massimo tre secondi in questo corridoio: poi si parte comunque. */
+      const LIMITE_MS = 3000
+
+      /**
+       * L'ultimo pezzo dell'indirizzo, pulito con lo stesso filtro di
+       * traccia.ts: così il codice ricordato e quello cercato nel database
+       * sono la stessa stringa. Su /l/ da solo non c'è nessun codice.
+       */
+      function codiceDalPercorso(): string {
+        const segmenti = location.pathname.split('/').filter(Boolean)
+        if (segmenti.length < 2) return ''
+        let ultimo = segmenti[segmenti.length - 1]
+        try {
+          ultimo = decodeURIComponent(ultimo)
+        } catch {
+          /* percentuali malformate: si pulisce quello che c'è */
+        }
+        return ultimo
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, '')
+          .slice(0, 60)
+      }
+
+      /**
+       * Solo percorsi interni al sito: un link di tracciamento non manda mai
+       * la persona fuori, nemmeno se nel database finisse un indirizzo
+       * esterno. "//altro.sito" e "/\altro" sono modi per uscire mascherati
+       * da percorso, quindi restano fuori anche loro.
+       */
+      function percorsoInterno(valore: unknown): string | null {
+        if (typeof valore !== 'string') return null
+        const pulito = valore.trim()
+        if (!pulito.startsWith('/')) return null
+        if (pulito.startsWith('//') || pulito.startsWith('/\\')) return null
+        return pulito
+      }
+
+      /** La destinazione salvata nel pannello per questo codice, se esiste ed è sicura. */
+      async function destinazioneDelLink(codice: string): Promise<string | null> {
+        if (!URL_BASE || !CHIAVE) return null
+
+        const controllo = new AbortController()
+        const timer = setTimeout(() => controllo.abort(), LIMITE_MS)
+        try {
+          const risposta = await fetch(
+            `${URL_BASE}/rest/v1/link?select=destinazione&codice=eq.${encodeURIComponent(codice)}&limit=1`,
+            {
+              headers: { apikey: CHIAVE, Authorization: `Bearer ${CHIAVE}` },
+              signal: controllo.signal,
+            },
+          )
+          if (!risposta.ok) return null
+          const righe: unknown = await risposta.json()
+          if (!Array.isArray(righe) || righe.length === 0) return null
+          const prima = righe[0] as { destinazione?: unknown }
+          return percorsoInterno(prima?.destinazione)
+        } catch {
+          // rete assente, chiamata bloccata o scaduta: si va alla home
+          return null
+        } finally {
+          clearTimeout(timer)
+        }
+      }
+
+      // Si parte una volta sola, anche se la rete e il timer arrivano insieme.
+      let partiti = false
+      function vai(destinazione: string): void {
+        if (partiti) return
+        partiti = true
+        location.replace(destinazione)
+      }
+
+      const codice = codiceDalPercorso()
+
+      if (!codice) {
+        vai('/')
+      } else {
+        ricordaCodice(codice)
+
+        // Il codice è già solo a-z, 0-9 e trattini: nell'indirizzo entra così com'è.
+        const ripiego = '/?ref=' + codice
+
+        // Il timer è la rete di sicurezza: qualunque cosa succeda alla
+        // richiesta, entro tre secondi la persona è sul sito.
+        const scadenza = setTimeout(() => vai(ripiego), LIMITE_MS)
+
+        destinazioneDelLink(codice).then((destinazione) => {
+          clearTimeout(scadenza)
+          vai(destinazione ?? ripiego)
+        })
+      }
+    </script>
+  </body>
+</html>

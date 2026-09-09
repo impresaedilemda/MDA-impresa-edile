@@ -8,14 +8,31 @@ import Icona from '../../components/Icona.astro'
 import { site } from '../../config/site'
 import { zoneSecondarie } from '../../config/zone'
 
-const title = `Zone Servite | Tetti a ${site.city} e Provincia | ${site.name}`
-const description = `Interveniamo su tetti e coperture a ${site.city} e in tutta la provincia di ${site.province}: ${zoneSecondarie
+/* Nel testo va il nome esteso della provincia: nessuno cerca "provincia di
+   VE". La sigla resta corretta solo in geo.region del layout. */
+const provincia = site.provinceName
+
+const title = `Tetti e Coperture in Provincia di ${provincia} | MDA`
+const description = `Interveniamo su tetti e coperture a ${site.city} e in tutta la provincia di ${provincia}: ${zoneSecondarie
   .slice(0, 4)
   .map((z) => z.nome)
   .join(', ')} e comuni limitrofi.`
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
+    { '@type': 'ListItem', position: 2, name: 'Zone servite', item: `${site.url}/zone/` },
+  ],
+}
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)} />
+  </Fragment>
+
   <Header />
 
   <main id="contenuto">
@@ -23,11 +40,11 @@ const description = `Interveniamo su tetti e coperture a ${site.city} e in tutta
       <div class="contenitore flex flex-col gap-12">
         <div class="flex max-w-[800px] flex-col gap-4">
           <p class="occhiello">Zona operativa</p>
-          <h1 class="titolo-sezione">Dove interveniamo in provincia di {site.province}</h1>
+          <h1 class="titolo-sezione">Rifacimento e manutenzione tetti in provincia di {provincia}</h1>
           <p class="max-w-[640px] font-sans leading-relaxed text-nero/80">
             La base operativa è a {site.city}, ma la squadra lavora ogni settimana in tutta la
             provincia. Qui trovate le pagine dedicate ai principali comuni serviti; se il vostro non
-            c'è, chiamateci comunque: per i cantieri di dimensioni rilevanti valutiamo anche zone più
+            c’è, chiamateci comunque: per i cantieri di dimensioni rilevanti valutiamo anche zone più
             distanti.
           </p>
         </div>

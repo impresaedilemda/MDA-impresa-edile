@@ -8,7 +8,7 @@ import { site, waLink } from '../config/site'
 import Icona from './Icona.astro'
 ---
 
-<div class="fixed bottom-7 right-7 z-40 hidden lg:block">
+<div class="fixed bottom-7 right-7 z-40 hidden lg:flex lg:flex-col lg:items-end">
   <!-- Pannello -->
   <div
     id="pannello-rapido"
@@ -133,24 +133,47 @@ import Icona from './Icona.astro'
 
   if (pulsante && pannello && iconaChat && iconaChiudi) {
     const imposta = (aperto: boolean) => {
+      // Va letto PRIMA di nascondere il pannello: dopo `hidden = true` il
+      // browser ha gia spostato il focus sul body.
+      const aveaFocus = !aperto && pannello.contains(document.activeElement)
       pannello.hidden = !aperto
       pulsante.setAttribute('aria-expanded', String(aperto))
       iconaChat.classList.toggle('scale-0', aperto)
       iconaChat.classList.toggle('opacity-0', aperto)
       iconaChiudi.classList.toggle('scale-0', !aperto)
       iconaChiudi.classList.toggle('opacity-0', !aperto)
+      if (aveaFocus) pulsante.focus()
     }
 
     pulsante.addEventListener('click', (e) => {
       e.stopPropagation()
-      imposta(pannello.hidden)
+      // `hidden` e tipato `boolean | "until-found"`: si confronta esplicitamente.
+      imposta(pannello.hidden === true)
     })
 
-    // Chiusura: click fuori, Escape, o scelta di un canale
-    document.addEventListener('click', (e) => {
+    // Chiusura: click fuori, Escape, o scelta di un canale.
+    // Il pannello esiste solo da 1024px in su (hidden lg:block), quindi sotto
+    // quella soglia i due listener globali non vanno nemmeno registrati.
+    const chiudiFuori = (e: MouseEvent) => {
       if (!pannello.hidden && !pannello.contains(e.target as Node)) imposta(false)
-    })
-    document.addEventListener('keydown', (e) => e.key === 'Escape' && imposta(false))
+    }
+    const chiudiConEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') imposta(false)
+    }
+
+    const desktop = matchMedia('(min-width: 1024px)')
+    const sincronizza = (attivo: boolean) => {
+      if (attivo) {
+        document.addEventListener('click', chiudiFuori)
+        document.addEventListener('keydown', chiudiConEsc)
+      } else {
+        document.removeEventListener('click', chiudiFuori)
+        document.removeEventListener('keydown', chiudiConEsc)
+        imposta(false)
+      }
+    }
+    if (desktop.matches) sincronizza(true)
+    desktop.addEventListener('change', (e) => sincronizza(e.matches))
 
     pannello.querySelectorAll<HTMLAnchorElement>('[data-azione]').forEach((link) => {
       link.addEventListener('click', () => {

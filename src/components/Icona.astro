@@ -16,29 +16,66 @@ interface Props {
 
 const { nome, class: classe = 'size-5' } = Astro.props
 
+/**
+ * Contatore a livello di processo di build: la stessa icona puo comparire
+ * trenta volte nella stessa pagina, quindi il nome del file non basta a
+ * rendere univoci gli id interni. Serve un numero progressivo.
+ */
+const globale = globalThis as unknown as { __mdaContatoreIcone?: number }
+globale.__mdaContatoreIcone = (globale.__mdaContatoreIcone ?? 0) + 1
+const prefisso = `${nome}-${globale.__mdaContatoreIcone}`
+
 const percorso = join(process.cwd(), 'public', 'images', 'figma', `${nome}.svg`)
 
 let svg = readFileSync(percorso, 'utf8')
-  // Colori fissi -> currentColor (stroke e fill, qualsiasi esadecimale o white).
-  // I fill dentro <clipPath> sono irrilevanti per la resa, sostituirli non nuoce.
+
+// 1. Metti al riparo <mask> e <clipPath>: li dentro fill="white" non e un
+//    colore ma "questa zona e visibile". Trasformarlo in currentColor
+//    renderebbe l'icona invisibile, e non ci sarebbe nessun errore in build.
+const protetti: string[] = []
+svg = svg.replace(/<(mask|clipPath)\b[\s\S]*?<\/\1>/g, (blocco) => {
+  protetti.push(blocco)
+  return `<!--protetto-${protetti.length - 1}-->`
+})
+
+svg = svg
+  // 2. Colori fissi -> currentColor (stroke e fill, qualsiasi esadecimale o white).
   .replace(/stroke="#[0-9a-fA-F]{3,8}"/g, 'stroke="currentColor"')
   .replace(/stroke="white"/g, 'stroke="currentColor"')
   .replace(/fill="#[0-9a-fA-F]{3,8}"/g, 'fill="currentColor"')
   .replace(/fill="white"/g, 'fill="currentColor"')
-  // Pulizia SOLO del tag radice: dimensioni fisse e attributi di export.
-  // Mai globale: un width/height dentro <clipPath> o <mask> e parte del
-  // disegno e azzerarlo rende l'icona invisibile.
+  // 3. Pulizia SOLO del tag radice: dimensioni fisse e attributi di export.
+  //    Mai globale: un width/height dentro <clipPath> o <mask> e parte del
+  //    disegno e azzerarlo rende l'icona invisibile.
   .replace(/<svg[^>]*>/, (radice) =>
     radice
       .replace(/\s(width|height)="\d+(\.\d+)?"/g, '')
       .replace(/\sstyle="[^"]*"/, '')
       .replace(/\spreserveAspectRatio="none"/, ''),
   )
-  // ID interni univoci per icona: due icone diverse esportate da Figma
-  // possono condividere lo stesso id di clipPath e tagliarsi a vicenda
-  .replace(/id="(clip[^"]*)"/g, `id="${nome}-$1"`)
-  .replace(/url\(#(clip[^)]*)\)/g, `url(#${nome}-$1)`)
-  // Classi + accessibilita sull'elemento radice
+
+// 4. Rimetti a posto i blocchi protetti, intatti.
+svg = svg.replace(/<!--protetto-(\d+)-->/g, (_, indice) => protetti[Number(indice)])
+
+// 5. Raccogli gli id davvero riferiti dal disegno: clip-path, mask, filter,
+//    fill di un gradiente passano tutti da url(#...), gli <use> da href.
+const riferiti = new Set<string>()
+for (const trovato of svg.matchAll(/url\(#([^)]+)\)/g)) riferiti.add(trovato[1])
+for (const trovato of svg.matchAll(/\s(?:xlink:)?href="#([^"]+)"/g)) riferiti.add(trovato[1])
+
+svg = svg
+  // 6. Butta via gli id decorativi lasciati da Figma (<g id="Vector">,
+  //    <path id="star">): nessuno li usa e duplicano lo stesso id decine di
+  //    volte nella pagina, rendendo l'HTML non valido.
+  .replace(/\sid="([^"]+)"/g, (intero, valore) => (riferiti.has(valore) ? intero : ''))
+  // 7. Rendi univoci quelli rimasti. Due icone diverse esportate da Figma
+  //    condividono spesso lo stesso id di clipPath o di mask e si tagliano a
+  //    vicenda: il riferimento si risolve sempre alla prima definizione del
+  //    documento. Il prefisso vale per nome E per istanza.
+  .replace(/\sid="([^"]+)"/g, (_, valore) => ` id="${prefisso}-${valore}"`)
+  .replace(/url\(#([^)]+)\)/g, (_, valore) => `url(#${prefisso}-${valore})`)
+  .replace(/(\s(?:xlink:)?href)="#([^"]+)"/g, (_, attributo, valore) => `${attributo}="#${prefisso}-${valore}"`)
+  // 8. Classi + accessibilita sull'elemento radice
   .replace('<svg', `<svg class="${classe}" aria-hidden="true"`)
 
 // fill="none" sul radice va preservato: le icone sono a tratto

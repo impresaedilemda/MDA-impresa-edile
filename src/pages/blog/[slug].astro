@@ -1,0 +1,220 @@
+---
+/**
+ * =============================================================================
+ *  UN ARTICOLO DEL BLOG, generato alla build
+ * =============================================================================
+ *  Una pagina per ogni articolo pubblicato che il database aveva al momento
+ *  del deploy. Il testo passa da inHtml() di src/lib/testo.ts, che produce
+ *  HTML già escapato: set:html qui è sicuro perché non esiste un punto in
+ *  cui una stringa scritta dal cliente arrivi nell'HTML senza passare di là.
+ *  Gli articoli pubblicati dopo la build li serve blog/articolo.astro, che ha
+ *  lo stesso vestito di questa pagina ma si riempie nel browser.
+ * =============================================================================
+ */
+import Base from '../../layouts/Base.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import BarraMobile from '../../components/BarraMobile.astro'
+import ContattoRapido from '../../components/ContattoRapido.astro'
+import Icona from '../../components/Icona.astro'
+import { site } from '../../config/site'
+import { remoto } from '../../lib/remoto'
+import { inHtml } from '../../lib/testo'
+import type { Articolo } from '../../lib/tipi'
+import { dataIso, dataItaliana, indirizzoArticolo, jsonLd, schedaDi, slugValido } from '../../lib/blog-cliente'
+
+export function getStaticPaths() {
+  /* "articolo" è riservato alla pagina guscio: slugValido lo tiene fuori. */
+  return remoto.articoli
+    .filter((a) => slugValido(a.slug))
+    .map((articolo) => ({ params: { slug: articolo.slug }, props: { articolo } }))
+}
+
+const { articolo } = Astro.props as { articolo: Articolo }
+const scheda = schedaDi(articolo)
+const html = inHtml(articolo.contenuto)
+
+/* Gli ultimi tre articoli oltre a questo, per la colonna laterale. */
+const altri = remoto.articoli
+  .filter((a) => a.slug !== articolo.slug && slugValido(a.slug))
+  .slice(0, 3)
+  .map(schedaDi)
+
+const title = `${articolo.titolo} | ${site.name}`
+const description = scheda.estratto
+const indirizzo = `${site.url}${indirizzoArticolo(articolo.slug)}`
+/* La copertina può essere un file del deposito (indirizzo assoluto) o un
+   percorso del sito: new URL li porta entrambi alla forma assoluta. */
+const copertina = scheda.copertina ? new URL(scheda.copertina, site.url).href : null
+
+/* Stesso editore delle guide: il riferimento @id all'impresa dichiarata in
+   Schema.astro, ripetuto con nome e logo così il nodo si legge anche da solo. */
+const editore = {
+  '@id': `${site.url}/#organizzazione`,
+  '@type': ['RoofingContractor', 'GeneralContractor'],
+  name: site.name,
+  logo: `${site.url}/apple-touch-icon.png`,
+}
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      '@id': `${indirizzo}#articolo`,
+      headline: articolo.titolo,
+      description,
+      inLanguage: 'it-IT',
+      datePublished: articolo.creato,
+      dateModified: articolo.aggiornato || articolo.creato,
+      ...(copertina ? { image: copertina } : {}),
+      author: { '@type': 'Organization', name: site.name, url: `${site.url}/` },
+      publisher: editore,
+      mainEntityOfPage: indirizzo,
+      isPartOf: { '@id': `${site.url}/blog/#blog` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${site.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${site.url}/blog/` },
+        { '@type': 'ListItem', position: 3, name: articolo.titolo, item: indirizzo },
+      ],
+    },
+  ],
+}
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  articleDate={articolo.creato}
+  image={scheda.copertina ?? undefined}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={jsonLd(schema)} />
+  </Fragment>
+
+  <Header />
+
+  <main id="contenuto">
+    <!-- Intestazione scura -->
+    <section class="bg-nero py-14 text-white md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
+          <a href="/" class="transition-colors hover:text-white">Home</a>
+          <span aria-hidden="true" class="mx-2">·</span>
+          <a href="/blog/" class="transition-colors hover:text-white">Blog</a>
+        </nav>
+        <p class="occhiello !text-sabbia">Blog</p>
+        <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">{articolo.titolo}</h1>
+        <p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[15px] text-sabbia/75">
+          <time datetime={dataIso(articolo.creato)}>Pubblicato il {dataItaliana(articolo.creato)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{scheda.minuti} min di lettura</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Corpo -->
+    <section class="bg-crema py-14 md:py-20">
+      <div class="contenitore grid gap-14 lg:grid-cols-[minmax(0,760px)_1fr] lg:gap-20">
+        <div class="flex flex-col gap-10">
+          {
+            scheda.copertina && (
+              <figure class="rivela overflow-hidden rounded-lg bg-carta">
+                <img
+                  src={scheda.copertina}
+                  alt={articolo.titolo}
+                  class="aspect-video w-full object-cover"
+                  decoding="async"
+                  fetchpriority="high"
+                />
+              </figure>
+            )
+          }
+
+          <article class="prosa rivela" set:html={html} />
+
+          <!-- Chiusura: il sopralluogo -->
+          <aside class="rivela rounded-lg border border-nero/8 bg-carta p-7 md:p-9">
+            <p class="occhiello">Sopralluogo gratuito</p>
+            <h2 class="mt-3 font-display text-[1.75rem] font-normal leading-snug text-nero">
+              Ti serve un sopralluogo?
+            </h2>
+            <p class="mt-3 max-w-[560px] font-sans text-[15px] leading-relaxed text-nero/75">
+              Veniamo a vedere il tetto di persona e lasciamo un preventivo scritto, gratuito e senza
+              impegno. Rispondiamo entro {site.responseHours} ore.
+            </p>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+              <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Preventivo gratuito</a>
+              <a
+                href={`tel:${site.phoneHref}`}
+                class="btn !px-7 !py-4 border border-nero/20 text-nero hover:bg-nero hover:text-white"
+              >
+                <Icona nome="hero-phone-call" class="size-4" />
+                {site.phone}
+              </a>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Colonna laterale -->
+        <aside class="flex flex-col gap-8 lg:sticky lg:top-28 lg:self-start">
+          {
+            altri.length > 0 && (
+              <div class="rounded-lg border border-nero/8 bg-carta p-7">
+                <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">
+                  Altri articoli
+                </h2>
+                <ul class="mt-4 flex flex-col gap-4">
+                  {altri.map((a) => (
+                    <li>
+                      <a
+                        href={indirizzoArticolo(a.slug)}
+                        class="group flex items-start justify-between gap-3 font-sans text-[15px] font-semibold leading-snug text-nero transition-colors hover:text-taupe"
+                      >
+                        <span>
+                          {a.titolo}
+                          <time datetime={dataIso(a.creato)} class="mt-1 block text-[13px] font-normal text-nero/55">
+                            {dataItaliana(a.creato)}
+                          </time>
+                        </span>
+                        <Icona nome="services-arrow-right" class="mt-1.5 size-3.5 shrink-0 text-taupe transition-transform group-hover:translate-x-1" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="/blog/"
+                  class="mt-5 inline-block font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe underline-offset-4 hover:underline"
+                >
+                  Tutti gli articoli
+                </a>
+              </div>
+            )
+          }
+
+          <div class="rounded-lg bg-nero p-7 text-white">
+            <p class="font-display text-xl font-normal leading-snug">Un dubbio sul vostro tetto?</p>
+            <p class="mt-2 font-sans text-sm leading-relaxed text-sabbia/75">
+              Sopralluogo e preventivo scritto gratuiti fra {site.regions[0]} e {site.regions[1]}.
+            </p>
+            <a href="/#preventivo" class="btn btn-bianco mt-5 w-full !shadow-none">Preventivo gratuito</a>
+            <a
+              href={`tel:${site.phoneHref}`}
+              class="mt-3 block text-center font-sans text-sm font-bold text-sabbia underline-offset-4 hover:underline"
+            >
+              {site.phone}
+            </a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <BarraMobile />
+  <ContattoRapido />
+</Base>

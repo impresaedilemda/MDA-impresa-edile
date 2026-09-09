@@ -1,0 +1,1935 @@
+/**
+ * Stile del pannello di amministrazione.
+ *
+ * Stessa palette e stessi caratteri del sito pubblico: crema di fondo,
+ * quasi-nero della barra laterale, taupe come accento. Il pannello deve
+ * sembrare la stanza sul retro dello stesso edificio, non un altro edificio.
+ *
+ * Tre larghezze:
+ *   - da 1040px in su: barra laterale piena a sinistra
+ *   - fra 700 e 1040px: barra ridotta alle sole icone
+ *   - sotto i 700px: niente barra, una testata sottile e le schede in fondo
+ *     allo schermo, come in una app. Il cliente lo aprirà dal telefono.
+ *
+ * Le variabili dei colori arrivano da src/styles/global.css, importato dal
+ * layout. Le classi sono tutte con prefisso adm- per non incrociare Tailwind.
+ */
+
+:root {
+  --adm-lato: 264px;
+  --adm-raggio: 14px;
+  --adm-raggio-piccolo: 9px;
+  --adm-bordo: rgba(21, 22, 19, 0.09);
+  --adm-bordo-forte: rgba(21, 22, 19, 0.16);
+  --adm-testo-2: rgba(21, 22, 19, 0.62);
+  --adm-testo-3: rgba(21, 22, 19, 0.46);
+  --adm-ombra: 0 1px 2px rgba(21, 22, 19, 0.04), 0 10px 30px -12px rgba(21, 22, 19, 0.12);
+  --adm-ombra-alta: 0 24px 60px -20px rgba(21, 22, 19, 0.35);
+  --adm-verde: #1f8a4c;
+  --adm-verde-fondo: rgba(34, 197, 94, 0.13);
+  --adm-mattone-fondo: rgba(163, 92, 78, 0.1);
+  --adm-taupe-fondo: rgba(142, 126, 106, 0.12);
+  --adm-transizione: 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body {
+  margin: 0;
+  background: var(--color-crema);
+  color: var(--color-nero);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- TELAIO --------------------------------------------------------------- */
+
+.adm {
+  display: grid;
+  grid-template-columns: var(--adm-lato) minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--color-crema);
+}
+
+.adm-lato {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100vh;
+  height: 100svh;
+  flex-direction: column;
+  background: var(--color-nero);
+  color: #fff;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.adm-lato-testa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--color-crema);
+  padding: 1.5rem 1rem 1.25rem;
+}
+
+.adm-lato-testa svg {
+  width: 124px;
+  height: auto;
+}
+
+.adm-marchio {
+  border-radius: 999px;
+  background: var(--color-nero);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--color-crema);
+  text-transform: uppercase;
+}
+
+.adm-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 0.8rem 0.5rem;
+}
+
+.adm-menu-gruppo {
+  margin: 0.9rem 0.9rem 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+}
+
+.adm-menu-gruppo:first-child {
+  margin-top: 0.25rem;
+}
+
+.adm-menu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-radius: var(--adm-raggio-piccolo);
+  padding: 0.66rem 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition:
+    background-color var(--adm-transizione),
+    color var(--adm-transizione);
+}
+
+.adm-menu a:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.adm-menu a.adm-attivo {
+  background: var(--color-nero-2);
+  color: var(--color-crema);
+  box-shadow: inset 2px 0 0 var(--color-taupe);
+}
+
+.adm-menu svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.adm-pallino {
+  margin-left: auto;
+  min-width: 1.35rem;
+  border-radius: 999px;
+  background: var(--color-taupe);
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--color-nero);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-pallino[hidden] {
+  display: none;
+}
+
+.adm-lato-fondo {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.9rem 0.8rem 1.2rem;
+}
+
+.adm-lato-fondo a,
+.adm-lato-fondo button.adm-esci {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 0;
+  border-radius: var(--adm-raggio-piccolo);
+  background: transparent;
+  padding: 0.55rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--adm-transizione),
+    color var(--adm-transizione);
+}
+
+.adm-lato-fondo a:hover,
+.adm-lato-fondo button.adm-esci:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.adm-utente {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0.4rem 0.6rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+}
+
+.adm-utente span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-lingue {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0 0.9rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px;
+}
+
+.adm-lingue button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.26rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition:
+    background-color var(--adm-transizione),
+    color var(--adm-transizione);
+}
+
+.adm-lingue button.adm-lingua-attiva {
+  background: var(--color-crema);
+  color: var(--color-nero);
+}
+
+/* Testata sottile e schede in fondo: esistono solo sotto i 700px. */
+.adm-testata-mobile,
+.adm-schede {
+  display: none;
+}
+
+/* --- AREA PRINCIPALE ------------------------------------------------------ */
+
+.adm-corpo {
+  min-width: 0;
+  padding: 2rem 2.5rem 4.5rem;
+}
+
+.adm-sopra:empty {
+  display: none;
+}
+
+.adm-sopra {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.adm-lavoro {
+  max-width: 1180px;
+}
+
+.adm-testa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.6rem;
+}
+
+.adm-testa-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.adm-occhiello {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--color-taupe-testo);
+  text-transform: uppercase;
+}
+
+.adm-titolo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.4rem + 1.6vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.adm-sottotitolo {
+  margin: 0.45rem 0 0;
+  max-width: 64ch;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--adm-testo-2);
+}
+
+.adm-indietro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-taupe-testo);
+  text-decoration: none;
+}
+
+.adm-indietro:hover {
+  color: var(--color-nero);
+}
+
+/* --- CARD E GRIGLIE ------------------------------------------------------- */
+
+.adm-card {
+  border: 1px solid var(--adm-bordo);
+  border-radius: var(--adm-raggio);
+  background: #fff;
+  box-shadow: var(--adm-ombra);
+  padding: 1.4rem 1.5rem;
+}
+
+.adm-card-stretta {
+  padding: 1.1rem 1.25rem;
+}
+
+a.adm-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform var(--adm-transizione),
+    box-shadow var(--adm-transizione),
+    border-color var(--adm-transizione);
+}
+
+a.adm-card:hover {
+  border-color: var(--adm-bordo-forte);
+  box-shadow: var(--adm-ombra-alta);
+  transform: translateY(-2px);
+}
+
+.adm-card-scura {
+  border-color: transparent;
+  background: var(--color-nero);
+  color: var(--color-crema);
+}
+
+.adm-card-scura .adm-etichetta {
+  color: var(--color-sabbia);
+  opacity: 0.8;
+}
+
+.adm-card-scura .adm-nota {
+  color: rgba(247, 244, 235, 0.65);
+}
+
+.adm-card-accento {
+  border-color: rgba(142, 126, 106, 0.35);
+  background: linear-gradient(135deg, #fff, var(--color-carta));
+}
+
+.adm-griglia-numeri {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  margin-bottom: 1.25rem;
+}
+
+.adm-etichetta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  color: var(--color-taupe-testo);
+  text-transform: uppercase;
+}
+
+.adm-numero {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-numero-piccolo {
+  font-size: 2rem;
+}
+
+.adm-nota {
+  margin: 0.55rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--adm-testo-3);
+}
+
+.adm-titoletto {
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.adm-titoletto a {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-taupe-testo);
+  text-decoration: none;
+}
+
+.adm-titoletto a:hover {
+  color: var(--color-nero);
+}
+
+.adm-due {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+}
+
+.adm-tre {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+}
+
+.adm-quattro {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+
+.adm-due-terzi {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.adm-pila {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.adm-riga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.adm-spazio {
+  flex: 1;
+}
+
+/* --- ELENCHI DI RIGHE ----------------------------------------------------- */
+
+.adm-elenco {
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-elenco > * {
+  border-top: 1px solid rgba(21, 22, 19, 0.06);
+  padding: 0.85rem 0;
+}
+
+.adm-elenco > *:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.adm-elenco > *:last-child {
+  padding-bottom: 0;
+}
+
+a.adm-voce {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.adm-voce:hover .adm-voce-titolo {
+  color: var(--color-taupe-testo);
+}
+
+.adm-voce-testo {
+  min-width: 0;
+}
+
+.adm-voce-titolo {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--adm-transizione);
+}
+
+.adm-voce-sotto {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--adm-testo-3);
+}
+
+/* --- PULSANTI ------------------------------------------------------------- */
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--adm-raggio-piccolo);
+  background: var(--color-nero);
+  padding: 0.7rem 1.15rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-crema);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--adm-transizione),
+    border-color var(--adm-transizione),
+    color var(--adm-transizione),
+    opacity var(--adm-transizione),
+    transform var(--adm-transizione);
+}
+
+.adm-btn:hover {
+  background: var(--color-nero-2);
+}
+
+.adm-btn:active {
+  transform: translateY(1px);
+}
+
+.adm-btn-chiaro {
+  border-color: var(--adm-bordo-forte);
+  background: #fff;
+  color: var(--color-nero);
+}
+
+.adm-btn-chiaro:hover {
+  background: var(--color-carta);
+}
+
+.adm-btn-pericolo {
+  border-color: rgba(163, 92, 78, 0.35);
+  background: #fff;
+  color: var(--color-mattone);
+}
+
+.adm-btn-pericolo:hover {
+  background: var(--adm-mattone-fondo);
+}
+
+.adm-btn-pericolo-pieno {
+  background: var(--color-mattone);
+  color: #fff;
+}
+
+.adm-btn-pericolo-pieno:hover {
+  background: #8d4d40;
+}
+
+.adm-btn-verde {
+  background: var(--adm-verde);
+  color: #fff;
+}
+
+.adm-btn-verde:hover {
+  background: #197040;
+}
+
+.adm-btn-whatsapp {
+  background: var(--color-whatsapp);
+  color: #fff;
+}
+
+.adm-btn-whatsapp:hover {
+  background: #1fb85a;
+}
+
+.adm-btn-nudo {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-taupe-testo);
+}
+
+.adm-btn-nudo:hover {
+  background: var(--adm-taupe-fondo);
+  color: var(--color-nero);
+}
+
+.adm-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+.adm-btn-piccolo {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.78rem;
+}
+
+.adm-btn-icona {
+  padding: 0.45rem;
+}
+
+.adm-btn-largo {
+  width: 100%;
+}
+
+/* --- CAMPI ---------------------------------------------------------------- */
+
+.adm-blocco-campo {
+  display: block;
+  min-width: 0;
+}
+
+.adm-campo {
+  width: 100%;
+  border: 1px solid var(--adm-bordo-forte);
+  border-radius: var(--adm-raggio-piccolo);
+  background: #fff;
+  padding: 0.7rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  color: var(--color-nero);
+  transition:
+    border-color var(--adm-transizione),
+    box-shadow var(--adm-transizione);
+}
+
+textarea.adm-campo {
+  resize: vertical;
+}
+
+.adm-campo:focus {
+  border-color: var(--color-taupe);
+  box-shadow: 0 0 0 3px rgba(142, 126, 106, 0.2);
+  outline: none;
+}
+
+.adm-campo::placeholder {
+  color: rgba(21, 22, 19, 0.35);
+}
+
+.adm-campo[aria-invalid='true'] {
+  border-color: var(--color-mattone);
+}
+
+select.adm-campo {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%238E7E6A' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.1rem;
+  padding-right: 2.4rem;
+}
+
+.adm-etichetta-campo {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-nero);
+}
+
+.adm-aiuto {
+  margin: 0.4rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--adm-testo-3);
+}
+
+.adm-aiuto:empty {
+  display: none;
+}
+
+.adm-campi {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+}
+
+.adm-campi-2 {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adm-campo-cerca {
+  position: relative;
+  min-width: 220px;
+}
+
+.adm-campo-cerca svg {
+  position: absolute;
+  top: 50%;
+  left: 0.8rem;
+  color: var(--adm-testo-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.adm-campo-cerca .adm-campo {
+  padding-left: 2.4rem;
+}
+
+/* Interruttore */
+
+.adm-interruttore-riga {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.adm-interruttore {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-sabbia);
+  padding: 3px;
+  cursor: pointer;
+  transition: background-color var(--adm-transizione);
+}
+
+.adm-interruttore-pallina {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(21, 22, 19, 0.3);
+  transition: transform var(--adm-transizione);
+}
+
+.adm-interruttore-acceso {
+  background: var(--adm-verde);
+}
+
+.adm-interruttore-acceso .adm-interruttore-pallina {
+  transform: translateX(18px);
+}
+
+.adm-interruttore:focus-visible {
+  outline: 2px solid var(--color-taupe);
+  outline-offset: 2px;
+}
+
+.adm-interruttore-testo {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+/* --- SEGMENTI ------------------------------------------------------------- */
+
+.adm-segmenti {
+  display: inline-flex;
+  max-width: 100%;
+  border: 1px solid var(--adm-bordo-forte);
+  border-radius: 999px;
+  background: #fff;
+  padding: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.adm-segmenti button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.42rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--adm-testo-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--adm-transizione),
+    color var(--adm-transizione);
+}
+
+.adm-segmenti button[aria-pressed='true'] {
+  background: var(--color-nero);
+  color: var(--color-crema);
+}
+
+.adm-segmenti button .adm-pallino {
+  margin-left: 0;
+  background: rgba(21, 22, 19, 0.1);
+  color: inherit;
+}
+
+.adm-segmenti button[aria-pressed='true'] .adm-pallino {
+  background: var(--color-taupe);
+  color: var(--color-nero);
+}
+
+.adm-segmenti-strumenti button {
+  padding: 0.42rem 0.6rem;
+}
+
+/* --- LISTE CON BARRA ------------------------------------------------------ */
+
+.adm-riga-barra {
+  display: grid;
+  align-items: center;
+  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr) 72px auto;
+  padding: 0.42rem 0;
+  font-size: 0.88rem;
+}
+
+.adm-riga-barra span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-barra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-sabbia);
+  overflow: hidden;
+}
+
+.adm-barra > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-taupe);
+}
+
+.adm-cifra {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- TABELLE -------------------------------------------------------------- */
+
+.adm-scorri {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.adm-tabella {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.adm-tabella th {
+  border-bottom: 1px solid var(--adm-bordo);
+  padding: 0.6rem 0.5rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-taupe-testo);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.adm-tabella td {
+  border-bottom: 1px solid rgba(21, 22, 19, 0.05);
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+}
+
+.adm-tabella tr:last-child td {
+  border-bottom: 0;
+}
+
+.adm-tabella-numeri td:not(:first-child),
+.adm-tabella-numeri th:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-tabella .adm-azioni {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+/* --- ETICHETTE DI STATO --------------------------------------------------- */
+
+.adm-stato {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.22rem 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.adm-stato-neutro,
+.adm-stato-bozza {
+  background: var(--color-sabbia);
+  color: var(--color-taupe-testo);
+}
+
+.adm-stato-vivo {
+  background: var(--adm-verde-fondo);
+  color: var(--adm-verde);
+}
+
+.adm-stato-attenzione {
+  background: var(--adm-mattone-fondo);
+  color: var(--color-mattone);
+}
+
+.adm-stato-spento {
+  background: rgba(21, 22, 19, 0.06);
+  color: var(--adm-testo-3);
+}
+
+/* --- FASCE E MESSAGGI ----------------------------------------------------- */
+
+.adm-fascia {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid rgba(142, 126, 106, 0.35);
+  border-left-width: 3px;
+  border-radius: var(--adm-raggio-piccolo);
+  background: rgba(142, 126, 106, 0.09);
+  padding: 0.85rem 1.05rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.adm-fascia strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.adm-fascia-icona {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.adm-fascia-attenzione {
+  border-color: rgba(163, 92, 78, 0.4);
+  background: var(--adm-mattone-fondo);
+  color: #6f3a30;
+}
+
+.adm-fascia-ok {
+  border-color: rgba(31, 138, 76, 0.35);
+  background: var(--adm-verde-fondo);
+  color: #155f36;
+}
+
+.adm-fascia-pubblica {
+  align-items: center;
+  border-color: rgba(21, 22, 19, 0.2);
+  background: var(--color-nero);
+  color: var(--color-crema);
+}
+
+.adm-fascia-pubblica > div {
+  flex: 1;
+}
+
+.adm-fascia-pubblica .adm-btn-chiaro {
+  border-color: transparent;
+}
+
+.adm-errore {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid rgba(163, 92, 78, 0.35);
+  border-left-width: 3px;
+  border-radius: var(--adm-raggio-piccolo);
+  background: var(--adm-mattone-fondo);
+  padding: 0.85rem 1rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-mattone);
+}
+
+.adm-errore p {
+  margin: 0 0 0.6rem;
+}
+
+.adm-errore svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.adm-errore:empty {
+  display: none;
+}
+
+.adm-vuoto {
+  padding: 1.25rem 0;
+  font-size: 0.92rem;
+  color: var(--adm-testo-3);
+}
+
+/* Stato vuoto illustrato */
+
+.adm-vuoto-stato {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.adm-vuoto-icona {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-carta);
+  color: var(--color-taupe-testo);
+}
+
+.adm-vuoto-titolo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.adm-vuoto-testo {
+  margin: 0 0 0.75rem;
+  max-width: 44ch;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--adm-testo-2);
+}
+
+/* Scheletro di attesa */
+
+.adm-scheletro {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+}
+
+.adm-scheletro span {
+  display: block;
+  height: 0.9rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-carta) 0%, var(--color-sabbia) 50%, var(--color-carta) 100%);
+  background-size: 200% 100%;
+  animation: adm-brilla 1.4s ease-in-out infinite;
+}
+
+@keyframes adm-brilla {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Avvisi a scomparsa */
+
+.adm-toast-zona {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.adm-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-nero);
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-crema);
+  box-shadow: var(--adm-ombra-alta);
+  animation: adm-su 0.3s var(--ease-fuori) both;
+}
+
+.adm-toast-errore {
+  background: var(--color-mattone);
+  color: #fff;
+}
+
+.adm-toast-via {
+  animation: adm-giu 0.3s ease-in both;
+}
+
+/* Finestre */
+
+.adm-dialogo {
+  width: min(440px, calc(100vw - 2rem));
+  border: 0;
+  border-radius: var(--adm-raggio);
+  background: #fff;
+  padding: 0;
+  color: var(--color-nero);
+  box-shadow: var(--adm-ombra-alta);
+  animation: adm-su 0.25s var(--ease-fuori) both;
+}
+
+.adm-dialogo::backdrop {
+  background: rgba(21, 22, 19, 0.45);
+  backdrop-filter: blur(3px);
+}
+
+.adm-dialogo-corpo {
+  padding: 1.6rem 1.6rem 1.4rem;
+}
+
+.adm-dialogo-titolo {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.adm-dialogo-testo {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--adm-testo-2);
+}
+
+.adm-dialogo-azioni {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+/* --- CARICATORE DI FOTO --------------------------------------------------- */
+
+.adm-caricatore {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1.5px dashed var(--adm-bordo-forte);
+  border-radius: var(--adm-raggio-piccolo);
+  background: var(--color-carta);
+  transition:
+    border-color var(--adm-transizione),
+    background-color var(--adm-transizione);
+}
+
+.adm-caricatore-larga {
+  aspect-ratio: 16 / 9;
+}
+
+.adm-caricatore-quadrata {
+  aspect-ratio: 1 / 1;
+}
+
+.adm-caricatore-tonda {
+  width: 132px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+}
+
+.adm-caricatore-sopra {
+  border-color: var(--color-taupe);
+  background: var(--adm-taupe-fondo);
+}
+
+.adm-caricatore-piena {
+  border-style: solid;
+  border-color: var(--adm-bordo);
+  background: var(--color-nero);
+}
+
+.adm-caricatore-anteprima {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-caricatore-anteprima[hidden] {
+  display: none;
+}
+
+.adm-caricatore-azioni {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.adm-caricatore-piena .adm-caricatore-azioni {
+  position: absolute;
+  inset: auto 0 0 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.65rem;
+  background: linear-gradient(to top, rgba(21, 22, 19, 0.8), rgba(21, 22, 19, 0));
+}
+
+.adm-caricatore-tonda .adm-caricatore-azioni {
+  padding: 0.5rem;
+}
+
+/* Nel tondo non c'è spazio per la frase del trascinamento: resta il pulsante,
+   compatto e su due righe se serve. */
+.adm-caricatore-tonda .adm-caricatore-invito {
+  display: none;
+}
+
+.adm-caricatore-tonda .adm-btn {
+  max-width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.68rem;
+  white-space: normal;
+  text-align: center;
+}
+
+.adm-caricatore-tonda.adm-caricatore-piena .adm-caricatore-azioni {
+  inset: 0;
+  align-items: center;
+  background: rgba(21, 22, 19, 0.45);
+  opacity: 0;
+  transition: opacity var(--adm-transizione);
+}
+
+.adm-caricatore-tonda.adm-caricatore-piena:hover .adm-caricatore-azioni,
+.adm-caricatore-tonda.adm-caricatore-piena:focus-within .adm-caricatore-azioni {
+  opacity: 1;
+}
+
+.adm-caricatore-invito,
+.adm-caricatore-attesa {
+  font-size: 0.76rem;
+  color: var(--adm-testo-3);
+}
+
+.adm-caricatore-attesa {
+  color: var(--color-nero);
+  font-weight: 700;
+}
+
+.adm-caricatore-in-attesa::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  background-size: 200% 100%;
+  animation: adm-brilla 1.2s linear infinite;
+}
+
+.adm-caricatore-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.adm-caricatore-errore:empty {
+  display: none;
+}
+
+.adm-caricatore-errore {
+  color: var(--color-mattone);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* --- AVATAR, STELLE, VARIE ----------------------------------------------- */
+
+.adm-avatar {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-sabbia);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-taupe-testo);
+}
+
+.adm-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-stelle {
+  display: inline-flex;
+  gap: 1px;
+  line-height: 1;
+}
+
+.adm-stella {
+  color: var(--color-sabbia);
+}
+
+.adm-stella-piena {
+  color: var(--color-taupe);
+}
+
+.adm-scelta-stelle {
+  display: inline-flex;
+  gap: 0.1rem;
+}
+
+.adm-scelta-stelle button {
+  border: 0;
+  background: transparent;
+  padding: 0.1rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-sabbia);
+  cursor: pointer;
+  transition: color var(--adm-transizione), transform var(--adm-transizione);
+}
+
+.adm-scelta-stelle button:hover {
+  transform: scale(1.15);
+}
+
+.adm-scelta-stelle button.adm-stella-piena {
+  color: var(--color-taupe);
+}
+
+.adm-codice {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
+.adm-prosa {
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.adm-prosa h2 {
+  margin: 1.4rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.adm-prosa p {
+  margin: 0 0 0.95rem;
+}
+
+.adm-prosa ul {
+  margin: 0 0 0.95rem;
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+
+.adm-prosa li {
+  margin: 0.25rem 0;
+}
+
+.adm-prosa img,
+.adm-prosa figure {
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 0.95rem;
+  border-radius: 8px;
+}
+
+.adm-prosa figcaption {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--adm-testo-3);
+}
+
+.adm-prosa a {
+  color: var(--color-taupe-testo);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Coppia prima/dopo nei lavori */
+
+.adm-coppia {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adm-coppia figure {
+  margin: 0;
+}
+
+.adm-coppia figcaption {
+  margin-bottom: 0.35rem;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.adm-coppia-prima figcaption {
+  color: var(--color-mattone);
+}
+
+.adm-coppia-dopo figcaption {
+  color: var(--adm-verde);
+}
+
+.adm-coppia img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  background: var(--color-sabbia);
+  object-fit: cover;
+}
+
+/* --- ENTRATE MORBIDE ------------------------------------------------------ */
+
+@keyframes adm-su {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes adm-giu {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+}
+
+.adm-entra {
+  animation: adm-su 0.36s var(--ease-fuori) both;
+}
+
+.adm-griglia-numeri > *:nth-child(1) { animation-delay: 0ms; }
+.adm-griglia-numeri > *:nth-child(2) { animation-delay: 55ms; }
+.adm-griglia-numeri > *:nth-child(3) { animation-delay: 110ms; }
+.adm-griglia-numeri > *:nth-child(4) { animation-delay: 165ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-entra,
+  .adm-toast,
+  .adm-dialogo {
+    animation: none;
+  }
+  .adm-scheletro span,
+  .adm-caricatore-in-attesa::after {
+    animation-duration: 3s;
+  }
+}
+
+/* --- ACCESSO -------------------------------------------------------------- */
+
+.adm-accesso {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  background: var(--color-crema);
+  color: var(--color-nero);
+}
+
+.adm-accesso-foto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  background: var(--color-nero) url('/images/hero-1440.webp') center / cover no-repeat;
+  color: var(--color-crema);
+  padding: 3rem;
+}
+
+.adm-accesso-foto::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(21, 22, 19, 0.88) 0%, rgba(21, 22, 19, 0.35) 55%, rgba(21, 22, 19, 0.15) 100%);
+}
+
+.adm-accesso-foto > * {
+  position: relative;
+}
+
+.adm-accesso-foto svg {
+  width: 170px;
+  height: auto;
+  margin-bottom: auto;
+}
+
+.adm-accesso-frase {
+  margin: 0;
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 1.2rem + 1.6vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1.15;
+}
+
+.adm-accesso-pannello {
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+}
+
+.adm-accesso-scatola {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--adm-bordo);
+  border-radius: var(--adm-raggio);
+  background: #fff;
+  box-shadow: var(--adm-ombra);
+  padding: 2.25rem;
+}
+
+.adm-accesso-scatola .adm-titolo {
+  font-size: 1.9rem;
+}
+
+.adm-accesso-marchio {
+  margin: 0 0 1.25rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--color-taupe-testo);
+  text-transform: uppercase;
+}
+
+.adm-accesso-campi {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.adm-campo-password {
+  position: relative;
+}
+
+.adm-campo-password .adm-campo {
+  padding-right: 2.8rem;
+}
+
+.adm-campo-password button {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--adm-testo-3);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.adm-campo-password button:hover {
+  background: var(--color-carta);
+  color: var(--color-nero);
+}
+
+.adm-accesso-link {
+  display: inline-block;
+  margin-top: 1rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-taupe-testo);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.adm-accesso-link:hover {
+  color: var(--color-nero);
+}
+
+.adm-accesso-mobile-marchio {
+  display: none;
+}
+
+/* --- SCHERMI MEDI: solo le icone nella barra ------------------------------ */
+
+@media (max-width: 1040px) {
+  :root {
+    --adm-lato: 74px;
+  }
+
+  .adm-lato-testa {
+    padding: 1rem 0.5rem;
+  }
+
+  .adm-lato-testa svg {
+    width: 44px;
+  }
+
+  .adm-menu-gruppo,
+  .adm-marchio,
+  .adm-menu a span:not(.adm-pallino),
+  .adm-lato-fondo a span,
+  .adm-lato-fondo button.adm-esci span,
+  .adm-utente span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .adm-menu a,
+  .adm-lato-fondo a,
+  .adm-lato-fondo button.adm-esci {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .adm-menu a .adm-pallino {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    margin: 0;
+    min-width: 1.1rem;
+    padding: 0 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .adm-utente {
+    justify-content: center;
+    margin-inline: 0;
+  }
+
+  .adm-lingue {
+    margin-inline: auto;
+  }
+
+  .adm-corpo {
+    padding: 1.75rem 1.5rem 3.5rem;
+  }
+
+  .adm-due-terzi {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-accesso {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .adm-accesso-foto {
+    padding: 2rem;
+  }
+}
+
+/* --- TELEFONO: testata sottile e schede in fondo -------------------------- */
+
+@media (max-width: 700px) {
+  .adm {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-lato {
+    display: none;
+  }
+
+  .adm-testata-mobile {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--adm-bordo);
+    background: rgba(247, 244, 235, 0.92);
+    backdrop-filter: blur(10px);
+    padding: 0.55rem 1rem;
+  }
+
+  .adm-testata-mobile svg.adm-testata-logo {
+    width: 84px;
+    height: auto;
+  }
+
+  .adm-testata-mobile .adm-btn {
+    padding: 0.45rem 0.65rem;
+  }
+
+  .adm-corpo {
+    padding: 1.25rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
+  .adm-testa {
+    margin-bottom: 1.2rem;
+  }
+
+  .adm-titolo {
+    font-size: 1.9rem;
+  }
+
+  .adm-card {
+    padding: 1.1rem 1.15rem;
+  }
+
+  .adm-schede {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--color-nero);
+    padding: 0.35rem 0.25rem calc(0.35rem + env(safe-area-inset-bottom));
+  }
+
+  .adm-schede a,
+  .adm-schede button {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    padding: 0.4rem 0.2rem;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .adm-schede a.adm-attivo,
+  .adm-schede button[aria-expanded='true'] {
+    color: var(--color-crema);
+  }
+
+  .adm-schede a.adm-attivo svg {
+    color: var(--color-taupe);
+  }
+
+  .adm-schede .adm-pallino {
+    position: absolute;
+    top: 0;
+    right: 12%;
+    margin: 0;
+    min-width: 1.1rem;
+    padding: 0 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .adm-foglio {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: flex-end;
+    background: rgba(21, 22, 19, 0.5);
+  }
+
+  .adm-foglio[data-aperto='true'] {
+    display: flex;
+  }
+
+  .adm-foglio-corpo {
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    background: var(--color-nero);
+    padding: 0.75rem 0.75rem calc(1rem + env(safe-area-inset-bottom));
+    animation: adm-su 0.25s var(--ease-fuori) both;
+  }
+
+  .adm-foglio-corpo .adm-menu {
+    padding: 0.25rem 0;
+  }
+
+  .adm-foglio-corpo .adm-menu a,
+  .adm-foglio-corpo .adm-lato-fondo a,
+  .adm-foglio-corpo .adm-lato-fondo button.adm-esci {
+    font-size: 1rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .adm-foglio-corpo .adm-lato-fondo {
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    padding: 0.5rem 0 0;
+  }
+
+  .adm-foglio-corpo .adm-lingue {
+    margin: 0.5rem 1rem;
+  }
+
+  .adm-griglia-numeri {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adm-numero {
+    font-size: 2.2rem;
+  }
+
+  .adm-campi-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-coppia {
+    gap: 0.5rem;
+  }
+
+  .adm-dialogo-azioni {
+    flex-direction: column-reverse;
+  }
+
+  .adm-dialogo-azioni .adm-btn {
+    width: 100%;
+  }
+
+  .adm-toast-zona {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+    width: calc(100% - 2rem);
+  }
+
+  .adm-accesso {
+    grid-template-columns: 1fr;
+  }
+
+  .adm-accesso-foto {
+    display: none;
+  }
+
+  .adm-accesso-mobile-marchio {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin: 0 auto 1.25rem;
+  }
+
+  .adm-accesso-scatola {
+    padding: 1.75rem 1.4rem;
+  }
+}

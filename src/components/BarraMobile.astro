@@ -46,8 +46,20 @@ import Icona from './Icona.astro'
     const aggiorna = () => {
       barra.classList.toggle('translate-y-full', window.scrollY < window.innerHeight * 0.6)
     }
-    aggiorna()
-    window.addEventListener('scroll', aggiorna, { passive: true })
+
+    // La barra e lg:hidden: sopra i 1024px non si rende, quindi il listener
+    // di scroll non serve. matchMedia e non resize, cosi scatta una volta sola.
+    const desktop = matchMedia('(min-width: 1024px)')
+    const sincronizza = (mobile: boolean) => {
+      if (mobile) {
+        aggiorna()
+        window.addEventListener('scroll', aggiorna, { passive: true })
+      } else {
+        window.removeEventListener('scroll', aggiorna)
+      }
+    }
+    sincronizza(!desktop.matches)
+    desktop.addEventListener('change', (e) => sincronizza(!e.matches))
 
     barra.querySelectorAll<HTMLAnchorElement>('[data-azione]').forEach((link) => {
       link.addEventListener('click', () => {

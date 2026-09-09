@@ -1,6 +1,8 @@
 ---
-import { site, yearsActive } from '../config/site'
+import { anzianitaPubblicabile, site } from '../config/site'
 import { services, verniciatura, faqs, reviews, reviewsArePlaceholder } from '../config/content'
+import { verificheLegali, problemiLegali } from '../config/legale'
+import { remoto } from '../lib/remoto'
 
 interface Props {
   /** FAQPage della home: va dichiarata solo dove le domande sono visibili */
@@ -12,12 +14,73 @@ const { conFaq = false } = Astro.props
 /* La verniciatura nel design e un pannello di approfondimento, ma per lo
    schema resta un servizio a pieno titolo. */
 const tuttiIServizi = [
-  ...services.map((s) => ({ title: s.title, description: s.text, keyword: s.keyword })),
-  { title: 'Verniciatura Tetto', description: verniciatura.intro, keyword: verniciatura.keyword },
+  ...services.map((s) => ({ id: s.id, title: s.title, description: s.text, keyword: s.keyword })),
+  {
+    id: verniciatura.id,
+    title: 'Verniciatura Tetto',
+    description: verniciatura.intro,
+    keyword: verniciatura.keyword,
+  },
 ]
 
 const base = site.url
 const idAzienda = `${base}/#organizzazione`
+
+/* ---------------------------------------------------------------------------
+ *  DATI SEGNAPOSTO E DATI STRUTTURATI
+ *  I motori di ricerca leggono questo blocco come dichiarazioni di fatto:
+ *  un valore segnaposto qui non e un refuso, e un dato identificativo falso.
+ *  Regola: se il dato non e confermato la chiave viene OMESSA, mai emessa
+ *  col valore finto. L'unica fonte di verita su cosa sia segnaposto e
+ *  src/config/legale.ts, cosi non si duplica la logica.
+ * ------------------------------------------------------------------------ */
+
+/** true solo se la verifica di quel campo in legale.ts e superata. */
+const datoConfermato = (campo: string) => verificheLegali.find((v) => v.campo === campo)?.ok === true
+
+/** Nessun campo obbligatorio e rimasto segnaposto. */
+const datiLegaliCompleti = problemiLegali.length === 0
+
+/** Include le chiavi solo se il dato e confermato, altrimenti le omette. */
+const soloSe = (confermato: boolean, campi: Record<string, unknown>) => (confermato ? campi : {})
+
+/* Le valutazioni si pubblicano solo quando ogni recensione porta un voto
+   reale: cosi nemmeno cambiando il solo flag reviewsArePlaceholder si
+   possono emettere stelle inventate. */
+const recensioniConVoto = reviews.filter(
+  (r): r is (typeof reviews)[number] & { rating: number } =>
+    typeof (r as { rating?: unknown }).rating === 'number',
+)
+const valutazioniPubblicabili =
+  !reviewsArePlaceholder && reviews.length > 0 && recensioniConVoto.length === reviews.length
+
+/** Una recensione come la vuole lo schema: chi l'ha scritta, il voto, il testo. */
+type RecensioneSchema = { autore: string; voto: number; testo: string }
+
+/** Il voto resta fra 1 e 5 qualunque cosa arrivi dal database. */
+const votoValido = (voto: number) => Math.min(5, Math.max(1, Math.round(Number(voto) || 5)))
+
+/* Le recensioni scritte dal titolare nel pannello sono vere per definizione:
+   se ce n'è almeno una visibile, lo schema pubblica quelle e il loro
+   AggregateRating, e gli esempi non contano più. Una riga senza nome o senza
+   testo non è una recensione che Google possa leggere: resta fuori. Solo se
+   il pannello è vuoto vale la regola degli esempi qui sopra. */
+const recensioniSchema: RecensioneSchema[] =
+  remoto.recensioni.length > 0
+    ? remoto.recensioni
+        .filter((r) => r.nome.trim() !== '' && r.testo.trim() !== '')
+        .map((r) => ({ autore: r.nome.trim(), voto: votoValido(r.voto), testo: r.testo.trim() }))
+    : valutazioniPubblicabili
+      ? recensioniConVoto.map((r) => ({ autore: r.name, voto: r.rating, testo: r.text }))
+      : []
+
+/** JSON.stringify non escapa "<": un "</script>" nei testi chiuderebbe il
+ *  blocco in anticipo. U+2028 e U+2029 spezzano invece il parsing. */
+const jsonLd = (dati: unknown) =>
+  JSON.stringify(dati)
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 
 /**
  * RoofingContractor e il tipo più specifico disponibile per un'impresa
@@ -28,31 +91,50 @@ const azienda = {
   '@type': ['RoofingContractor', 'GeneralContractor'],
   '@id': idAzienda,
   name: site.name,
-  legalName: site.legalName,
+  /* legalName e foundingDate restano fuori finche la visura non conferma
+     forma giuridica e anno: "S.r.l." e "2009" sono ancora segnaposto. */
+  ...soloSe(datiLegaliCompleti && site.formaGiuridica !== 'da-confermare', { legalName: site.legalName }),
+  /* foundingDate ha una condizione in piu: la visura puo essere completa e
+     l'anno di fondazione restare quello scritto a mano. */
+  ...soloSe(datiLegaliCompleti && anzianitaPubblicabile, { foundingDate: String(site.foundedYear) }),
   description: `Impresa edile specializzata in rifacimento, manutenzione, impermeabilizzazione e verniciatura di tetti a ${site.city} e provincia di ${site.province}.`,
   url: base,
   telephone: site.phoneHref,
   email: site.email,
   image: `${base}/images/og-image.jpg`,
-  logo: `${base}/images/logo-mda.png`,
-  foundingDate: String(site.foundedYear),
-  vatID: site.vat,
-  priceRange: '$$',
+  /* Il logo deve essere il marchio, non una fotografia: apple-touch-icon.png
+     e l'unico file marchiato presente in public/ (180x180, sopra il minimo
+     di 112px richiesto da Google). */
+  logo: {
+    '@type': 'ImageObject',
+    url: `${base}/apple-touch-icon.png`,
+    width: 180,
+    height: 180,
+  },
+  /* Una partita IVA inventata nei dati strutturati e un dato identificativo
+     falso, non un semplice segnaposto: meglio assente. */
+  ...soloSe(datoConfermato('Partita IVA'), { vatID: site.vat }),
+  /* priceRange tolto: il cliente non vuole nessun posizionamento di prezzo,
+     nemmeno simbolico, nei dati strutturati. */
   currenciesAccepted: 'EUR',
   paymentAccepted: 'Bonifico bancario, Contanti',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: site.street,
+    ...soloSe(datoConfermato('Sede legale'), { streetAddress: site.street }),
     addressLocality: site.city,
     addressRegion: site.province,
     postalCode: site.postalCode,
     addressCountry: 'IT',
   },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: site.geo.lat,
-    longitude: site.geo.lng,
-  },
+  /* Coordinate segnaposto significano uno spillo sulla mappa a un indirizzo
+     che non e quello dell'impresa: si pubblicano solo a sede confermata. */
+  ...soloSe(datiLegaliCompleti, {
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: site.geo.lat,
+      longitude: site.geo.lng,
+    },
+  }),
   areaServed: [
     ...site.regions.map((regione) => ({ '@type': 'AdministrativeArea', name: regione })),
     ...site.areaServed.map((comune) => ({ '@type': 'City', name: comune })),
@@ -69,36 +151,42 @@ const azienda = {
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Servizi di copertura e lattoneria',
+    /* Ogni voce del catalogo ha una pagina dedicata: l'@id e lo stesso della
+       pagina /servizi/<slug>/ cosi le due entita si fondono in una sola
+       invece di duplicarsi. Gli id in content.ts coincidono con gli slug. */
     itemListElement: tuttiIServizi.map((s) => ({
       '@type': 'Offer',
       itemOffered: {
+        '@id': `${base}/servizi/${s.id}/#servizio`,
         '@type': 'Service',
         name: s.title,
-        description: s.description,
-        serviceType: s.keyword,
-        provider: { '@id': idAzienda },
-        areaServed: { '@type': 'AdministrativeArea', name: `Provincia di ${site.province}` },
+        url: `${base}/servizi/${s.id}/`,
       },
     })),
   },
   // NOTA: aggregateRating e review vengono dichiarati solo quando le
-  // recensioni sono reali. Dichiarare valutazioni inventate viola le
-  // linee guida di Google e può portare a una penalizzazione manuale.
-  ...(reviewsArePlaceholder
-    ? {}
-    : {
+  // recensioni sono reali: quelle scritte dal titolare nel pannello, oppure
+  // gli esempi quando ognuno porta il proprio voto e il flag lo permette.
+  // Dichiarare valutazioni inventate viola le linee guida di Google e può
+  // portare a una penalizzazione manuale.
+  ...(recensioniSchema.length > 0
+    ? {
         aggregateRating: {
           '@type': 'AggregateRating',
-          ratingValue: '5',
-          reviewCount: String(reviews.length),
+          ratingValue: (
+            recensioniSchema.reduce((somma, r) => somma + r.voto, 0) / recensioniSchema.length
+          ).toFixed(1),
+          reviewCount: String(recensioniSchema.length),
+          bestRating: '5',
         },
-        review: reviews.map((r) => ({
+        review: recensioniSchema.map((r) => ({
           '@type': 'Review',
-          author: { '@type': 'Person', name: r.name },
-          reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
-          reviewBody: r.text,
+          author: { '@type': 'Person', name: r.autore },
+          reviewRating: { '@type': 'Rating', ratingValue: String(r.voto), bestRating: '5' },
+          reviewBody: r.testo,
         })),
-      }),
+      }
+    : {}),
 }
 
 const sitoWeb = {
@@ -126,4 +214,4 @@ const grafo = {
 }
 ---
 
-<script type="application/ld+json" is:inline set:html={JSON.stringify(grafo)} />
+<script type="application/ld+json" is:inline set:html={jsonLd(grafo)} />

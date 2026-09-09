@@ -1,14 +1,26 @@
 ---
 import { site } from '../config/site'
+import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
+/* Le tre pagine hub (/servizi/, /guide/, /zone/) stanno nel menu principale:
+   erano raggiungibili solo dal footer, e /servizi/ da nessuna parte. Le ancore
+   restano assolute (/#...) cosi funzionano anche dalle pagine interne.
+   Il blog compare solo quando il cliente ha pubblicato almeno un articolo:
+   una voce che porta a una pagina vuota è peggio di una voce in meno. */
 const nav = [
-  { label: 'I Nostri Servizi', href: '/#servizi' },
+  { label: 'Servizi', href: '/servizi/' },
+  { label: 'Guide', href: '/guide/' },
+  ...(remoto.articoli.length > 0 ? [{ label: 'Blog', href: '/blog/' }] : []),
+  { label: 'Zone Servite', href: '/zone/' },
   { label: 'Come Lavoriamo', href: '/#processo' },
-  { label: 'Portfolio', href: '/#lavori' },
   { label: 'FAQ', href: '/#domande' },
 ]
+
+/* Sul mobile lo spazio verticale non manca: ci sta anche il portfolio, che
+   entra subito prima delle FAQ qualunque sia il numero di voci. */
+const navMobile = [...nav.slice(0, -1), { label: 'Portfolio', href: '/#lavori' }, ...nav.slice(-1)]
 ---
 
 <header
@@ -64,7 +76,7 @@ const nav = [
   <div id="menu-mobile" hidden class="border-t border-nero/8 bg-crema lg:hidden">
     <nav aria-label="Navigazione mobile" class="contenitore flex flex-col py-3">
       {
-        nav.map((voce) => (
+        navMobile.map((voce) => (
           <a href={voce.href} class="border-b border-nero/8 py-3.5 font-sans text-base font-semibold text-nero last:border-0">
             {voce.label}
           </a>
@@ -93,8 +105,12 @@ const nav = [
 
   const chiudi = () => {
     if (!menu || !bottone) return
+    // Va letto PRIMA di nascondere il menu: dopo `hidden = true` il browser
+    // ha gia spostato il focus sul body e il controllo sarebbe sempre falso.
+    const aveaFocus = menu.contains(document.activeElement)
     menu.hidden = true
     bottone.setAttribute('aria-expanded', 'false')
+    if (aveaFocus) bottone.focus()
   }
 
   bottone?.addEventListener('click', () => {
@@ -106,4 +122,12 @@ const nav = [
 
   menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', chiudi))
   document.addEventListener('keydown', (e) => e.key === 'Escape' && chiudi())
+
+  // Sopra i 1024px il menu mobile sparisce solo via CSS: senza questo,
+  // `menu.hidden` resta false e riappare aperto tornando in portrait.
+  // matchMedia e non resize: scatta una volta sola, anche alla rotazione.
+  const desktop = matchMedia('(min-width: 1024px)')
+  desktop.addEventListener('change', (e) => {
+    if (e.matches) chiudi()
+  })
 </script>

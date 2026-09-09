@@ -1,14 +1,92 @@
 ---
 /**
  * Portfolio scuro con coppie prima/dopo, come nel design.
+ *
+ * Da dove arrivano i cantieri:
+ *  - se il cliente ha almeno un cantiere visibile nel pannello, si mostrano
+ *    SOLO quelli (remoto.lavori, letti alla build da Supabase, già filtrati
+ *    e ordinati). Le loro foto sono file singoli caricati dal pannello:
+ *    niente srcset, solo src;
+ *  - altrimenti restano i cinque esempi di src/config/content.ts, con le
+ *    varianti responsive -350/-700 di public/images/ (Artiom, 31 agosto: la
+ *    sezione resta visibile anche coi progetti segnaposto; lo Schema non
+ *    dichiara nulla di finto).
+ *
+ * Fra una build e l'altra il cliente può aggiungere, nascondere o riordinare:
+ * lo script in fondo chiede al database la versione più fresca e, solo se gli
+ * id sono cambiati, ricostruisce gli articoli clonando il <template>.
  */
 import { portfolio, portfolioSection, portfolioIsPlaceholder } from '../config/content'
+import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
+
+type Cantiere = {
+  id: string
+  titolo: string
+  localita: string
+  testo: string
+  durata: string
+  materiali: string
+  prima: string | null
+  dopo: string | null
+  altPrima: string
+  altDopo: string
+  /** true solo per gli esempi: le loro foto hanno le varianti -350 e -700 */
+  conVarianti: boolean
+}
+
+/* Le varianti responsive stanno in public/images/ con lo stesso nome più il
+   suffisso della larghezza (es. progetto-1-prima-350.webp). Il file senza
+   suffisso resta la variante più grande, 1000 px. Vale solo per gli esempi:
+   le foto del pannello sono un file solo. */
+/**
+ * true finche le coppie prima/dopo sono le nostre illustrazioni e non le
+ * foto di cantieri veri caricate dal pannello. Comanda l'avviso in cima alla
+ * sezione e le etichette: "tempo di posa tipico" invece di "tempo di posa",
+ * perche il secondo e il consuntivo di un lavoro che non c'e stato.
+ */
+const illustrazioni = remoto.lavori.length === 0 && portfolioIsPlaceholder
+
+const durataLabel = illustrazioni ? portfolioSection.durataLabel : portfolioSection.durataLabelReale
+const materialiLabel = illustrazioni ? portfolioSection.materialiLabel : portfolioSection.materialiLabelReale
+
+const variante = (percorso: string, larghezza: number) => percorso.replace(/\.webp$/, `-${larghezza}.webp`)
+const sorgenti = (percorso: string) =>
+  `${variante(percorso, 350)} 350w, ${variante(percorso, 700)} 700w, ${percorso} 1000w`
+
+const cantieri: Cantiere[] =
+  remoto.lavori.length > 0
+    ? remoto.lavori.map((l) => ({
+        id: l.id,
+        titolo: l.titolo,
+        localita: l.localita,
+        testo: l.testo,
+        durata: l.durata,
+        materiali: l.materiali,
+        prima: l.foto_prima,
+        dopo: l.foto_dopo,
+        altPrima: `Prima dell’intervento: ${l.titolo}`,
+        altDopo: `Dopo il lavoro: ${l.titolo}`,
+        conVarianti: false,
+      }))
+    : portfolio.map((p, i) => ({
+        id: `esempio-${i + 1}`,
+        titolo: p.title,
+        localita: p.place,
+        testo: p.text,
+        durata: p.days,
+        materiali: p.materials,
+        prima: p.before,
+        dopo: p.after,
+        altPrima: p.altPrima,
+        altDopo: p.altDopo,
+        conVarianti: true,
+      }))
 ---
 
 <section id="lavori" class="scroll-mt-24 bg-nero py-16 text-white md:py-[120px]">
   <div class="contenitore flex flex-col gap-12 md:gap-20">
-    <!-- Intestazione -->
+    {/* Intestazione */}
     <div class="rivela flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
       <div class="flex max-w-[680px] flex-col gap-4">
         <p class="occhiello !text-sabbia">{portfolioSection.eyebrow}</p>
@@ -17,61 +95,85 @@ import Icona from './Icona.astro'
       <p class="max-w-[400px] font-sans leading-relaxed text-sabbia/80">{portfolioSection.intro}</p>
     </div>
 
-    <!-- Progetti -->
-    <div class="flex flex-col">
+    {/* Avviso sulla natura delle immagini. Sta qui, prima delle foto e con lo
+        stesso peso del testo intorno: una nota piccola in fondo alla pagina
+        non toglie il carattere ingannevole di una vetrina di lavori mai
+        eseguiti. Sparisce da solo quando arrivano i cantieri veri. */}
+    {illustrazioni && (
+      <p id="lav-avviso" class="rivela max-w-[820px] rounded-md border-l-2 border-sabbia/50 bg-white/5 px-5 py-4 font-sans text-[13px] leading-relaxed text-sabbia/85">
+        {portfolioSection.avviso}
+      </p>
+    )}
+
+    {/* Cantieri: foto a sinistra e testo a destra, poi il contrario, a turno */}
+    <div id="lav-elenco" class="flex flex-col">
       {
-        portfolio.map((progetto, i) => (
-          <article class:list={['rivela grid gap-8 border-b border-white/8 py-12 first:pt-0 xl:gap-14', i % 2 === 1 ? 'xl:grid-cols-[1fr_auto]' : 'xl:grid-cols-[auto_1fr]']}>
-            <!-- Coppia prima/dopo -->
-            <div class:list={["grid max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2", i % 2 === 1 && "xl:order-2"]}>
-              <figure class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
-                <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-mattone">
-                  {portfolioSection.beforeLabel}
-                </figcaption>
-                <img
-                  src={progetto.before}
-                  alt={progetto.altPrima}
-                  width="700"
-                  height="700"
-                  loading="lazy"
-                  decoding="async"
-                  class="aspect-square w-full rounded-md object-cover"
-                />
-              </figure>
-              <figure class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
-                <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-verde">
-                  {portfolioSection.afterLabel}
-                </figcaption>
-                <img
-                  src={progetto.after}
-                  alt={progetto.altDopo}
-                  width="700"
-                  height="700"
-                  loading="lazy"
-                  decoding="async"
-                  class="aspect-square w-full rounded-md object-cover"
-                />
-              </figure>
+        cantieri.map((cantiere, i) => (
+          <article
+            data-id={cantiere.id}
+            class:list={[
+              'rivela grid gap-8 border-b border-white/8 py-12 first:pt-0 xl:gap-14',
+              i % 2 === 1 ? 'xl:grid-cols-[1fr_auto]' : 'xl:grid-cols-[auto_1fr]',
+            ]}
+          >
+            {/* Coppia prima/dopo */}
+            <div class:list={['grid max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2', i % 2 === 1 && 'xl:order-2']}>
+              {cantiere.prima && (
+                <figure class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
+                  <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#c07a6b]">
+                    {portfolioSection.beforeLabel}
+                  </figcaption>
+                  <img
+                    src={cantiere.prima}
+                    srcset={cantiere.conVarianti ? sorgenti(cantiere.prima) : undefined}
+                    sizes={cantiere.conVarianti ? '(max-width: 639px) 100vw, 348px' : undefined}
+                    alt={cantiere.altPrima}
+                    width="1000"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-square w-full rounded-md object-cover"
+                  />
+                </figure>
+              )}
+              {cantiere.dopo && (
+                <figure class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
+                  <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-verde">
+                    {portfolioSection.afterLabel}
+                  </figcaption>
+                  <img
+                    src={cantiere.dopo}
+                    srcset={cantiere.conVarianti ? sorgenti(cantiere.dopo) : undefined}
+                    sizes={cantiere.conVarianti ? '(max-width: 639px) 100vw, 348px' : undefined}
+                    alt={cantiere.altDopo}
+                    width="1000"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-square w-full rounded-md object-cover"
+                  />
+                </figure>
+              )}
             </div>
 
-            <!-- Dettagli -->
-            <div class:list={["flex flex-col justify-center gap-5", i % 2 === 1 && "xl:order-1"]}>
+            {/* Dettagli */}
+            <div class:list={['flex flex-col justify-center gap-5', i % 2 === 1 && 'xl:order-1']}>
               <span class="inline-flex items-center gap-2 self-start rounded-[4px] bg-white/7 px-3 py-1.5 font-sans text-xs font-semibold text-sabbia">
-                <Icona nome="portfolio-map-pin" class="size-3.5" />
-                {progetto.place}
+                {cantiere.localita && <Icona nome="portfolio-map-pin" class="size-3.5" />}
+                <span>{cantiere.localita || portfolioSection.etichettaEsempio}</span>
               </span>
 
-              <h3 class="font-display text-3xl font-normal leading-tight md:text-4xl">{progetto.title}</h3>
-              <p class="max-w-[520px] font-sans text-[15px] leading-relaxed text-sabbia/85">{progetto.text}</p>
+              <h3 class="font-display text-3xl font-normal leading-tight md:text-4xl">{cantiere.titolo}</h3>
+              <p class="max-w-[520px] font-sans text-[15px] leading-relaxed text-sabbia/85">{cantiere.testo}</p>
 
-              <dl class="mt-2 grid grid-cols-2 gap-6 max-w-[520px]">
+              <dl class="mt-2 grid max-w-[520px] grid-cols-2 gap-6">
                 <div class="flex flex-col gap-1">
-                  <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">Tempo di posa</dt>
-                  <dd class="font-sans text-[15px] font-bold text-white">{progetto.days}</dd>
+                  <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">{durataLabel}</dt>
+                  <dd class="font-sans text-[15px] font-bold text-white">{cantiere.durata}</dd>
                 </div>
                 <div class="flex flex-col gap-1">
-                  <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">Materiali usati</dt>
-                  <dd class="font-sans text-[15px] font-bold text-white">{progetto.materials}</dd>
+                  <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">{materialiLabel}</dt>
+                  <dd class="font-sans text-[15px] font-bold text-white">{cantiere.materiali}</dd>
                 </div>
               </dl>
             </div>
@@ -79,26 +181,186 @@ import Icona from './Icona.astro'
         ))
       }
     </div>
-
-    {
-      portfolioIsPlaceholder && (
-        <p class="rivela -mt-8 text-xs text-sabbia/40">
-          Immagini illustrative, in attesa della documentazione fotografica dei cantieri.
-        </p>
-      )
-    }
-
-    {/* Promemoria visibile solo in sviluppo, non finisce mai in produzione */}
-    {
-      import.meta.env.DEV && portfolioIsPlaceholder && (
-        <div class="border-l-4 border-red-500 bg-red-50 p-5 text-sm text-red-900">
-          <strong class="font-semibold">Promemoria di sviluppo, non visibile in produzione.</strong>
-          <br />
-          Progetti e immagini del portfolio sono segnaposto generati. Vanno sostituiti con cantieri e foto
-          reali prima della pubblicazione, poi impostare <code>portfolioIsPlaceholder = false</code> in
-          <code>src/config/content.ts</code>. Presentare lavori non propri e pubblicità ingannevole.
-        </div>
-      )
-    }
   </div>
+
+  {/* La forma di un cantiere in posizione pari (foto a sinistra), per lo
+      script che ridisegna l'elenco quando il pannello ha novità. Le classi
+      sono le stesse del markup qui sopra, così Tailwind le compila una volta
+      sola; per le posizioni dispari lo script scambia le colonne. Porta già
+      "visibile": l'osservatore delle entrate ha finito il suo giro e un
+      articolo aggiunto dopo resterebbe trasparente per sempre. */}
+  <template id="lav-modello">
+    <article class="rivela visibile grid gap-8 border-b border-white/8 py-12 first:pt-0 xl:gap-14 xl:grid-cols-[auto_1fr]">
+      <div data-parte="coppia" class="grid max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2">
+        <figure data-parte="prima" class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
+          <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#c07a6b]">
+            {portfolioSection.beforeLabel}
+          </figcaption>
+          <img
+            data-parte="foto-prima"
+            alt=""
+            width="1000"
+            height="1000"
+            loading="lazy"
+            decoding="async"
+            class="aspect-square w-full rounded-md object-cover"
+          />
+        </figure>
+        <figure data-parte="dopo" class="zoom-foto flex flex-col gap-3 [&_img]:rounded-md">
+          <figcaption class="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-verde">
+            {portfolioSection.afterLabel}
+          </figcaption>
+          <img
+            data-parte="foto-dopo"
+            alt=""
+            width="1000"
+            height="1000"
+            loading="lazy"
+            decoding="async"
+            class="aspect-square w-full rounded-md object-cover"
+          />
+        </figure>
+      </div>
+
+      <div data-parte="dettagli" class="flex flex-col justify-center gap-5">
+        <span class="inline-flex items-center gap-2 self-start rounded-[4px] bg-white/7 px-3 py-1.5 font-sans text-xs font-semibold text-sabbia">
+          <Icona nome="portfolio-map-pin" class="size-3.5" />
+          <span data-parte="localita"></span>
+        </span>
+
+        <h3 data-parte="titolo" class="font-display text-3xl font-normal leading-tight md:text-4xl"></h3>
+        <p data-parte="testo" class="max-w-[520px] font-sans text-[15px] leading-relaxed text-sabbia/85"></p>
+
+        <dl class="mt-2 grid max-w-[520px] grid-cols-2 gap-6">
+          <div class="flex flex-col gap-1">
+            <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">Tempo di posa</dt>
+            <dd data-parte="durata" class="font-sans text-[15px] font-bold text-white"></dd>
+          </div>
+          <div class="flex flex-col gap-1">
+            <dt class="font-sans text-[11px] font-semibold uppercase tracking-[0.08em] text-sabbia/60">Materiali usati</dt>
+            <dd data-parte="materiali" class="font-sans text-[15px] font-bold text-white"></dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+  </template>
 </section>
+
+{/* Promemoria visibile solo in sviluppo, non finisce mai in produzione */}
+{
+  import.meta.env.DEV && portfolioIsPlaceholder && remoto.lavori.length === 0 && (
+    <div class="border-l-4 border-red-500 bg-red-50 p-5 text-sm text-red-900">
+      <strong class="font-semibold">Promemoria di sviluppo, non visibile in produzione.</strong>
+      <br />
+      I cantieri mostrati sono gli esempi di <code>src/config/content.ts</code>: le immagini sono nostre
+      elaborazioni, non foto di cantieri conclusi. Per questo la sezione porta un avviso visibile e le
+      etichette dicono "tipico". Spariscono da soli, avviso compreso, appena il cliente rende visibile
+      nel pannello almeno un cantiere suo. Presentare come propri lavori mai eseguiti è pubblicità
+      ingannevole (art. 21 e 23 d.lgs. 206/2005).
+    </div>
+  )
+}
+
+<script>
+  import { leggiPubblico } from '../lib/vetrina-cliente'
+  import type { Lavoro } from '../lib/tipi'
+
+  /** Quello che chiediamo al database: i soli campi che finiscono in un articolo. */
+  type CantiereRemoto = Pick<
+    Lavoro,
+    'id' | 'titolo' | 'localita' | 'testo' | 'durata' | 'materiali' | 'foto_prima' | 'foto_dopo'
+  >
+
+  const elenco = document.getElementById('lav-elenco')
+  const modello = document.getElementById('lav-modello') as HTMLTemplateElement | null
+
+  /** Solo indirizzi che un'immagine può davvero mostrare: il resto vale come "senza foto". */
+  const fotoSicura = (foto: string | null): string | null => {
+    const valore = (foto ?? '').trim()
+    if (/^https:\/\//i.test(valore) || valore.startsWith('/') || /^data:image\//i.test(valore)) return valore
+    return null
+  }
+
+  /** Riempie una figura o la toglie, se quella foto non c'è. */
+  function sistemaFoto(articolo: HTMLElement, parte: 'prima' | 'dopo', indirizzo: string | null, alt: string) {
+    const figura = articolo.querySelector<HTMLElement>(`[data-parte="${parte}"]`)
+    const immagine = articolo.querySelector<HTMLImageElement>(`[data-parte="foto-${parte}"]`)
+    if (!figura || !immagine) return
+    if (!indirizzo) {
+      figura.remove()
+      return
+    }
+    immagine.setAttribute('src', indirizzo)
+    immagine.setAttribute('alt', alt)
+  }
+
+  /**
+   * Un articolo nuovo, clonato dal template e riempito solo con textContent
+   * e attributi. In posizione dispari le colonne si scambiano, come fa il
+   * markup statico con le stesse classi.
+   */
+  function costruisciArticolo(c: CantiereRemoto, indice: number): HTMLElement | null {
+    if (!modello) return null
+    const frammento = modello.content.cloneNode(true) as DocumentFragment
+    const articolo = frammento.querySelector('article')
+    if (!articolo) return null
+
+    articolo.setAttribute('data-id', String(c.id))
+
+    if (indice % 2 === 1) {
+      articolo.classList.remove('xl:grid-cols-[auto_1fr]')
+      articolo.classList.add('xl:grid-cols-[1fr_auto]')
+      articolo.querySelector('[data-parte="coppia"]')?.classList.add('xl:order-2')
+      articolo.querySelector('[data-parte="dettagli"]')?.classList.add('xl:order-1')
+    }
+
+    const titolo = String(c.titolo ?? '')
+    sistemaFoto(articolo, 'prima', fotoSicura(c.foto_prima), `Prima dell’intervento: ${titolo}`)
+    sistemaFoto(articolo, 'dopo', fotoSicura(c.foto_dopo), `Dopo il lavoro: ${titolo}`)
+
+    const testi: Record<string, string> = {
+      localita: String(c.localita ?? ''),
+      titolo,
+      testo: String(c.testo ?? ''),
+      durata: String(c.durata ?? ''),
+      materiali: String(c.materiali ?? ''),
+    }
+    for (const [parte, valore] of Object.entries(testi)) {
+      const nodo = articolo.querySelector<HTMLElement>(`[data-parte="${parte}"]`)
+      if (nodo) nodo.textContent = valore
+    }
+
+    return articolo
+  }
+
+  /**
+   * Chiede al database i cantieri visibili adesso. Se gli id sono gli stessi
+   * resi alla build non tocca niente; altrimenti ricostruisce l'elenco.
+   */
+  async function aggiornaDalPannello(lista: HTMLElement) {
+    if (!modello) return
+    if (!import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUPABASE_ANON_KEY) return
+
+    const freschi = await leggiPubblico<CantiereRemoto>(
+      'lavori?select=id,titolo,localita,testo,durata,materiali,foto_prima,foto_dopo&visibile=eq.true&order=ordine.asc,creato.desc',
+    )
+    if (!freschi || freschi.length === 0) return
+
+    const resi = [...lista.children].map((a) => a.getAttribute('data-id') ?? '')
+    const nuovi = freschi.map((c) => String(c.id))
+    if (resi.length === nuovi.length && resi.every((id, i) => id === nuovi[i])) return
+
+    const articoli = freschi
+      .map((c, i) => costruisciArticolo(c, i))
+      .filter((a): a is HTMLElement => a !== null)
+    if (articoli.length === 0) return
+
+    lista.replaceChildren(...articoli)
+
+    // Da qui in poi le foto sono cantieri veri del pannello: l'avviso sulle
+    // illustrazioni non ha piu senso e sparisce insieme a loro.
+    document.getElementById('lav-avviso')?.remove()
+  }
+
+  if (elenco) void aggiornaDalPannello(elenco)
+</script>

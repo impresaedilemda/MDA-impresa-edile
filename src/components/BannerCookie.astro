@@ -1,0 +1,159 @@
+---
+/**
+ * =============================================================================
+ *  BANNER DEL CONSENSO
+ * =============================================================================
+ *  Compare SOLO se esiste davvero qualcosa da far consentire, cioe se e
+ *  configurato PUBLIC_GA_ID. Senza Google Analytics il sito non installa
+ *  nulla che richieda consenso, e un banner sarebbe una dichiarazione falsa
+ *  su cosa fa il sito: il Garante lo considera un banner ingannevole, non
+ *  un eccesso di prudenza.
+ *
+ *  Requisiti rispettati (linee guida cookie del Garante, 10 giugno 2021):
+ *   - "Rifiuta" ha lo stesso peso grafico di "Accetta";
+ *   - la X in alto a destra chiude senza acconsentire e vale come rifiuto
+ *     per la sessione, non come consenso;
+ *   - lo scorrimento della pagina non vale come consenso;
+ *   - link diretto alla cookie policy estesa;
+ *   - la scelta e revocabile in ogni momento dal piede di pagina.
+ * =============================================================================
+ */
+import { site } from '../config/site'
+
+const attivo = Boolean(site.gaId)
+---
+
+{
+  attivo && (
+    <div
+      id="banner-cookie"
+      hidden
+      data-ga={site.gaId}
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="banner-cookie-titolo"
+      aria-describedby="banner-cookie-testo"
+      class="fixed inset-x-0 bottom-0 z-[90] px-4 pb-4 max-md:pb-[calc(1rem+env(safe-area-inset-bottom))]"
+    >
+      <div class="mx-auto max-w-3xl rounded-xl bg-crema p-5 text-nero shadow-[0_20px_60px_rgba(0,0,0,0.45)] ring-1 ring-nero/10 sm:p-6">
+        <div class="flex items-start justify-between gap-4">
+          <h2 id="banner-cookie-titolo" class="font-display text-xl font-normal leading-tight">
+            Statistiche di visita
+          </h2>
+          <button
+            type="button"
+            id="cookie-chiudi"
+            class="-mr-1 -mt-1 flex size-8 shrink-0 items-center justify-center rounded-[4px] text-nero/50 transition-colors hover:bg-nero/5 hover:text-nero"
+            aria-label="Chiudi senza acconsentire"
+          >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <p id="banner-cookie-testo" class="mt-2.5 font-sans text-sm leading-relaxed text-nero/75">
+          Vorremmo usare Google Analytics per capire quali pagine vengono lette e migliorare il sito.
+          È uno strumento di terze parti che salva cookie sul vostro dispositivo, quindi si attiva solo
+          se lo accettate. Se rifiutate, il sito funziona esattamente allo stesso modo e non ve lo
+          chiediamo più per sei mesi. Il dettaglio è nella{' '}
+          <a href="/cookie/" class="font-semibold text-taupe-testo underline underline-offset-2"
+            >cookie policy</a
+          >.
+        </p>
+
+        <div class="mt-5 flex flex-col gap-2.5 sm:flex-row">
+          <button type="button" id="cookie-rifiuta" class="btn btn-contorno flex-1">
+            Rifiuta le statistiche
+          </button>
+          <button type="button" id="cookie-accetta" class="btn btn-nero flex-1">
+            Accetta le statistiche
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+{
+  attivo && (
+    <script>
+      import {
+        accendiStatistiche,
+        leggiConsenso,
+        preparaConsentMode,
+        salvaConsenso,
+        serveIlBanner,
+        spegniStatistiche,
+      } from '../lib/consenso'
+
+      // Astro raccoglie gli script dei componenti a monte delle condizioni:
+      // questo modulo finisce nella pagina anche quando il banner non c'e.
+      // Senza banner in pagina non c'e niente da far consentire e usciamo
+      // subito, senza nemmeno toccare il dataLayer.
+      const banner = document.getElementById('banner-cookie') as HTMLElement | null
+      const ID_GA = banner?.dataset.ga ?? ''
+
+      if (banner && ID_GA) {
+        // Prima di tutto: Consent Mode a "negato". Anche se qualcosa provasse
+        // a misurare prima della scelta, non uscirebbe nulla.
+        preparaConsentMode()
+
+        avvia(banner, ID_GA)
+      }
+
+      function avvia(banner: HTMLElement, ID_GA: string) {
+      const accetta = document.getElementById('cookie-accetta')
+      const rifiuta = document.getElementById('cookie-rifiuta')
+      const chiudi = document.getElementById('cookie-chiudi')
+
+      /** L'elemento che aveva il fuoco prima dell'apertura, per restituirglielo. */
+      let fuocoPrecedente: HTMLElement | null = null
+
+      const apri = () => {
+        fuocoPrecedente = document.activeElement as HTMLElement | null
+        banner.hidden = false
+        // Il fuoco va sul rifiuto: la scelta che non comporta trattamenti.
+        ;(rifiuta as HTMLButtonElement | null)?.focus()
+      }
+
+      const chiudiBanner = () => {
+        banner.hidden = true
+        fuocoPrecedente?.focus?.()
+      }
+
+      const decidi = (statistiche: boolean) => {
+        salvaConsenso(statistiche)
+        if (statistiche) accendiStatistiche(ID_GA)
+        else spegniStatistiche()
+        chiudiBanner()
+      }
+
+      accetta?.addEventListener('click', () => decidi(true))
+      rifiuta?.addEventListener('click', () => decidi(false))
+
+      // La X non e un consenso e non e nemmeno un rifiuto definitivo:
+      // chiude e basta, e alla visita successiva la domanda torna.
+      chiudi?.addEventListener('click', chiudiBanner)
+
+      banner.addEventListener('keydown', (evento) => {
+        if ((evento as KeyboardEvent).key === 'Escape') chiudiBanner()
+      })
+
+      // Riapertura dal piede di pagina: "Gestisci i cookie".
+      document.querySelectorAll('[data-apri-consenso]').forEach((elemento) => {
+        elemento.addEventListener('click', (evento) => {
+          evento.preventDefault()
+          apri()
+        })
+      })
+
+      // Stato all'avvio: chi aveva gia detto di si riaccende GA, gli altri
+      // vedono il banner se e il momento di chiedere.
+      const scelta = leggiConsenso()
+      if (scelta?.categorie.statistiche) accendiStatistiche(ID_GA)
+      else if (serveIlBanner()) apri()
+      }
+    </script>
+  )
+}

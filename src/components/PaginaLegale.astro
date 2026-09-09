@@ -1,0 +1,87 @@
+---
+/**
+ * Impianto comune delle pagine legali (privacy, cookie, termini, recesso,
+ * crediti): stessa intestazione, stessa colonna di testo, stessa chiusura
+ * con la data di revisione e i collegamenti fra le informative.
+ *
+ * La data NON e quella della build: `site.dataInformative` si scrive a mano
+ * quando i testi vengono davvero riletti. Una informativa che dice "ultimo
+ * aggiornamento: oggi" a ogni deploy e una informazione falsa, per quanto
+ * innocua sembri.
+ */
+import Base from '../layouts/Base.astro'
+import Header from './Header.astro'
+import Footer from './Footer.astro'
+import { site } from '../config/site'
+
+interface Props {
+  /** <title> della pagina */
+  titolo: string
+  /** meta description */
+  descrizione: string
+  /** H1 visibile */
+  h1: string
+  /** riga sotto l'H1 */
+  sottotitolo: string
+  /** occhiello sopra l'H1 */
+  occhiello?: string
+}
+
+const { titolo, descrizione, h1, sottotitolo, occhiello = 'Note legali' } = Astro.props
+
+const dataLeggibile = new Date(`${site.dataInformative}T12:00:00Z`).toLocaleDateString('it-IT', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
+
+const altrePagine = [
+  { href: '/privacy/', testo: 'Privacy Policy' },
+  { href: '/cookie/', testo: 'Cookie Policy' },
+  { href: '/termini/', testo: 'Termini e condizioni' },
+  { href: '/recesso/', testo: 'Diritto di recesso e rimborsi' },
+  { href: '/crediti/', testo: 'Crediti e licenze' },
+].filter((p) => p.href !== `${Astro.url.pathname.replace(/\/*$/, '')}/`)
+---
+
+<Base title={titolo} description={descrizione}>
+  <Header />
+
+  <main id="contenuto" class="bg-sabbia-50 py-20 md:py-24">
+    <div class="contenitore max-w-3xl">
+      <p class="occhiello">{occhiello}</p>
+      <h1 class="mt-5 text-4xl md:text-5xl">{h1}</h1>
+      <p class="mt-5 text-grafite">{sottotitolo}</p>
+
+      <div class="prose-legale mt-12">
+        <slot />
+
+        <p class="nota">Ultimo aggiornamento: {dataLeggibile}</p>
+      </div>
+
+      <nav aria-label="Altre informative" class="mt-12 border-t border-nero/10 pt-8">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.1em] text-taupe-testo">
+          Le altre informative
+        </p>
+        <ul class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          {
+            altrePagine.map((pagina) => (
+              <li>
+                <a
+                  href={pagina.href}
+                  class="font-sans text-[15px] text-nero/80 underline underline-offset-4 transition-colors hover:text-nero"
+                >
+                  {pagina.testo}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <a href="/" class="btn btn-contorno mt-10">Torna alla home</a>
+    </div>
+  </main>
+
+  <Footer />
+</Base>

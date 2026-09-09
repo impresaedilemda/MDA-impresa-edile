@@ -9,6 +9,13 @@ import { site } from '../config/site'
   title={`Pagina non trovata | ${site.name}`}
   description={`La pagina che cercavi non esiste. Torna alla home di ${site.name} o chiamaci per un sopralluogo gratuito.`}
 >
+  <Fragment slot="head">
+    <!-- Pagina di errore: non deve finire nell'indice. Fra due direttive
+         robots in conflitto vince sempre la piu restrittiva, quindi questa
+         annulla l'index, follow generico del layout. -->
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+
   <Header />
 
   <main id="contenuto" class="flex min-h-[60vh] items-center bg-crema py-20 md:py-[120px]">
@@ -16,7 +23,7 @@ import { site } from '../config/site'
       <div class="mx-auto max-w-2xl text-center">
         <p class="occhiello">Errore 404</p>
         <h1 class="titolo-sezione mt-4">
-          Questa pagina non c'è più,
+          Questa pagina non c’è più,
           <span class="italic">il tetto invece resta.</span>
         </h1>
         <p class="mx-auto mt-6 max-w-lg font-sans leading-relaxed text-nero/70">

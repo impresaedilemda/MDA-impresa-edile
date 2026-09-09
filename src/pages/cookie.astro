@@ -1,94 +1,226 @@
 ---
-import Base from '../layouts/Base.astro'
-import Header from '../components/Header.astro'
-import Footer from '../components/Footer.astro'
-import { site } from '../config/site'
+/**
+ * Cookie policy.
+ *
+ * Riscritta il 9 settembre 2026 perche la versione precedente era diventata
+ * FALSA. Diceva: "il sito non ricorre a tecnologie equivalenti come
+ * localStorage, sessionStorage o pixel di tracciamento" e "l'invio del modulo
+ * e l'unica richiesta a un dominio esterno". Da quando esistono il contatore
+ * di visite e il pannello, il sito usa sessionStorage e localStorage a ogni
+ * pagina e parla con Supabase. Una informativa che descrive un sito diverso
+ * da quello pubblicato e un problema piu serio di una informativa incompleta:
+ * e una dichiarazione non veritiera resa all'interessato.
+ *
+ * La tabella qui sotto e generata dalle chiavi realmente usate dal codice.
+ * Se qualcuno aggiunge una chiave nuova, va aggiunta anche qui.
+ */
+import PaginaLegale from '../components/PaginaLegale.astro'
+import { denominazione, site } from '../config/site'
+import { GIORNI_RIPROPOSIZIONE } from '../lib/consenso'
+
+/** Quello che il sito scrive davvero sul dispositivo di chi naviga. */
+const archiviazione = [
+  {
+    nome: 'mda-sessione',
+    tipo: 'sessionStorage',
+    scopo:
+      'Numero casuale che tiene insieme le pagine di una stessa visita, per non contare dieci volte la stessa persona. Non è collegato a nessun dato che vi identifichi.',
+    durata: 'Fino alla chiusura della scheda',
+  },
+  {
+    nome: 'mda-prima-visita',
+    tipo: 'sessionStorage',
+    scopo: 'Segna che la provenienza è già stata registrata, così non viene contata a ogni pagina.',
+    durata: 'Fino alla chiusura della scheda',
+  },
+  {
+    nome: 'mda-codice-link',
+    tipo: 'sessionStorage',
+    scopo:
+      'Se siete arrivati da un nostro link tracciato (per esempio da un volantino o da un annuncio), conserva il codice di quel link per capire quale canale funziona.',
+    durata: 'Fino alla chiusura della scheda',
+  },
+  {
+    nome: 'mda-consenso',
+    tipo: 'localStorage',
+    scopo:
+      'La scelta che avete fatto sul banner delle statistiche, così non ve la chiediamo a ogni pagina. È anche la prova del consenso, se un giorno servisse.',
+    durata: 'Finché non la cancellate; dopo un rifiuto la domanda torna dopo 6 mesi',
+  },
+  {
+    nome: 'mda-non-tracciare',
+    tipo: 'localStorage',
+    scopo:
+      'Se chiedete di non essere conteggiati, questa voce spegne il contatore su questo dispositivo. La usiamo anche noi per non contare le nostre visite.',
+    durata: 'Finché non la cancellate',
+  },
+  {
+    nome: 'mda-admin*',
+    tipo: 'localStorage',
+    scopo:
+      'Riguarda solo il pannello di amministrazione dell’impresa, non le pagine pubbliche: sessione di lavoro e preferenza di lingua di chi gestisce il sito.',
+    durata: 'Solo per gli amministratori',
+  },
+]
+
+const conStatistiche = Boolean(site.gaId)
 ---
 
-<Base
-  title={`Cookie Policy | ${site.name}`}
-  description={`Informativa sull'uso dei cookie e delle tecnologie simili sul sito di ${site.legalName}.`}
+<PaginaLegale
+  titolo={`Cookie Policy | ${site.name}`}
+  descrizione={`Cookie, archiviazione locale e servizi esterni usati dal sito di ${denominazione}, e come dare o togliere il consenso.`}
+  h1="Cookie Policy"
+  sottotitolo="Che cosa questo sito salva sul vostro dispositivo, quali servizi esterni entrano in gioco e come si cambia idea."
 >
-  <Header />
+  <h2>1. In breve</h2>
+  <p>
+    Questo sito <strong>non installa cookie di profilazione</strong> e non contiene pixel
+    pubblicitari: la vostra navigazione non viene condivisa con reti di advertising e nessuno vi
+    segue da un sito all'altro.
+  </p>
+  <p>
+    Salva però alcune informazioni tecniche nella memoria del browser, e le usa per contare le
+    visite in forma aggregata. Sotto trovate l'elenco completo, voce per voce: preferiamo dirvi
+    esattamente che cosa c'è piuttosto che scrivere che non c'è niente.
+  </p>
 
-  <main id="contenuto" class="bg-sabbia-50 py-20 md:py-24">
-    <div class="contenitore max-w-3xl">
-      <p class="occhiello">Note legali</p>
-      <h1 class="mt-5 text-4xl md:text-5xl">Cookie Policy</h1>
-      <p class="mt-5 text-grafite">
-        Come questo sito utilizza i cookie e le tecnologie di tracciamento.
-      </p>
+  <h2>2. Cookie veri e propri</h2>
+  <p>
+    <strong>Il sito non installa alcun cookie proprio.</strong> Nessuna pagina scrive cookie: non ne
+    troverete nel browser dopo la visita.
+    {
+      conStatistiche
+        ? ' Cookie di terze parti vengono installati solo da Google Analytics, e soltanto se lo accettate nel banner: se rifiutate, non ne viene scritto nemmeno uno.'
+        : ' Non sono attivi nemmeno cookie di terze parti, perché il sito non carica in questo momento nessuno strumento che ne installi.'
+    }
+  </p>
 
-      <div class="prose-legale mt-12">
-        <h2>1. In breve</h2>
+  <h2>3. Che cosa il sito salva nella memoria del browser</h2>
+  <p>
+    Oltre ai cookie esistono altre forme di archiviazione locale, e la legge le tratta allo stesso
+    modo. Questo sito usa <strong>sessionStorage</strong>, che si svuota da solo quando chiudete la
+    scheda, e <strong>localStorage</strong>, che resta finché non lo cancellate. Nessuna di queste
+    voci contiene il vostro nome, il vostro indirizzo IP o un'impronta del vostro browser, e nessuna
+    esce dal vostro dispositivo verso soggetti diversi da quelli elencati nella sezione
+    "Servizi esterni coinvolti".
+  </p>
+
+  <div class="my-6 overflow-x-auto">
+    <table class="w-full min-w-[640px] border-collapse text-left">
+      <thead>
+        <tr class="border-b border-nero/15">
+          <th class="py-3 pr-4 font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-taupe-testo">Voce</th>
+          <th class="py-3 pr-4 font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-taupe-testo">Tipo</th>
+          <th class="py-3 pr-4 font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-taupe-testo">A cosa serve</th>
+          <th class="py-3 font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-taupe-testo">Durata</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          archiviazione.map((voce) => (
+            <tr class="border-b border-nero/8 align-top">
+              <td class="py-3 pr-4 font-sans text-[13px] font-semibold text-nero">{voce.nome}</td>
+              <td class="py-3 pr-4 font-sans text-[13px] text-nero/70">{voce.tipo}</td>
+              <td class="py-3 pr-4 font-sans text-[13px] leading-relaxed text-nero/70">{voce.scopo}</td>
+              <td class="py-3 font-sans text-[13px] text-nero/70">{voce.durata}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2>4. Il nostro contatore di visite</h2>
+  <p>
+    Contiamo le visite con uno strumento nostro, non con un servizio pubblicitario. Per ogni pagina
+    aperta registriamo quattro cose: <strong>quale pagina</strong>, <strong>da quale sito
+    arrivate</strong> (solo il nome del dominio, per esempio "google.com", mai la ricerca che avevate
+    fatto), se siete <strong>al computer o al telefono</strong>, e il numero casuale di sessione
+    descritto sopra.
+  </p>
+  <p>
+    Non registriamo l'indirizzo IP, non creiamo un'impronta del browser, non vi riconosciamo alla
+    visita successiva e non incrociamo questi numeri con nessun altro dato. Servono a sapere quali
+    pagine vengono lette, niente di più.
+  </p>
+  <p>
+    Per queste caratteristiche il contatore rientra fra gli strumenti assimilabili ai cookie tecnici
+    secondo le linee guida del Garante del 10 giugno 2021, e non richiede consenso. Nonostante
+    questo, <strong>si spegne da solo</strong> se il vostro browser invia il segnale "Do Not Track" o
+    il Global Privacy Control. Se volete escludervi comunque, trovate come fare nella sezione
+    "Come togliervi dai conteggi".
+  </p>
+
+  {
+    conStatistiche && (
+      <>
+        <h2>5. Google Analytics, solo se lo accettate</h2>
         <p>
-          Questo sito è stato costruito per funzionare <strong>senza cookie di profilazione</strong>.
-          Non usiamo pixel pubblicitari, non condividiamo la vostra navigazione con reti di
-          advertising e non è presente alcun banner di consenso perché, allo stato attuale, non
-          installiamo cookie che lo richiedano.
+          Usiamo Google Analytics 4 per capire quali pagine funzionano e quali no. È un servizio di
+          Google Ireland Limited, che scrive cookie propri sul vostro dispositivo e tratta i dati
+          anche fuori dallo Spazio Economico Europeo.
         </p>
-
-        <h2>2. Cosa sono i cookie</h2>
         <p>
-          I cookie sono piccoli file di testo che i siti salvano sul dispositivo di chi naviga. Servono
-          a far funzionare il sito, a ricordare preferenze o, nel caso dei cookie di profilazione, a
-          seguire il comportamento dell'utente a fini pubblicitari.
+          Per questo <strong>non si attiva finché non lo accettate</strong> nel banner che compare
+          alla prima visita. Prima della vostra scelta lo strumento non viene nemmeno caricato e il
+          consenso resta impostato su "negato". Se rifiutate, il sito funziona esattamente allo
+          stesso modo e non vi chiediamo più nulla per {Math.round(GIORNI_RIPROPOSIZIONE / 30)} mesi.
         </p>
-
-        <h2>3. Cookie utilizzati da questo sito</h2>
         <p>
-          Nella configurazione attuale il sito non installa cookie propri né di terze parti. I font
-          sono ospitati direttamente sul nostro server e non vengono caricati da servizi esterni,
-          quindi la semplice visita non comporta alcuna richiesta verso domini di terzi.
+          Potete cambiare idea quando volete:{' '}
+          <button type="button" data-apri-consenso class="font-semibold underline underline-offset-2">
+            riaprite le impostazioni del consenso
+          </button>
+          . Le informazioni di Google sul trattamento sono su{' '}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">
+            policies.google.com
+          </a>
+          .
         </p>
+      </>
+    )
+  }
 
-        <h2>4. Servizi esterni attivati da voi</h2>
-        <p>
-          Alcuni collegamenti portano a servizi esterni, e vengono aperti solo se cliccate voi:
-        </p>
-        <ul>
-          <li>
-            <strong>WhatsApp</strong>, quando scegliete di scriverci tramite l'apposito pulsante. Si
-            applica l'informativa privacy di WhatsApp.
-          </li>
-          <li>
-            <strong>Google Maps</strong>, quando aprite la posizione della nostra sede. La mappa non è
-            incorporata nella pagina proprio per evitare richieste a Google senza il vostro consenso.
-          </li>
-          <li>
-            <strong>Instagram e Facebook</strong>, tramite i collegamenti ai nostri profili nel pie di
-            pagina.
-          </li>
-        </ul>
+  <h2>{conStatistiche ? '6' : '5'}. Servizi esterni coinvolti</h2>
+  <ul>
+    <li>
+      <strong>Vercel Inc.</strong> ospita le pagine: ogni visita passa necessariamente dai suoi
+      server, come per qualsiasi sito.
+    </li>
+    <li>
+      <strong>Supabase</strong> è il database dell'impresa. Riceve i conteggi di visita descritti al
+      punto 4 e le richieste inviate dai moduli, e restituisce i contenuti che l'impresa aggiorna dal
+      proprio pannello. Agisce come responsabile del trattamento per conto nostro.
+    </li>
+    <li>
+      <strong>Web3Forms</strong> recapita alla nostra casella di posta i moduli che compilate. Entra
+      in gioco solo quando premete il pulsante di invio.
+    </li>
+    <li>
+      <strong>WhatsApp, Instagram e Facebook</strong> si aprono soltanto se siete voi a toccare i
+      relativi pulsanti o collegamenti. Su quei servizi valgono le loro informative.
+    </li>
+  </ul>
+  <p>
+    Non ci sono mappe incorporate, video incorporati, font caricati da domini esterni né widget
+    social: sono le fonti più comuni di tracciamento nascosto e le abbiamo evitate di proposito.
+  </p>
 
-        <h2>5. Se in futuro attiveremo statistiche o pubblicità</h2>
-        <p>
-          Qualora venissero attivati strumenti di analisi del traffico o campagne pubblicitarie che
-          richiedono cookie, questa pagina verrà aggiornata e comparirà un banner che vi permetterà di
-          accettare o rifiutare il consenso in modo granulare, prima dell'installazione di qualsiasi
-          cookie non tecnico.
-        </p>
+  <h2>{conStatistiche ? '7' : '6'}. Come togliervi dai conteggi</h2>
+  <p>
+    Il modo più diretto è attivare "Do Not Track" o il Global Privacy Control nelle impostazioni di
+    privacy del vostro browser: il contatore lo legge e si spegne.
+  </p>
+  <p>
+    In alternativa potete cancellare in qualsiasi momento cookie e archiviazione locale dalle
+    impostazioni del browser, alla voce dedicata ai dati dei siti. Non compromette la navigazione:
+    questo sito funziona anche con l'archiviazione completamente disattivata.
+  </p>
 
-        <h2>6. Come gestire i cookie dal browser</h2>
-        <p>
-          Indipendentemente da questo sito, potete bloccare o cancellare i cookie dalle impostazioni
-          del vostro browser, nelle sezioni dedicate alla privacy. Il blocco dei cookie tecnici può
-          compromettere il funzionamento di alcuni siti.
-        </p>
-
-        <h2>7. Contatti</h2>
-        <p>
-          Per qualsiasi domanda su questa informativa scrivete a
-          <a href={`mailto:${site.email}`}>{site.email}</a>. Per il trattamento dei dati personali in
-          generale, consultate la <a href="/privacy">Privacy Policy</a>.
-        </p>
-
-        <p class="nota">Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT')}</p>
-      </div>
-
-      <a href="/" class="btn btn-contorno mt-12">Torna alla home</a>
-    </div>
-  </main>
-
-  <Footer />
-</Base>
+  <h2>{conStatistiche ? '8' : '7'}. Contatti</h2>
+  <p>
+    Per qualsiasi domanda su questa informativa scrivete a
+    <a href={`mailto:${site.email}`}>{site.email}</a>. Per il trattamento dei dati personali in
+    generale, consultate la <a href="/privacy/">Privacy Policy</a>.
+  </p>
+</PaginaLegale>
