@@ -119,7 +119,11 @@ function scappa(s: string): string {
  */
 function variabile(nome: string): string {
   const daProcesso = typeof process !== 'undefined' ? process.env?.[nome] : undefined
-  const daVite = (import.meta.env as Record<string, string | undefined>)[nome]
+  // import.meta.env esiste quando il file passa da Vite. Fuori (per esempio
+  // eseguendo il modulo con node, come si fa per le prove) non c'e: senza
+  // questa guardia leggere una chiave da undefined farebbe saltare la rotta.
+  const ambienteVite = typeof import.meta !== 'undefined' ? (import.meta as { env?: Record<string, string | undefined> }).env : undefined
+  const daVite = ambienteVite?.[nome]
   return (daProcesso ?? daVite ?? '').trim()
 }
 
