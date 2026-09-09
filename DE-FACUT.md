@@ -15,24 +15,25 @@ reputația de trimitere stă separat și nu atingem nimic pe `mdaimpresaedile.it
 Pagina domeniului:
 https://resend.com/domains/b3e7586f-9008-4aa3-a3e0-62369170f979
 
-### a. DNS la Dynadot — **e nevoie, nu se poate ocoli**
+### a. DNS la Dynadot — **GATA**
 
-Nameserverele domeniului sunt `ns1.dyna-ns.net` / `ns2.dyna-ns.net`, deci
-zona DNS e la Dynadot. Resend doar *spune* ce înregistrări trebuie; nu le
-poate scrie el. Nici Vercel nu le poate, pentru că nu el ține zona.
-
-Domeniul principal **nu are MX**, deci nu se strică niciun email existent.
-
-În Dynadot → Domains → `mdaimpresaedile.it` → DNS Settings, patru înregistrări:
+Puse pe 10 septembrie, în contul Dynadot care ține domeniul. Patru
+înregistrări, verificate prin resolvere publice:
 
 | Tip | Host | Valoare |
 |---|---|---|
-| TXT | `resend._domainkey.send` | cheia DKIM, **copiaz-o cu butonul Copy din Resend** (221 caractere, nu o scrie de mână) |
+| TXT | `resend._domainkey.send` | cheia DKIM, 218 caractere |
 | CNAME | `rsend.send` | `rsend-euw1.forge.rmta.net` |
 | CNAME | `send.send` | `send.forge.rmta.net` |
 | TXT | `_dmarc` | `v=DMARC1; p=none;` |
 
-Apoi în Resend apeși **Verify DNS Records** și aștepți să scrie **Verified**.
+Înregistrarea A și `www` (Vercel) n-au fost atinse, site-ul răspunde 200.
+
+În Resend statusul a trecut pe **Pending**: verificarea merge singură, poate
+dura de la câteva minute la câteva ore. Când scrie **Verified**, e gata.
+
+**Capcană de reținut:** `dig` direct la `ns1.dyna-ns.net` răspunde inconstant
+și pare că înregistrările lipsesc. Se verifică prin `1.1.1.1` sau `8.8.8.8`.
 
 ### b. Cheia API
 

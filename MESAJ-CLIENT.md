@@ -34,6 +34,25 @@ sito**: da lì i cambiamenti vanno online in un paio di minuti.
 **Le richieste dei moduli** arrivano nel pannello, nella sezione **Richieste**:
 le trova lì appena qualcuno compila il modulo, e da lì può richiamare subito.
 
+**Una cosa che mi serve da lei.** Per legge un sito aziendale deve riportare i
+dati della ditta. Non me li sono inventati: al loro posto il sito, per ora, non
+scrive niente. Me li mandi come sono scritti sulla visura o su una sua fattura,
+anche in una foto:
+
+- partita IVA
+- ragione sociale esatta e forma giuridica (S.r.l., ditta individuale, altro)
+- indirizzo della sede e CAP
+- numero REA e la camera di commercio (per esempio "Registro delle Imprese di Venezia")
+- anno di fondazione
+- il comune da cui lavorate davvero (adesso ho messo Portogruaro come indicazione)
+- capitale sociale versato, solo se siete una società di capitali
+
+Appena li ho, li metto e spariscono gli spazi vuoti.
+
+Se ha anche **foto di cantieri veri** (prima e dopo) e **recensioni di clienti**,
+me le mandi o le carichi lei dal pannello: prendono il posto degli esempi che
+ci sono adesso, e sul sito valgono molto di più.
+
 Le chiederei, quando le è comodo, di **saldare la parte rimanente**.
 
 Restano da fare le ultime cose, che le preparo io nei prossimi giorni:
