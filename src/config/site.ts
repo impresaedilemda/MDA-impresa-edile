@@ -146,7 +146,17 @@ const statico = {
 
   /** Endpoint del form. Vedi CLIENT-DATA.md, punto 9. */
   formEndpoint: 'https://api.web3forms.com/submit',
-  formAccessKey: 'YOUR-WEB3FORMS-ACCESS-KEY', // TODO CLIENTE: chiave gratuita da web3forms.com
+  /**
+   * Chiave del modulo, gratuita da web3forms.com.
+   *
+   * Si imposta come variabile PUBLIC_WEB3FORMS_KEY su Vercel, non qui: cosi
+   * si attiva senza toccare il codice e senza un altro deploy a mano. Il
+   * valore scritto sotto resta solo come ultima spiaggia.
+   *
+   * Finche non e un UUID valido i moduli NON fingono un invio riuscito:
+   * mostrano l'errore e offrono telefono e WhatsApp.
+   */
+  formAccessKey: ((import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined) ?? '').trim() || 'YOUR-WEB3FORMS-ACCESS-KEY',
 }
 
 /* --- Quello che il cliente ha scritto nel pannello ------------------------ */
