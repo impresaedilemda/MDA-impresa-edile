@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
+import vercel from '@astrojs/vercel/static'
 import tailwindcss from '@tailwindcss/vite'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -184,6 +185,16 @@ function risorseSenzaInline() {
 
 export default defineConfig({
   site: SITE_URL,
+  /**
+   * Il sito resta statico: ogni pagina e un file, come prima. L'adattatore
+   * serve a una cosa sola, la funzione dei moduli in src/pages/api/.
+   *
+   * Perche non basta una cartella api/ nella radice: quella scorciatoia di
+   * Vercel funziona nei progetti senza framework (come malerdelius, che e
+   * Vite). Con il preset Astro la build e statica e la cartella api/ viene
+   * ignorata: la funzione non esisteva e /api/richiesta rispondeva 404.
+   */
+  adapter: vercel(),
   integrations: [
     sitemap({
       // Il pannello non e contenuto del sito: fuori da sitemap e da Google.

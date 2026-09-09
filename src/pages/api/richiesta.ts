@@ -19,25 +19,22 @@
  *    RICHIESTE_A      dove arrivano le email (piu indirizzi: virgola)
  *    RICHIESTE_DA     il mittente, su un dominio verificato in Resend
  *
- *  ATTENZIONE, regola imparata a spese nostre: questo file NON deve importare
- *  niente da src/. Le funzioni in api/ non passano dalla build di Astro e un
- *  import verso src/ non viene transpilato: in locale sembra funzionare e in
- *  produzione la funzione muore con un errore che non si vede da nessuna
- *  parte. Tutto quello che serve sta scritto qui dentro, anche se si ripete.
+ *  PERCHE STA IN src/pages/api/ E NON IN api/ NELLA RADICE: la cartella api/
+ *  nella radice e una scorciatoia di Vercel che vale per i progetti senza
+ *  framework. Con il preset Astro la build e statica e quella cartella viene
+ *  ignorata del tutto: provata il 9 settembre 2026, /api/richiesta rispondeva
+ *  404. Da qui invece l'adattatore @astrojs/vercel la trasforma in una vera
+ *  funzione, e il resto del sito resta statico pagina per pagina.
+ *
+ *  Il file resta comunque autonomo, senza import da src/: quello che gli
+ *  serve e poco e cosi si legge tutto in un posto solo.
  * =============================================================================
  */
 
-type Req = {
-  method?: string
-  body?: unknown
-  headers: Record<string, string | string[] | undefined>
-}
+import type { APIRoute } from 'astro'
 
-type Res = {
-  status: (codice: number) => Res
-  json: (corpo: unknown) => void
-  setHeader: (nome: string, valore: string) => void
-}
+/** Questa rotta gira a ogni richiesta: non va congelata nella build. */
+export const prerender = false
 
 /** Una riga della email: etichetta a sinistra, valore a destra. */
 type Riga = { etichetta: string; valore: string }
@@ -109,9 +106,33 @@ function scappa(s: string): string {
     .replace(/"/g, '&quot;')
 }
 
-function primoIp(intestazione: string | string[] | undefined): string {
-  const grezzo = Array.isArray(intestazione) ? intestazione[0] : intestazione
-  return (grezzo ?? '').split(',')[0]?.trim() || 'sconosciuto'
+/**
+ * Una variabile d'ambiente, cercata dove puo stare.
+ *
+ * In produzione su Vercel le variabili sono vere variabili di processo e la
+ * risposta giusta e process.env: cambiare la chiave su Vercel ha effetto
+ * subito, senza ricompilare, e il valore non finisce dentro nessun pacchetto.
+ *
+ * In locale invece i file .env li legge Vite, che li mette in import.meta.env
+ * e NON in process.env: senza questo ripiego la rotta risponderebbe sempre
+ * "non configurato" mentre si sviluppa. Preso a spese nostre il 9 settembre.
+ */
+function variabile(nome: string): string {
+  const daProcesso = typeof process !== 'undefined' ? process.env?.[nome] : undefined
+  const daVite = (import.meta.env as Record<string, string | undefined>)[nome]
+  return (daProcesso ?? daVite ?? '').trim()
+}
+
+function primoIp(intestazione: string | null): string {
+  return (intestazione ?? '').split(',')[0]?.trim() || 'sconosciuto'
+}
+
+/** Risposta JSON, con le intestazioni che servono sempre. */
+function rispondi(codice: number, corpo: unknown, extra: Record<string, string> = {}): Response {
+  return new Response(JSON.stringify(corpo), {
+    status: codice,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...extra },
+  })
 }
 
 function troppiTentativi(ip: string): boolean {
@@ -170,26 +191,28 @@ function corpoHtml(titolo: string, righe: Riga[]): string {
 </html>`
 }
 
-/* --- Handler -------------------------------------------------------------- */
+/* --- La rotta ------------------------------------------------------------- */
 
-export default async function handler(req: Req, res: Res) {
-  res.setHeader('Cache-Control', 'no-store')
+/** Un GET su questo indirizzo non ha senso: si dice, invece di dare 404. */
+export const GET: APIRoute = () => rispondi(405, { errore: 'Usare POST' }, { Allow: 'POST' })
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
-    return res.status(405).json({ errore: 'Usare POST' })
-  }
-
-  const origine = (Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin) ?? ''
+export const POST: APIRoute = async ({ request }) => {
+  const origine = request.headers.get('origin') ?? ''
   if (!ORIGINI.some((r) => r.test(origine))) {
-    return res.status(403).json({ errore: 'Origine non ammessa' })
+    return rispondi(403, { errore: 'Origine non ammessa' })
   }
 
-  const dati = (typeof req.body === 'object' && req.body !== null ? req.body : {}) as Record<string, unknown>
+  let dati: Record<string, unknown>
+  try {
+    const letto = await request.json()
+    dati = typeof letto === 'object' && letto !== null ? (letto as Record<string, unknown>) : {}
+  } catch {
+    return rispondi(400, { errore: 'Corpo della richiesta non valido' })
+  }
 
   // Trappola anti-spam: il campo e invisibile, se e pieno e un robot.
   // Rispondiamo ok per non insegnargli come si fa.
-  if (testo(dati.botcheck, 10)) return res.status(200).json({ ok: true })
+  if (testo(dati.botcheck, 10)) return rispondi(200, { ok: true })
 
   const tipo = dati.tipo === 'preventivo' ? 'preventivo' : 'richiamo'
   const telefono = testo(dati.telefono, 40)
@@ -203,27 +226,27 @@ export default async function handler(req: Req, res: Res) {
   const codiceLink = testo(dati.codice_link, 60)
   const privacy = dati.privacy === true || dati.privacy === 'on' || dati.privacy === 'true'
 
-  if (!telefono) return res.status(400).json({ errore: 'Manca il numero di telefono' })
-  if (!telefonoValido(telefono)) return res.status(400).json({ errore: 'Numero di telefono non valido' })
-  if (email && !EMAIL_VALIDA.test(email)) return res.status(400).json({ errore: 'Indirizzo email non valido' })
-  if (!privacy) return res.status(400).json({ errore: 'Serve la presa visione dell’informativa privacy' })
-  if (tipo === 'preventivo' && !nome) return res.status(400).json({ errore: 'Manca il nome' })
+  if (!telefono) return rispondi(400, { errore: 'Manca il numero di telefono' })
+  if (!telefonoValido(telefono)) return rispondi(400, { errore: 'Numero di telefono non valido' })
+  if (email && !EMAIL_VALIDA.test(email)) return rispondi(400, { errore: 'Indirizzo email non valido' })
+  if (!privacy) return rispondi(400, { errore: 'Serve la presa visione dell\u2019informativa privacy' })
+  if (tipo === 'preventivo' && !nome) return rispondi(400, { errore: 'Manca il nome' })
 
-  const ip = primoIp(req.headers['x-forwarded-for'])
+  const ip = primoIp(request.headers.get('x-forwarded-for'))
   if (troppiTentativi(ip)) {
-    return res.status(429).json({ errore: 'Troppi tentativi. Riprovate fra qualche minuto.' })
+    return rispondi(429, { errore: 'Troppi tentativi. Riprovate fra qualche minuto.' }, { 'Retry-After': '600' })
   }
 
-  const chiave = process.env.RESEND_API_KEY
-  const a = (process.env.RICHIESTE_A ?? '')
+  const chiave = variabile('RESEND_API_KEY')
+  const a = variabile('RICHIESTE_A')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  const da = (process.env.RICHIESTE_DA ?? '').trim()
+  const da = variabile('RICHIESTE_DA')
 
   if (!chiave || a.length === 0 || !da) {
     console.error('Modulo non configurato: mancano RESEND_API_KEY, RICHIESTE_A o RICHIESTE_DA')
-    return res.status(500).json({ errore: 'Il modulo non è ancora configurato' })
+    return rispondi(500, { errore: 'Il modulo non \u00e8 ancora configurato' })
   }
 
   /* --- Le righe della email ----------------------------------------------- */
@@ -237,8 +260,7 @@ export default async function handler(req: Req, res: Res) {
 
   // Le risposte del configuratore arrivano come oggetto piatto di stringhe.
   // "intervento" e gia uscito come "Intervento" poco sopra, quindi si salta
-  // quello che ripeterebbe una riga gia scritta: una email con due volte la
-  // stessa voce sembra sbagliata anche quando non lo e.
+  // quello che ripeterebbe una riga gia scritta.
   if (tipo === 'preventivo' && typeof dati.dettagli === 'object' && dati.dettagli !== null) {
     const gia = new Set(righe.map((r) => r.etichetta.toLowerCase()))
     for (const [chiaveDettaglio, valore] of Object.entries(dati.dettagli as Record<string, unknown>).slice(0, 20)) {
@@ -290,13 +312,13 @@ export default async function handler(req: Req, res: Res) {
 
     if (!risposta.ok) {
       console.error('Resend ha risposto', risposta.status, await risposta.text())
-      return res.status(502).json({ errore: 'Non è stato possibile inviare l’email' })
+      return rispondi(502, { errore: 'Non \u00e8 stato possibile inviare l\u2019email' })
     }
 
-    return res.status(200).json({ ok: true })
+    return rispondi(200, { ok: true })
   } catch (errore) {
     clearTimeout(scadenza)
     console.error('Invio non riuscito', errore)
-    return res.status(500).json({ errore: 'Non è stato possibile inviare l’email' })
+    return rispondi(500, { errore: 'Non \u00e8 stato possibile inviare l\u2019email' })
   }
 }
