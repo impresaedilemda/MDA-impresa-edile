@@ -1,30 +1,39 @@
 # De făcut, scurt
 
-Site-ul e live și legal curat. Au mai rămas patru lucruri, toate scurte.
+Site-ul e live și legal curat. Au mai rămas patru lucruri.
 Primele trei se fac în același loc: **variabile de mediu pe Vercel**.
 
 ---
 
-## 1. Formularul să trimită email (5 minute, cel mai important)
+## 1. Formularul să trimită email — Resend (cel mai important)
 
 Acum formularul e cinstit — arată eroare și trimite omul la telefon — dar tot
 nu ajunge niciun lead pe email.
 
-**a.** Intri pe https://web3forms.com, pui email-ul clientului
-(`impresaedilemda@gmail.com`), apeși „Create Access Key". Cheia vine pe email,
-arată așa: `a1b2c3d4-e5f6-7890-abcd-ef1234567890`. Cont nu trebuie.
+**a. Verifică domeniul în Resend.** https://resend.com/domains → Add Domain →
+`mdaimpresaedile.it`. Îți dă 3 înregistrări DNS (MX, TXT/SPF, TXT/DKIM) pe care
+le pui la **Dynadot**, unde e domeniul. Fără domeniu verificat, Resend livrează
+doar către adresa contului tău, nu către clientă.
 
-**b.** Intri pe Vercel, proiectul `mda-impresa-edile` → **Settings** →
-**Environment Variables**, și adaugi:
+**b. Cheia.** https://resend.com/api-keys → Create API Key, permisiune
+**Sending access**.
+
+**c. Vercel** → proiectul `mda-impresa-edile` → Settings → Environment
+Variables, trei variabile (fără prefix `PUBLIC_`, rămân pe server):
 
 ```
-PUBLIC_WEB3FORMS_KEY = cheia primită pe email
+RESEND_API_KEY = re_...
+RICHIESTE_A    = impresaedilemda@gmail.com
+RICHIESTE_DA   = Sito MDA Impresa Edile <sito@mdaimpresaedile.it>
 ```
 
-**c.** Deployments → ultimul deploy → `...` → **Redeploy**.
+`RICHIESTE_DA` trebuie să fie pe domeniul verificat la punctul a.
+La `RICHIESTE_A` poți pune mai multe adrese, separate prin virgulă.
 
-Gata. Testezi formularul de pe telefon și trebuie să pice email pe adresa
-clientului.
+**d.** Deployments → ultimul → Redeploy.
+
+Apoi testezi formularul de pe telefon. Emailul ajunge la clientă, iar butonul
+„Răspunde" din Gmail duce direct la client, nu la noi.
 
 ---
 
@@ -33,16 +42,16 @@ clientului.
 Acum `/admin/` e închis și scrie „Pannello non configurato". E intenționat:
 fără bază de date s-ar fi intrat cu un buton, fără parolă.
 
-Tot în **Settings → Environment Variables** pui cele două chei din `.env`:
+Tot în **Settings → Environment Variables**, cele două chei din `.env` local:
 
 ```
 PUBLIC_SUPABASE_URL       = https://nqaolmdwefolrguvsnzt.supabase.co
-PUBLIC_SUPABASE_ANON_KEY  = (cea din .env local)
+PUBLIC_SUPABASE_ANON_KEY  = (cea din .env)
 ```
 
 Apoi Redeploy. **Atenție:** înainte trebuie rulat SQL-ul din
-`supabase/aggiornamento-2026-09.sql` în proiectul Supabase al clientului,
-altfel panoul se deschide dar tabelele lipsesc. Pașii sunt în
+`supabase/aggiornamento-2026-09.sql` în proiectul Supabase al clientei, altfel
+panoul se deschide dar tabelele lipsesc. Pașii sunt în
 `docs/ATTIVAZIONE-PANNELLO.md`.
 
 ---
@@ -61,7 +70,7 @@ Nu trebuie atins niciun fișier.
 
 ---
 
-## 4. Datele reale ale firmei (de cerut clientului)
+## 4. Datele reale ale firmei (de cerut clientei)
 
 Astea nu se pot inventa. Până vin, rândurile pur și simplu nu apar pe site și
 în locul lor scrie „cereți-ne datele".
@@ -84,9 +93,9 @@ commit + push. Lista completă și de ce contează fiecare: `CLIENT-DATA.md` și
 
 ## Bonus, când ai timp
 
-- Revendică profilul **Google Business** al firmei și cere recenzii reale
-  clienților. Secțiunea de recenzii reapare singură la prima recenzie
-  adevărată pusă în panou.
+- Revendică profilul **Google Business** al firmei și cere recenzii reale.
+  Secțiunea de recenzii reapare singură la prima recenzie adevărată pusă în
+  panou.
 - Pozele reale de șantier: primul șantier încărcat din panou face să dispară
   avertismentul „sunt ilustrații" de pe secțiunea lavori.
-- Trimite `docs/CONFORMITA-LEGALE.md` clientului, pentru contabilul lui.
+- Trimite `docs/CONFORMITA-LEGALE.md` clientei, pentru contabilul ei.

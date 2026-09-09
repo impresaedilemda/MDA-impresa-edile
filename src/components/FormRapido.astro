@@ -28,8 +28,6 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
     novalidate
     class="mt-6 flex flex-col gap-3.5"
     data-whatsapp={site.whatsapp}
-    data-endpoint={site.formEndpoint}
-    data-chiave={site.formAccessKey}
     data-telefono={site.phone}
     data-telefono-href={site.phoneHref}
   >
@@ -78,8 +76,8 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
       </span>
     </label>
 
-    <!-- Trappola anti-spam, invisibile agli utenti. Il nome `botcheck` e
-         quello riconosciuto anche lato server da Web3Forms. -->
+    <!-- Trappola anti-spam, invisibile agli utenti: se e compilata, e un robot.
+         Il controllo e doppio, qui sotto e dentro api/richiesta.ts. -->
     <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
 
     <p id="r-errore" tabindex="-1" class="hidden rounded-[4px] border-l-2 border-red-600 bg-red-50 px-3 py-2 font-sans text-[13px] text-red-800" role="alert"></p>
@@ -162,14 +160,11 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
     // Valori di configurazione letti dagli attributi data: senza define:vars
     // lo script resta un modulo differito e non blocca il parser.
     const WHATSAPP = form.dataset.whatsapp
-    const ENDPOINT = form.dataset.endpoint
-    const CHIAVE = form.dataset.chiave
     const TELEFONO = form.dataset.telefono
     const TELEFONO_HREF = form.dataset.telefonoHref
 
-    // La chiave Web3Forms deve essere un UUID: con il segnaposto non
-    // fingiamo mai un invio riuscito.
-    const chiaveValida = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(CHIAVE || '')
+    /** La funzione server che manda l'email con Resend. Vedi api/richiesta.ts. */
+    const ENDPOINT = '/api/richiesta'
 
     const errore = document.getElementById('r-errore')
     const invia = document.getElementById('r-invia')
@@ -274,8 +269,8 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
       }
 
       // La richiesta parte per due strade insieme: il database, dove il
-      // cliente la ritrova nel pannello anche se l'email non arriva, e
-      // Web3Forms per l'email. Basta che una delle due vada in porto.
+      // cliente la ritrova nel pannello anche se l'email non arriva, e la
+      // nostra funzione server per l'email. Basta che una delle due arrivi.
       const richiesta = {
         tipo: 'richiamo',
         nome: '',
@@ -296,24 +291,25 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            ...dati,
-            access_key: CHIAVE,
-            subject: `Richiesta di richiamo: ${dati.servizio}`,
-            from_name: 'Sito MDA Impresa Edile',
-            riepilogo: testo,
+            tipo: 'richiamo',
+            telefono: dati.telefono,
+            servizio: dati.servizio,
+            messaggio: dati.messaggio || '',
+            privacy: true,
+            pagina: location.pathname,
           }),
         })
-        if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
+        if (!risposta.ok) {
+          // Il server dice perche: lo riportiamo nel log, non alla persona,
+          // che vede comunque telefono e WhatsApp.
+          const dettaglio = await risposta.json().catch(() => null)
+          throw new Error(`HTTP ${risposta.status}${dettaglio?.errore ? `: ${dettaglio.errore}` : ''}`)
+        }
         return true
       }
 
       try {
-        // Senza una chiave Web3Forms valida l'email non si tenta nemmeno:
-        // resta il database, che da solo basta a non perdere la richiesta.
-        const [nelDatabase, perEmail] = await Promise.allSettled([
-          inviaRichiesta(richiesta),
-          chiaveValida ? viaEmail() : Promise.reject(new Error('Chiave Web3Forms non configurata')),
-        ])
+        const [nelDatabase, perEmail] = await Promise.allSettled([inviaRichiesta(richiesta), viaEmail()])
         const salvata = nelDatabase.status === 'fulfilled' && nelDatabase.value === true
         const inviata = perEmail.status === 'fulfilled' && perEmail.value === true
 
@@ -329,8 +325,8 @@ const servizi = [...services.map((s) => s.title), 'Verniciatura Tetto', 'Non lo 
         // Né il database né l'email hanno preso la richiesta: NON mostriamo la
         // conferma e NON tracciamo una conversione che non è mai avvenuta.
         console.error('Invio richiesta rapida non riuscito:', err)
-        if (import.meta.env.DEV && !chiaveValida) {
-          console.warn('[MDA] site.formAccessKey e ancora il segnaposto: nessun invio reale e possibile.')
+        if (import.meta.env.DEV) {
+          console.warn('[MDA] In locale /api/richiesta non esiste: astro dev non serve le funzioni di Vercel. Si prova con `vercel dev`.')
         }
         mostraErroreInvio(testo)
         traccia('richiamo_invio_fallito', { motivo: err instanceof Error ? err.message : 'errore sconosciuto' })

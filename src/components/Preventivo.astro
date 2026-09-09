@@ -63,8 +63,6 @@ const datiCalcolatore = JSON.stringify({
         id="quiz"
         class="relative overflow-hidden rounded-xl bg-nero p-6 text-white shadow-[0_16px_16px_rgba(0,0,0,0.25)] sm:p-12"
         data-whatsapp={site.whatsapp}
-        data-endpoint={site.formEndpoint}
-        data-chiave={site.formAccessKey}
         data-telefono={site.phone}
         data-telefono-href={site.phoneHref}
         data-totale={totaleStep}
@@ -300,7 +298,7 @@ const datiCalcolatore = JSON.stringify({
               </label>
 
               <!-- Trappola anti-spam, invisibile agli utenti. Il nome `botcheck` e
-                   quello riconosciuto anche lato server da Web3Forms. -->
+                   controllato anche lato server da api/richiesta.ts. -->
               <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="absolute left-[-9999px] size-0 opacity-0" />
 
               <div class="mt-1 flex gap-3">
@@ -545,8 +543,8 @@ const datiCalcolatore = JSON.stringify({
     // Valori di configurazione letti dagli attributi data: senza define:vars
     // lo script resta un modulo differito e non blocca il parser.
     const WHATSAPP = quiz.dataset.whatsapp
-    const ENDPOINT = quiz.dataset.endpoint
-    const CHIAVE = quiz.dataset.chiave
+    /** La funzione server che manda l'email con Resend. Vedi api/richiesta.ts. */
+    const ENDPOINT = '/api/richiesta'
     const TELEFONO = quiz.dataset.telefono
     const TELEFONO_HREF = quiz.dataset.telefonoHref
 
@@ -563,9 +561,6 @@ const datiCalcolatore = JSON.stringify({
     const SOPRALLUOGO = 'Non lo so, vorrei un sopralluogo'
     const SUP_NON_SO = 'Non lo so'
 
-    // La chiave Web3Forms deve essere un UUID: con il segnaposto non
-    // fingiamo mai un invio riuscito.
-    const chiaveValida = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(CHIAVE || '')
 
     const form = document.getElementById('quiz-form')
     const passi = [...quiz.querySelectorAll('.quiz-passo')]
@@ -1090,8 +1085,8 @@ const datiCalcolatore = JSON.stringify({
 
       // La richiesta parte per due strade insieme: il database, dove il
       // cliente la ritrova nel pannello con tutte le risposte del
-      // configuratore anche se l'email non arriva, e Web3Forms per l'email.
-      // Basta che una delle due vada in porto.
+      // configuratore anche se l'email non arriva, e la nostra funzione
+      // server per l'email. Basta che una delle due arrivi.
       const richiesta = {
         tipo: 'preventivo',
         nome: dati.nome,
@@ -1122,27 +1117,30 @@ const datiCalcolatore = JSON.stringify({
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            ...risposte,
-            materiale: risposte.materialeLabel || '',
-            ...dati,
-            access_key: CHIAVE,
-            subject: `Nuova richiesta preventivo: ${risposte.intervento || 'tetto'}${testoStima() ? ` (stima ${testoStima()})` : ''}`,
-            from_name: 'Sito MDA Impresa Edile',
-            stima_mostrata: testoStima() || 'nessuna',
-            riepilogo: testo,
+            tipo: 'preventivo',
+            nome: dati.nome,
+            telefono: dati.telefono,
+            email: dati.email || '',
+            comune: dati.comune || '',
+            cap: dati.cap || '',
+            servizio: risposte.intervento || '',
+            messaggio: dati.note || '',
+            privacy: true,
+            // Le stesse voci che finiscono nel pannello, cosi email e
+            // database raccontano la stessa richiesta.
+            dettagli: richiesta.dettagli,
+            pagina: location.pathname,
           }),
         })
-        if (!risposta.ok) throw new Error(`HTTP ${risposta.status}`)
+        if (!risposta.ok) {
+          const dettaglio = await risposta.json().catch(() => null)
+          throw new Error(`HTTP ${risposta.status}${dettaglio?.errore ? `: ${dettaglio.errore}` : ''}`)
+        }
         return true
       }
 
       try {
-        // Senza una chiave Web3Forms valida l'email non si tenta nemmeno:
-        // resta il database, che da solo basta a non perdere la richiesta.
-        const [nelDatabase, perEmail] = await Promise.allSettled([
-          inviaRichiesta(richiesta),
-          chiaveValida ? viaEmail() : Promise.reject(new Error('Chiave Web3Forms non configurata')),
-        ])
+        const [nelDatabase, perEmail] = await Promise.allSettled([inviaRichiesta(richiesta), viaEmail()])
         const salvata = nelDatabase.status === 'fulfilled' && nelDatabase.value === true
         const inviata = perEmail.status === 'fulfilled' && perEmail.value === true
 
@@ -1158,8 +1156,8 @@ const datiCalcolatore = JSON.stringify({
         // Né il database né l'email hanno preso la richiesta: NON mostriamo la
         // conferma e NON tracciamo una conversione che non è mai avvenuta.
         console.error('Invio preventivo non riuscito:', err)
-        if (import.meta.env.DEV && !chiaveValida) {
-          console.warn('[MDA] site.formAccessKey e ancora il segnaposto: nessun invio reale e possibile.')
+        if (import.meta.env.DEV) {
+          console.warn('[MDA] In locale /api/richiesta non esiste: astro dev non serve le funzioni di Vercel. Si prova con `vercel dev`.')
         }
         mostraErroreInvio(testo)
         traccia('preventivo_invio_fallito', { motivo: err instanceof Error ? err.message : 'errore sconosciuto' })

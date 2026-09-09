@@ -160,7 +160,7 @@ falso, ed è più grave di un campo assente.
 | 7 | **PEC** | `pec` | Non obbligatoria sul sito, ma attesa |
 | 8 | **Anno di fondazione** | `foundedYear` + `foundedYearConfermato: true` | Sblocca "dal 20xx" |
 | 9 | **Città e provincia reali** | `city`, `province`, `provinceName` | Oggi sono un segnaposto ragionato, non un dato |
-| 10 | **Chiave Web3Forms** | `formAccessKey` | Senza, le email dei moduli non partono |
+| 10 | **Resend configurato** | `RESEND_API_KEY`, `RICHIESTE_A`, `RICHIESTE_DA` su Vercel | Senza, le email dei moduli non partono |
 | 11 | **Estremi della polizza RC** | `assicurazione` | Solo se il cliente vuole pubblicarli |
 
 Durante `npm run dev` un pannello rosso in basso a destra elenca esattamente cosa
@@ -175,7 +175,7 @@ non finisce mai nel sito pubblicato.
    consulente del cliente.** I testi sono scritti con attenzione, ma chi risponde
    davanti al Garante e all'AGCM è l'impresa, non chi ha fatto il sito.
 2. **Tenere gli accordi sul trattamento dei dati (art. 28 GDPR)** con Vercel,
-   Supabase e Web3Forms, insieme alle clausole contrattuali tipo. Vanno esibiti se
+   Supabase e Resend, insieme alle clausole contrattuali tipo. Vanno esibiti se
    il Garante li chiede.
 3. **Mettere per iscritto nel preventivo** l'informazione sul diritto di recesso e,
    quando i lavori devono partire prima dei 14 giorni, la richiesta espressa del

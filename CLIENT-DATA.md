@@ -106,7 +106,7 @@ amendă AGCM de la 5.000 €.
 
 | # | Ce | Cum |
 |---|---|---|
-| 20 | **Cheie formular** | Cont gratuit pe [web3forms.com](https://web3forms.com), se pune cheia în `formAccessKey`. Fără ea formularul afișează confirmarea dar emailul nu pleacă |
+| 20 | **Resend** | Cont pe [resend.com](https://resend.com), domeniu verificat, apoi `RESEND_API_KEY`, `RICHIESTE_A` și `RICHIESTE_DA` ca variabile pe Vercel. Fără ele formularul arată o eroare onestă și niciun email nu pleacă |
 | 21 | ~~Cheie Gemini~~ | Nu mai e necesară: pozele vin din designul Figma |
 | 22 | **Google Business Profile** | Cel mai important punct din toată lista pentru a aduce clienți. Vezi README, secțiunea Marketing |
 
@@ -117,7 +117,7 @@ amendă AGCM de la 5.000 €.
 - [ ] Toate `TODO CLIENTE` din `site.ts` sunt înlocuite
 - [ ] `npm run build` trece fără erori
 - [ ] Pozele reale de șantier sunt puse și steagurile pe `false`
-- [ ] Cheia Web3Forms e activă și un test de formular ajunge pe email
+- [ ] Resend e configurat și un test de formular ajunge pe email
 - [ ] Numărul de WhatsApp e testat cu un mesaj real
 - [ ] Domeniul e actualizat în cele trei locuri (vezi punctul 16)
 - [ ] Privacy și cookie policy citite de client, ideal validate de contabilul sau consulentul lui

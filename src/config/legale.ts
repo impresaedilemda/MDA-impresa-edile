@@ -82,10 +82,14 @@ export const verificheLegali: Verifica[] = [
       'Deve corrispondere al dominio definitivo, usato in canonical, sitemap e dati strutturati, e deve già risolvere nel DNS con certificato valido: un canonical verso un dominio che non risponde vale come assente.',
   },
   {
-    campo: 'Chiave del modulo',
-    valore: site.formAccessKey,
-    ok: !eSegnaposto(site.formAccessKey),
-    perche: 'Senza chiave valida i moduli mostrano la conferma ma l’email non parte: i contatti si perdono.',
+    campo: 'Invio delle email dei moduli',
+    /* RESEND_API_KEY e una variabile del server: non finisce mai nel browser,
+       ma durante la build su Vercel process.env la vede. Se manca, le
+       richieste restano solo nel database e nessuno riceve la notifica. */
+    valore: process.env.RESEND_API_KEY ? 'configurato' : 'RESEND_API_KEY mancante',
+    ok: Boolean(process.env.RESEND_API_KEY) && Boolean(process.env.RICHIESTE_A) && Boolean(process.env.RICHIESTE_DA),
+    perche:
+      'Servono RESEND_API_KEY, RICHIESTE_A e RICHIESTE_DA su Vercel. Senza, i moduli mostrano un errore onesto ma nessuna email arriva.',
   },
 ]
 

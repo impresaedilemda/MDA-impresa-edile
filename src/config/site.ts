@@ -142,19 +142,11 @@ const statico = {
    */
   dataInformative: '2026-09-09',
 
-  /** Endpoint del form. Vedi CLIENT-DATA.md, punto 9. */
-  formEndpoint: 'https://api.web3forms.com/submit',
-  /**
-   * Chiave del modulo, gratuita da web3forms.com.
-   *
-   * Si imposta come variabile PUBLIC_WEB3FORMS_KEY su Vercel, non qui: cosi
-   * si attiva senza toccare il codice e senza un altro deploy a mano. Il
-   * valore scritto sotto resta solo come ultima spiaggia.
-   *
-   * Finche non e un UUID valido i moduli NON fingono un invio riuscito:
-   * mostrano l'errore e offrono telefono e WhatsApp.
-   */
-  formAccessKey: ((import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined) ?? '').trim() || 'YOUR-WEB3FORMS-ACCESS-KEY',
+  /* I moduli non parlano piu con un servizio esterno: mandano a
+     /api/richiesta, la funzione server che spedisce l'email con Resend.
+     L'indirizzo e scritto nei due componenti perche e fisso e sullo stesso
+     dominio; la chiave (RESEND_API_KEY) sta nelle variabili del server e non
+     arriva mai nel browser. Qui non c'e piu niente da configurare. */
 }
 
 /* --- Quello che il cliente ha scritto nel pannello ------------------------ */

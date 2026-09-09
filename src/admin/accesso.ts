@@ -584,13 +584,21 @@ function ascoltaRecupero(radice: HTMLElement): { scattato: () => boolean; smetti
 /* --- CANCELLO ------------------------------------------------------------- */
 
 /**
- * L'attesa iniziale: la stessa cornice della schermata di accesso, con uno
- * scheletro nella scatola al posto del modulo. Se poi il modulo arriva
- * prende il posto dello scheletro, senza che la pagina salti.
+ * L'attesa iniziale, e basta: qui la cornice dell'accesso NON va disegnata.
+ *
+ * Ogni sezione del pannello è una pagina a sé, quindi la guardia riparte a
+ * ogni passaggio fra una sezione e l'altra. Finché qui c'era la cornice
+ * dell'accesso, chi passava al blog vedeva lampeggiare la foto del cantiere
+ * con "Area riservata": sembrava che il pannello lo avesse buttato fuori, e
+ * per un attimo chiedeva la password a chi era già dentro.
+ *
+ * Restano tre righe grigie al centro, che non dicono niente a nessuno. La
+ * cornice dell'accesso la disegna disegnaAccesso, e solo quando si sa che
+ * davvero non c'è nessuna sessione.
  */
 function mostraAttesa(radice: HTMLElement): void {
-  const scatola = scatolaIn(radice)
-  scatola.append(marchioMobile(), el('p', { class: 'adm-accesso-marchio' }, NOME_DITTA), scheletro(8))
+  svuota(radice)
+  radice.append(el('div', { class: 'adm-attesa-pagina' }, [scheletro(3)]))
 }
 
 /**
