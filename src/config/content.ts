@@ -16,15 +16,18 @@ import { site } from './site'
    non ancora confermato dal cliente. */
 export const hero = {
   phoneLabel: 'Sopralluogo Diretto:',
-  /* Il corsivo del design e la parte "italic" */
-  headlinePlain: 'L’arte delle coperture italiane,',
-  headlineItalic: 'eseguita a regola d’arte.',
+  /* Il corsivo del design e la parte "italic". Titolo accorciato su
+     richiesta del cliente (10/09/2026): prima era "L'arte delle coperture
+     italiane, eseguita a regola d'arte." */
+  headlinePlain: 'Coperture',
+  headlineItalic: 'eseguite a regola d’arte.',
   /* Il sottotitolo porta le parole chiave della pagina (rifacimento, tetti,
      citta) che il titolo di design non contiene. Nessun anno di fondazione:
      va pubblicato solo dopo la conferma del cliente. */
   sub: `Rifacimento e manutenzione tetti a ${site.city} e provincia con squadra interna specializzata. Nessun subappalto, preventivi bloccati e ${site.warrantyYears} anni di garanzia scritta.`,
   cta: 'Richiedi Sopralluogo Gratuito',
-  availability: 'Squadra disponibile questa settimana fra Veneto e Friuli-Venezia Giulia',
+  /* La riga "Squadra disponibile questa settimana fra Veneto e Friuli" con
+     il pallino verde e stata tolta dal cliente (10/09/2026). */
 }
 
 /* --- TRUST, sei carte in due righe --------------------------------------- */
@@ -59,10 +62,13 @@ export const trust = {
          del Codice del consumo. */
       text: 'Garanzia scritta nostra sul lavoro eseguito, in aggiunta alle garanzie di legge e a quelle dei produttori sui materiali posati.',
     },
+    /* Qui c'era "Prezzo Bloccato" (il preventivo firmato non cambia in corso
+       d'opera): il cliente l'ha sostituita con la sicurezza in cantiere
+       (10/09/2026). Il prezzo bloccato resta citato nel sottotitolo dell'hero. */
     {
-      icon: 'lock',
-      title: 'Prezzo Bloccato',
-      text: 'Il preventivo firmato non subisce variazioni in corso d’opera. Massima trasparenza.',
+      icon: 'hard-hat',
+      title: 'Sicurezza ai Massimi Livelli',
+      text: 'Ponteggi, linee vita e dispositivi a norma. Squadra formata per lavorare in quota senza rischi per voi e per la casa.',
     },
     /* Nel design qui c'era una carta sulle pratiche fiscali: sostituita,
        il cliente non ha richiesto quel tema. */

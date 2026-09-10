@@ -10,6 +10,10 @@
  *  studiomadera.it, generalcover.it, homedeal.it, pgcasa.it, tetto360.it,
  *  cronoshare.it, edilnet.it, idealista.it/news, agenziaentrate.gov.it.
  *
+ *  Il 10/09/2026 il cliente ha chiesto di mostrare cifre un po' piu basse:
+ *  tutti i min e i max qui sotto sono la rilevazione ridotta del 15%
+ *  (arrotondata). Il resto della formula non e cambiato.
+ *
  *  IMPORTANTE: finche listinoConfermato resta false, il pannello di sviluppo
  *  ricorda che il cliente deve rivedere questi intervalli e adattarli ai suoi
  *  prezzi reali. La stima mostrata al visitatore e sempre dichiarata come
@@ -50,48 +54,48 @@ export const servizi: ServizioCalcolatore[] = [
     intervento: 'Rifacimento completo del tetto',
     domanda: 'Che tipo di manto preferisci?',
     voci: [
-      { id: 'tegole', label: 'Tegole in laterizio o cemento', hint: 'La scelta più comune, ottimo rapporto resa e durata', unita: 'euro_mq', min: 140, max: 250 },
-      { id: 'coppi', label: 'Coppi tradizionali', hint: 'Posa lenta e selezione manuale, resa d’epoca', unita: 'euro_mq', min: 150, max: 280 },
-      { id: 'lamiera', label: 'Lamiera aggraffata / zinco titanio', hint: 'Lattoneria specializzata, durata superiore', unita: 'euro_mq', min: 200, max: 350 },
-      { id: 'non-so-manto', label: 'Non lo so, consigliatemi voi', unita: 'euro_mq', min: 140, max: 280 },
+      { id: 'tegole', label: 'Tegole in laterizio o cemento', hint: 'La scelta più comune, ottimo rapporto resa e durata', unita: 'euro_mq', min: 120, max: 210 },
+      { id: 'coppi', label: 'Coppi tradizionali', hint: 'Posa lenta e selezione manuale, resa d’epoca', unita: 'euro_mq', min: 125, max: 240 },
+      { id: 'lamiera', label: 'Lamiera aggraffata / zinco titanio', hint: 'Lattoneria specializzata, durata superiore', unita: 'euro_mq', min: 170, max: 295 },
+      { id: 'non-so-manto', label: 'Non lo so, consigliatemi voi', unita: 'euro_mq', min: 120, max: 240 },
     ],
   },
   {
     intervento: 'Impermeabilizzazione e guaine',
     domanda: 'Che tipo di impermeabilizzazione serve?',
     voci: [
-      { id: 'guaina-bituminosa', label: 'Guaina bituminosa a doppio strato', hint: 'La soluzione classica per tetti piani e terrazzi', unita: 'euro_mq', min: 30, max: 55 },
-      { id: 'membrana-sintetica', label: 'Membrana sintetica PVC o TPO', hint: 'Saldatura certificata, vita utile oltre i trent’anni', unita: 'euro_mq', min: 40, max: 65 },
-      { id: 'non-so-guaina', label: 'Non lo so, decidiamo al sopralluogo', unita: 'euro_mq', min: 30, max: 65 },
+      { id: 'guaina-bituminosa', label: 'Guaina bituminosa a doppio strato', hint: 'La soluzione classica per tetti piani e terrazzi', unita: 'euro_mq', min: 25, max: 47 },
+      { id: 'membrana-sintetica', label: 'Membrana sintetica PVC o TPO', hint: 'Saldatura certificata, vita utile oltre i trent’anni', unita: 'euro_mq', min: 34, max: 55 },
+      { id: 'non-so-guaina', label: 'Non lo so, decidiamo al sopralluogo', unita: 'euro_mq', min: 25, max: 55 },
     ],
   },
   {
     intervento: 'Grondaie e lattoneria',
     domanda: 'In quale materiale?',
     voci: [
-      { id: 'alluminio', label: 'Alluminio preverniciato', hint: 'Leggero, economico, tanti colori', unita: 'euro_ml', min: 25, max: 60 },
-      { id: 'zinco-titanio', label: 'Zinco titanio', hint: 'Il compromesso nobile', unita: 'euro_ml', min: 35, max: 80 },
-      { id: 'rame', label: 'Rame', hint: 'Il riferimento: durata e patina inconfondibile', unita: 'euro_ml', min: 45, max: 100 },
-      { id: 'non-so-gronda', label: 'Non lo so, consigliatemi voi', unita: 'euro_ml', min: 25, max: 80 },
+      { id: 'alluminio', label: 'Alluminio preverniciato', hint: 'Leggero, economico, tanti colori', unita: 'euro_ml', min: 21, max: 51 },
+      { id: 'zinco-titanio', label: 'Zinco titanio', hint: 'Il compromesso nobile', unita: 'euro_ml', min: 30, max: 68 },
+      { id: 'rame', label: 'Rame', hint: 'Il riferimento: durata e patina inconfondibile', unita: 'euro_ml', min: 38, max: 85 },
+      { id: 'non-so-gronda', label: 'Non lo so, consigliatemi voi', unita: 'euro_ml', min: 21, max: 68 },
     ],
   },
   {
     intervento: 'Verniciatura del tetto',
     domanda: 'In che stato sono le tegole?',
     voci: [
-      { id: 'buono-stato', label: 'Buono stato, solo da proteggere', hint: 'Lavaggio, biocida, primer e doppia mano', unita: 'euro_mq', min: 18, max: 32 },
-      { id: 'con-riparazioni', label: 'Servono anche piccole riparazioni', hint: 'Sostituzione pezzi rotti prima del ciclo', unita: 'euro_mq', min: 25, max: 40 },
-      { id: 'non-so-stato', label: 'Non lo so, va visto', unita: 'euro_mq', min: 18, max: 40 },
+      { id: 'buono-stato', label: 'Buono stato, solo da proteggere', hint: 'Lavaggio, biocida, primer e doppia mano', unita: 'euro_mq', min: 15, max: 27 },
+      { id: 'con-riparazioni', label: 'Servono anche piccole riparazioni', hint: 'Sostituzione pezzi rotti prima del ciclo', unita: 'euro_mq', min: 21, max: 34 },
+      { id: 'non-so-stato', label: 'Non lo so, va visto', unita: 'euro_mq', min: 15, max: 34 },
     ],
   },
   {
     intervento: 'Manutenzione e riparazione',
     domanda: 'Che tipo di problema hai?',
     voci: [
-      { id: 'riparazione-puntuale', label: 'Riparazione puntuale', hint: 'Tegole rotte, piccola infiltrazione, colmo smosso', unita: 'euro_forfait', min: 250, max: 1000 },
-      { id: 'sigillatura-camino', label: 'Camino o scossaline da sistemare', unita: 'euro_forfait', min: 300, max: 1000 },
-      { id: 'controllo-annuale', label: 'Controllo annuale con report', hint: 'Verifica completa, pulizia gronde, report fotografico', unita: 'euro_forfait', min: 100, max: 200 },
-      { id: 'non-so-problema', label: 'Non lo so, perde e basta', unita: 'euro_forfait', min: 250, max: 1000 },
+      { id: 'riparazione-puntuale', label: 'Riparazione puntuale', hint: 'Tegole rotte, piccola infiltrazione, colmo smosso', unita: 'euro_forfait', min: 210, max: 850 },
+      { id: 'sigillatura-camino', label: 'Camino o scossaline da sistemare', unita: 'euro_forfait', min: 255, max: 850 },
+      { id: 'controllo-annuale', label: 'Controllo annuale con report', hint: 'Verifica completa, pulizia gronde, report fotografico', unita: 'euro_forfait', min: 85, max: 170 },
+      { id: 'non-so-problema', label: 'Non lo so, perde e basta', unita: 'euro_forfait', min: 210, max: 850 },
     ],
   },
 ]

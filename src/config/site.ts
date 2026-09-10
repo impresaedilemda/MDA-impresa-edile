@@ -41,7 +41,7 @@ const statico = {
    * ed e la cifra effettivamente versata risultante dall'ultimo bilancio.
    * Per una ditta individuale o una S.n.c. non si compila: non esiste.
    * -------------------------------------------------------------------- */
-  registroImprese: '', // TODO CLIENTE: es. "Registro delle Imprese di Venezia"
+  registroImprese: '', // TODO CLIENTE: es. "Registro delle Imprese di Pordenone-Udine"
   capitaleSociale: '', // TODO CLIENTE: es. "10.000,00 EUR i.v." (solo societa di capitali)
   pec: '', // TODO CLIENTE: indirizzo PEC iscritto al registro delle imprese
   assicurazione: '', // TODO CLIENTE: compagnia e numero della polizza RC verso terzi
@@ -54,30 +54,32 @@ const statico = {
   formaGiuridica: 'da-confermare' as 'societa-di-capitali' | 'societa-di-persone' | 'ditta-individuale' | 'da-confermare',
 
   /* --- Localizzazione (CRITICO PER LA SEO LOCALE) -----------------------
-   * L'impresa opera fra Veneto e Friuli-Venezia Giulia (indicazione del
-   * cliente). La citta esatta non e ancora confermata: Portogruaro e il
-   * segnaposto piu sensato perche sta proprio al confine fra le due
-   * regioni. Quando arriva la citta vera si cambia SOLO qui.
+   * L'impresa opera fra Veneto e Friuli-Venezia Giulia. La sede e a
+   * Pordenone: indirizzo e citta comunicati dal cliente il 10/09/2026
+   * (fino ad allora il segnaposto era Portogruaro). Si cambia SOLO qui.
    * -------------------------------------------------------------------- */
-  city: 'Portogruaro', // TODO CLIENTE: città principale da confermare
-  province: 'VE', // TODO CLIENTE: sigla provincia da confermare
+  city: 'Pordenone',
+  province: 'PN',
   /** Nome esteso della provincia. La sigla si usa SOLO fra parentesi dopo il
-   *  comune (Portogruaro (VE)) e in geo.region (IT-VE): nel testo corrente
-   *  si scrive sempre "provincia di Venezia", che e anche cio che si cerca. */
-  provinceName: 'Venezia', // TODO CLIENTE: da confermare insieme alla sigla
+   *  comune (Pordenone (PN)) e in geo.region (IT-PN): nel testo corrente
+   *  si scrive sempre "provincia di Pordenone", che e anche cio che si cerca. */
+  provinceName: 'Pordenone',
   region: 'Veneto e Friuli-Venezia Giulia',
   regions: ['Veneto', 'Friuli-Venezia Giulia'], // per lo schema areaServed
-  street: 'Via Esempio 12', // TODO CLIENTE: indirizzo sede
-  postalCode: '30026', // TODO CLIENTE: CAP
-  geo: { lat: 45.7753, lng: 12.8388 }, // TODO CLIENTE: coordinate sede
+  street: 'Via Mantica Princivalle 32', // dal cliente, 10/09/2026
+  postalCode: '33170',
+  /* Coordinate della zona di Torre (Pordenone), dove sta la via: bastano
+     per la mappa locale, il numero civico esatto non cambia il risultato. */
+  geo: { lat: 45.9667, lng: 12.6667 },
 
   /** Comuni serviti fra Veneto e Friuli. Alimentano la SEO locale,
    *  le pagine /zone/ e il footer. */
   areaServed: [
-    // TODO CLIENTE: sostituire con i comuni realmente serviti
+    // TODO CLIENTE: sostituire con i comuni realmente serviti.
+    // Il PRIMO e la citta della sede: lo copre la home, non ha pagina /zone/.
+    'Pordenone',
     'Portogruaro',
     'San Donà di Piave',
-    'Pordenone',
     'Latisana',
     'Sacile',
     'Conegliano',

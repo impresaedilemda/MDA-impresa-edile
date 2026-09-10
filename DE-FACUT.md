@@ -64,11 +64,11 @@ Ce ceri, dintr-o vizură camerală sau de pe o factură de-a lor:
 
 - Partita IVA
 - Ragione sociale exactă și forma juridică (S.r.l.? ditta individuale?)
-- Adresa sediului + CAP
+- ~~Adresa sediului + CAP~~ primită 10 sep: Via Mantica Princivalle 32, 33170 Pordenone (de confirmat că e și sediul legal)
 - Numărul REA și registrul (ex. „Registro delle Imprese di Venezia")
 - Capitalul social vărsat — **doar dacă e societate de capitaluri**
 - Anul înființării
-- Orașul real de operare (acum e Portogruaro, pus de noi ca aproximare)
+- ~~Orașul real de operare~~ Pordenone, confirmat 10 sep
 
 Se scriu în `src/config/site.ts`, sunt marcate acolo cu `TODO CLIENTE`, apoi
 commit + push. Lista completă și de ce contează fiecare: `CLIENT-DATA.md` și

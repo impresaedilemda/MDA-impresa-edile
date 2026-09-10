@@ -5,22 +5,19 @@ import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
 /* Le tre pagine hub (/servizi/, /guide/, /zone/) stanno nel menu principale:
-   erano raggiungibili solo dal footer, e /servizi/ da nessuna parte. Le ancore
-   restano assolute (/#...) cosi funzionano anche dalle pagine interne.
+   erano raggiungibili solo dal footer, e /servizi/ da nessuna parte.
    Il blog compare solo quando il cliente ha pubblicato almeno un articolo:
-   una voce che porta a una pagina vuota è peggio di una voce in meno. */
+   una voce che porta a una pagina vuota è peggio di una voce in meno.
+   Le voci "Come Lavoriamo", "FAQ" e "Portfolio" (mobile) sono sparite con
+   le sezioni della home che puntavano, tolte dal cliente il 10/09/2026. */
 const nav = [
   { label: 'Servizi', href: '/servizi/' },
   { label: 'Guide', href: '/guide/' },
   ...(remoto.articoli.length > 0 ? [{ label: 'Blog', href: '/blog/' }] : []),
   { label: 'Zone Servite', href: '/zone/' },
-  { label: 'Come Lavoriamo', href: '/#processo' },
-  { label: 'FAQ', href: '/#domande' },
 ]
 
-/* Sul mobile lo spazio verticale non manca: ci sta anche il portfolio, che
-   entra subito prima delle FAQ qualunque sia il numero di voci. */
-const navMobile = [...nav.slice(0, -1), { label: 'Portfolio', href: '/#lavori' }, ...nav.slice(-1)]
+const navMobile = nav
 ---
 
 <header

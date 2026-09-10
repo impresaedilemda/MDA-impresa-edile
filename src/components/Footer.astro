@@ -201,7 +201,9 @@ const datiSocietari = [
           {
             !eSegnaposto(site.street) && !eSegnaposto(site.postalCode) ? (
               <>
-                {site.street}, {site.postalCode} {site.city} ({site.province})
+                {/* Un'unica stringa: Astro mangia lo spazio fra due espressioni
+                    e stampava "33170Pordenone". */}
+                {`${site.street}, ${site.postalCode} ${site.city} (${site.province})`}
                 <br />
               </>
             ) : (
