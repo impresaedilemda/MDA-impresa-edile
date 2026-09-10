@@ -1,19 +1,19 @@
 ---
 import { site } from '../config/site'
-import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
 /* Le tre pagine hub (/servizi/, /guide/, /zone/) stanno nel menu principale:
    erano raggiungibili solo dal footer, e /servizi/ da nessuna parte.
-   Il blog compare solo quando il cliente ha pubblicato almeno un articolo:
-   una voce che porta a una pagina vuota è peggio di una voce in meno.
+   Il blog e una voce fissa dall'11/09/2026 (prima compariva solo con un
+   articolo pubblicato): e la parte del sito che cresce ogni settimana e la
+   pagina vuota dice comunque cosa sta arrivando.
    Le voci "Come Lavoriamo", "FAQ" e "Portfolio" (mobile) sono sparite con
    le sezioni della home che puntavano, tolte dal cliente il 10/09/2026. */
 const nav = [
   { label: 'Servizi', href: '/servizi/' },
   { label: 'Guide', href: '/guide/' },
-  ...(remoto.articoli.length > 0 ? [{ label: 'Blog', href: '/blog/' }] : []),
+  { label: 'Blog', href: '/blog/' },
   { label: 'Zone Servite', href: '/zone/' },
 ]
 

@@ -46,8 +46,14 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
   <Header />
 
   <main id="contenuto" data-nome-sito={site.name}>
-    <!-- Intestazione scura -->
-    <section class="bg-nero py-14 text-white md:py-20">
+    <!-- Intestazione: foto del blog a tutto campo; lo script la sostituisce
+         con la copertina dell'articolo appena la conosce. -->
+    <section class="relative isolate flex min-h-[68svh] flex-col justify-end overflow-hidden bg-nero pb-12 pt-28 text-white md:min-h-[460px] md:pb-16 lg:min-h-[540px] lg:pb-20">
+      <div class="absolute inset-0 -z-10 overflow-hidden">
+        <img id="articolo-sfondo" src="/images/blog/copertina-blog.webp" alt="" width="1920" height="1080" fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover object-center" />
+        <div class="absolute inset-0 bg-nero/55 max-md:bg-nero/60"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-nero/75 via-nero/15 to-nero/35"></div>
+      </div>
       <div class="contenitore flex max-w-[900px] flex-col gap-5">
         <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
           <a href="/" class="transition-colors hover:text-white">Home</a>
@@ -74,10 +80,6 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
     <section class="bg-crema py-14 md:py-20">
       <div class="contenitore grid gap-14 lg:grid-cols-[minmax(0,760px)_1fr] lg:gap-20">
         <div class="flex flex-col gap-10">
-          <figure id="articolo-copertina" hidden class="overflow-hidden rounded-lg bg-carta">
-            <img id="articolo-immagine" alt="" class="aspect-video w-full object-cover" decoding="async" />
-          </figure>
-
           <article id="articolo-corpo" class="prosa"></article>
 
           <!-- Senza JavaScript non c'è modo di leggere lo slug e chiedere l'articolo. -->
@@ -203,8 +205,7 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
     const riga = document.getElementById('articolo-riga')
     const data = document.getElementById('articolo-data')
     const minuti = document.getElementById('articolo-minuti')
-    const copertina = document.getElementById('articolo-copertina')
-    const immagine = document.getElementById('articolo-immagine')
+    const sfondo = document.getElementById('articolo-sfondo')
     const corpo = document.getElementById('articolo-corpo')
     const sopralluogo = document.getElementById('articolo-sopralluogo')
     const nonTrovato = document.getElementById('articolo-non-trovato')
@@ -264,11 +265,8 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
       if (minuti) minuti.textContent = `${scheda.minuti} min di lettura`
       if (riga) riga.hidden = false
 
-      if (scheda.copertina && immagine && copertina) {
-        immagine.setAttribute('src', scheda.copertina)
-        immagine.setAttribute('alt', articolo.titolo)
-        copertina.hidden = false
-      }
+      // La copertina va dietro il titolo, al posto della foto del blog.
+      if (scheda.copertina && sfondo) sfondo.setAttribute('src', scheda.copertina)
 
       // Il testo entra come nodi veri, costruiti da testo-dom.ts: nessuna
       // stringa scritta dal cliente finisce mai dentro l'HTML.

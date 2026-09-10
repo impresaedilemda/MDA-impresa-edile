@@ -99,8 +99,24 @@ const schema = {
   <Header />
 
   <main id="contenuto">
-    <!-- Intestazione scura -->
-    <section class="bg-nero py-14 text-white md:py-20">
+    <!-- Intestazione: la copertina dell'articolo sta a tutto campo dietro il
+         titolo, sotto un velo scuro; senza copertina si usa la foto del blog. -->
+    <section class="relative isolate flex min-h-[68svh] flex-col justify-end overflow-hidden bg-nero pb-12 pt-28 text-white md:min-h-[460px] md:pb-16 lg:min-h-[540px] lg:pb-20">
+      <div class="absolute inset-0 -z-10 overflow-hidden">
+        {
+          scheda.copertina ? (
+            <img src={scheda.copertina} alt="" fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover object-center" />
+          ) : (
+            <picture>
+              <source media="(max-width: 767px)" srcset="/images/blog/copertina-blog-mobile.webp" width="900" height="1170" />
+              <source media="(max-width: 1400px)" srcset="/images/blog/copertina-blog-1440.webp" width="1440" height="810" />
+              <img src="/images/blog/copertina-blog.webp" alt="" width="1920" height="1080" fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover object-center" />
+            </picture>
+          )
+        }
+        <div class="absolute inset-0 bg-nero/55 max-md:bg-nero/60"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-nero/75 via-nero/15 to-nero/35"></div>
+      </div>
       <div class="contenitore flex max-w-[900px] flex-col gap-5">
         <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
           <a href="/" class="transition-colors hover:text-white">Home</a>
@@ -121,20 +137,6 @@ const schema = {
     <section class="bg-crema py-14 md:py-20">
       <div class="contenitore grid gap-14 lg:grid-cols-[minmax(0,760px)_1fr] lg:gap-20">
         <div class="flex flex-col gap-10">
-          {
-            scheda.copertina && (
-              <figure class="rivela overflow-hidden rounded-lg bg-carta">
-                <img
-                  src={scheda.copertina}
-                  alt={articolo.titolo}
-                  class="aspect-video w-full object-cover"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-              </figure>
-            )
-          }
-
           <article class="prosa rivela" set:html={html} />
 
           <!-- Chiusura: il sopralluogo -->

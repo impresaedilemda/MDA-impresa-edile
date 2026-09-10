@@ -9,7 +9,6 @@ import { anzianitaPubblicabile, denominazione, site, waLink } from '../config/si
 import { zoneSecondarie } from '../config/zone'
 import { serviziPagine } from '../config/servizi-pagine'
 import { guide } from '../config/guide'
-import { remoto } from '../lib/remoto'
 import Icona from './Icona.astro'
 import Logo from './Logo.astro'
 
@@ -18,8 +17,8 @@ const anno = new Date().getFullYear()
 /** Il pulsante di revoca ha senso solo se c'e uno strumento da consentire. */
 const conStatistiche = Boolean(site.gaId)
 
-/* Il link al blog compare solo con almeno un articolo pubblicato, come nel menu. */
-const blogAttivo = remoto.articoli.length > 0
+/* Il link al blog e fisso, come la voce nel menu (dall'11/09/2026). */
+const blogAttivo = true
 
 /**
  * Dati societari dell'art. 2250 c.c. (esteso allo spazio elettronico dal
