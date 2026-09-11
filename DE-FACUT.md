@@ -85,18 +85,46 @@ commit + push. Lista completă și de ce contează fiecare: `CLIENT-DATA.md` și
   avertismentul „sunt ilustrații" de pe secțiunea lavori.
 - Trimite `docs/CONFORMITA-LEGALE.md` clientei, pentru contabilul ei.
 
-## Verificare în doi pași, Google Authenticator (11 sep 2026, LOCAL, nepushuit)
+## Verificare în doi pași, Google Authenticator (TERMINAT 11 sep 2026)
 
-Codul e gata local: pop-up la intrare cu QR + cheie, codul de 6 cifre cerut la
-login și la resetarea parolei, bloc Activează/Dezactivează în Impostazioni,
-Il tuo accesso. Ca să fie pornit pe live:
+LIVE. Pop-up la intrare cu QR + cheie, cod de 6 cifre la login și la resetarea
+parolei, bloc Activează/Dezactivează în Impostazioni, Il tuo accesso.
 
-- push + deploy (după ce cealaltă sesiune termină frâna de parole din `accesso.ts`)
-- SQL Editor, pe proiectul Supabase al clientului:
-  `supabase/aggiornamento-2026-09-due-fattori.sql` (fără el, codul se cere în
-  pagină dar baza de date nu-l impune)
-- Supabase, Authentication, Multi-Factor: TOTP pornit (e implicit)
-- test cu contul meu `ark4su@gmail.com` (are rând în `admin_email`): intru,
-  scanez, ies, reintru cu cod
-- telefon pierdut: Authentication, Users, utilizatorul, Multi-factor
-  authentication, șterge factorul; Supabase nu are coduri de rezervă
+- cod pushuit și publicat (commit `b27ab10`)
+- `supabase/aggiornamento-2026-09-due-fattori.sql` RULAT pe proiectul clientei:
+  `e_admin()` cere acum `aal2` dacă userul are un factor confirmat
+- Supabase, Authentication, Multi-Factor: TOTP era deja pornit
+- testat cu telefonul pe contul real, apoi factorul de test a fost șters din
+  Authentication, Users, Danger zone, Remove MFA factors
+
+**De reținut:** ștergerea din aplicația Google Authenticator NU scoate factorul
+de pe server. Se scoate doar din Supabase, de la Remove MFA factors. Supabase nu
+are coduri de rezervă: telefon pierdut = Artiom șterge factorul, clientul îl
+leagă din nou.
+
+## Google Analytics (TERMINAT 11 sep 2026)
+
+Proprietate GA4 creată pe contul clientei (`impresaedilemda@gmail.com`):
+
+- cont "MDA Impresa Edile", proprietate `mdaimpresaedile.it`, Italia, GMT+2, euro
+- flux web `https://www.mdaimpresaedile.it`, ID de măsurare **G-LMK70C6FRW**
+- pe Vercel: `PUBLIC_GA_ID` = `G-LMK70C6FRW`, tip Config, doar Production
+  (traficul de preview nu trebuie să intre în statisticile clientei)
+- partajarea datelor cu Google pentru produsele lor și pentru oferte: OPRITĂ
+- Analytics se încarcă doar după acceptarea cookie-urilor în banner, cum cere
+  legea italiană; paginile privacy și cookie se adaptează singure
+
+Datele apar în 24 până la 48 de ore.
+
+## Google Business Profile (BLOCAT, așteaptă răspunsul clientei)
+
+Pe Maps există deja fișa **"MDA Impresa Edile - Riparazione tetti"**, verificată,
+5,0 cu o recenzie, telefonul corect, dar:
+
+- site-ul trecut pe ea e `riparazionetetti.com`, nu al nostru
+- contul Google al clientei are **0 companii**, deci nu ea o controlează
+- Google nu oferă fișa ca revendicabilă, semn că e revendicată de altcineva
+
+De aflat de la clientă cu ce adresă a fost creată sau cine i-a făcut-o. Mesajul
+e scris în `MESAJ-CLIENT.md`. A NU se crea o fișă nouă între timp: două fișe
+pentru aceeași firmă își strică poziția una alteia.
