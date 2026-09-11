@@ -84,3 +84,19 @@ commit + push. Lista completă și de ce contează fiecare: `CLIENT-DATA.md` și
 - Pozele reale de șantier: primul șantier încărcat din panou face să dispară
   avertismentul „sunt ilustrații" de pe secțiunea lavori.
 - Trimite `docs/CONFORMITA-LEGALE.md` clientei, pentru contabilul ei.
+
+## Verificare în doi pași, Google Authenticator (11 sep 2026, LOCAL, nepushuit)
+
+Codul e gata local: pop-up la intrare cu QR + cheie, codul de 6 cifre cerut la
+login și la resetarea parolei, bloc Activează/Dezactivează în Impostazioni,
+Il tuo accesso. Ca să fie pornit pe live:
+
+- push + deploy (după ce cealaltă sesiune termină frâna de parole din `accesso.ts`)
+- SQL Editor, pe proiectul Supabase al clientului:
+  `supabase/aggiornamento-2026-09-due-fattori.sql` (fără el, codul se cere în
+  pagină dar baza de date nu-l impune)
+- Supabase, Authentication, Multi-Factor: TOTP pornit (e implicit)
+- test cu contul meu `ark4su@gmail.com` (are rând în `admin_email`): intru,
+  scanez, ies, reintru cu cod
+- telefon pierdut: Authentication, Users, utilizatorul, Multi-factor
+  authentication, șterge factorul; Supabase nu are coduri de rezervă

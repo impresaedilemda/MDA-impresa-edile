@@ -14,7 +14,8 @@
  *     Il telaio manda qui con l'ancora #pubblicazione quando l'indirizzo
  *     manca: per questo la card ha quell'id e la pagina ci scorre da sola.
  *  3. L'accesso: con quale email si entra, il cambio della password (solo con
- *     il database, in prova non c'è nessuna password) e la lingua del pannello.
+ *     il database, in prova non c'è nessuna password), la verifica in due
+ *     passaggi (l'app del telefono, duefattori.ts) e la lingua del pannello.
  *
  *  Le tre letture partono insieme e, se una fallisce, cade tutta la schermata
  *  con il pulsante per riprovare: un modulo pieno di dati vecchi farebbe più
@@ -30,13 +31,30 @@ import {
   leggiImpostazioni,
   leggiPubblicazione,
   pubblica,
+  rimuoviDueFattori,
   salvaHook,
   salvaImpostazioni,
+  statoDueFattori,
   type ImpostazioniSito,
   type Pubblicazione,
+  type StatoDueFattori,
 } from '../dati'
-import { campo, el, fascia, pulsante, statoCaricamento, statoErrore, svuota, toast, type OpzioniCampo } from '../dom'
-import { iconaAvviso, iconaOrologio, iconaPubblica, iconaSalva, iconaUtente } from '../icone'
+import {
+  campo,
+  conferma,
+  distintivo,
+  el,
+  fascia,
+  pulsante,
+  scheletro,
+  statoCaricamento,
+  statoErrore,
+  svuota,
+  toast,
+  type OpzioniCampo,
+} from '../dom'
+import { EVENTO_DUE_FATTORI, attivaDueFattori } from '../duefattori'
+import { iconaAvviso, iconaOrologio, iconaPubblica, iconaSalva, iconaScudo, iconaUtente } from '../icone'
 import { cambiaLingua, dataOra, lingua, t, type Chiave, type Lingua } from '../lingua'
 import { intestazione, segnalaModifica } from '../telaio'
 
@@ -477,7 +495,84 @@ function sceltaLingua(): HTMLElement {
   return el('div', undefined, [el('span', { class: 'adm-etichetta-campo' }, t('impostazioni.lingua')), gruppo])
 }
 
-/** La card dell'accesso: chi è dentro, la password e la lingua. */
+/**
+ * La verifica in due passaggi: com'è messa e il pulsante per accenderla o
+ * spegnerla. Lo stato si rilegge dal server a ogni giro, così un fattore
+ * tolto da Supabase (telefono perso) compare subito come "non attiva".
+ */
+function bloccoDueFattori(): HTMLElement {
+  const blocco = el('div', { class: 'adm-pila' })
+
+  async function accendi(): Promise<void> {
+    if (await attivaDueFattori('impostazioni')) await aggiorna()
+  }
+
+  async function spegni(fattoreId: string): Promise<void> {
+    const via = await conferma({
+      titolo: t('duefattori.disattivaTitolo'),
+      testo: t('duefattori.disattivaTesto'),
+      ok: t('duefattori.disattiva'),
+      pericolo: true,
+    })
+    if (!via) return
+    try {
+      await rimuoviDueFattori(fattoreId)
+      toast(t('duefattori.disattivata'))
+    } catch (e) {
+      toast(messaggioDi(e), 'errore')
+    }
+    await aggiorna()
+  }
+
+  function mostra(stato: StatoDueFattori): void {
+    svuota(blocco)
+    const riga = el('div', { class: 'adm-2fa-stato' }, [
+      iconaScudo(16),
+      el('strong', undefined, t('duefattori.titolo')),
+      distintivo(
+        stato.attiva ? t('duefattori.statoAttiva') : t('duefattori.statoNonAttiva'),
+        stato.attiva ? 'vivo' : 'attenzione',
+      ),
+    ])
+    const azione =
+      stato.attiva && stato.fattoreId
+        ? pulsante(null, t('duefattori.disattiva'), 'adm-btn adm-btn-chiaro', () => void spegni(stato.fattoreId as string))
+        : pulsante(iconaScudo(16), t('duefattori.attivaAdesso'), 'adm-btn', () => void accendi())
+
+    blocco.append(
+      el('div', undefined, [
+        riga,
+        nota(stato.attiva ? t('duefattori.attivaTesto') : t('duefattori.nonAttivaTesto'), '0.35rem 0 0'),
+      ]),
+      el('div', { class: 'adm-riga' }, [azione]),
+    )
+    if (stato.attiva) blocco.append(nota(t('duefattori.telefonoPerso'), MARGINE_NOTA_PIANA))
+  }
+
+  async function aggiorna(): Promise<void> {
+    svuota(blocco)
+    blocco.append(scheletro(2))
+    try {
+      mostra(await statoDueFattori())
+    } catch (e) {
+      svuota(blocco)
+      blocco.append(
+        fascia(messaggioDi(e), 'attenzione'),
+        el('div', { class: 'adm-riga' }, [
+          pulsante(null, t('comune.riprova'), 'adm-btn adm-btn-chiaro', () => void aggiorna()),
+        ]),
+      )
+    }
+  }
+
+  // Collegata dalla proposta aperta sopra questa pagina: si ridisegna da sola.
+  document.addEventListener(EVENTO_DUE_FATTORI, () => void aggiorna())
+
+  void aggiorna()
+  return blocco
+}
+
+/** La card dell'accesso: chi è dentro, la password, la verifica in due passaggi e la lingua. */
 function cardAccesso(email: string | null): HTMLElement {
   const chi = collegato ? (email ?? '') : EMAIL_PROVA
 
@@ -490,6 +585,7 @@ function cardAccesso(email: string | null): HTMLElement {
   return card(t('impostazioni.account'), null, [
     riga,
     collegato ? moduloPassword(chi) : nota(t('accesso.locale'), MARGINE_NOTA_PIANA),
+    bloccoDueFattori(),
     sceltaLingua(),
   ])
 }

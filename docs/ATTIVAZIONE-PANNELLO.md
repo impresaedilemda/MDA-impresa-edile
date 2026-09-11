@@ -23,6 +23,14 @@ Il permesso lo dà la tabella `admin_email`, non l'utente: un utente creato con 
 
 **Authentication**, **Sign In / Providers**, **Email**: spegni **Allow new users to sign up** e salva. Senza questo chiunque può crearsi un account sul progetto. Non entrerebbe comunque nel pannello, ma è una porta in più che non serve.
 
+## 3b. La verifica in due passaggi (Supabase, 1 minuto)
+
+1. **SQL Editor**: lancia `supabase/aggiornamento-2026-09-due-fattori.sql`. Aggiorna `e_admin()`: un conto con l'app collegata scrive solo da una sessione che ha dato il codice, anche se qualcuno aggira la schermata.
+2. **Authentication**, **Multi-Factor**: **TOTP** deve essere acceso (lo è di default nei progetti nuovi).
+3. Il cliente attiva tutto da solo: alla prima entrata il pannello glielo propone, con il QR e la chiave. Serve Google Authenticator (o un'app equivalente) sul telefono. Ogni account ha la sua app: chi ha costruito il sito collega il proprio telefono al proprio account.
+
+Telefono perso o cambiato: **Authentication**, **Users**, l'utente, sezione **Multi-factor authentication**, elimina il fattore. Da quel momento entra con la sola password e può ricollegare il telefono nuovo dal pannello. Supabase non dà codici di riserva: questa è l'unica via.
+
 ## 4. Le due variabili su Vercel (2 minuti)
 
 Senza queste il sito online va in "modalità di prova": il pannello non salva nulla e i moduli non arrivano nel pannello.

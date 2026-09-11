@@ -559,3 +559,11 @@ export function iconaSito(dimensione = 16): SVGElement {
     { tipo: 'percorso', d: 'M12 3a14 14 0 0 0 0 18' },
   ])
 }
+
+/** Uno scudo con la spunta: la verifica in due passaggi. */
+export function iconaScudo(dimensione = 16): SVGElement {
+  return icona(dimensione, [
+    { tipo: 'percorso', d: 'M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z' },
+    { tipo: 'percorso', d: 'm9 12 2 2 4-4' },
+  ])
+}

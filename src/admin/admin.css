@@ -1156,6 +1156,10 @@ select.adm-campo {
 
 .adm-dialogo {
   width: min(440px, calc(100vw - 2rem));
+  /* Il reset globale del sito azzera i margini di tutto, dialog compreso: e
+     margin auto e l'unica cosa che centra un dialog modale. Senza questa
+     riga la finestra resta incollata in alto a sinistra. */
+  margin: auto;
   border: 0;
   border-radius: var(--adm-raggio);
   background: #fff;
@@ -1952,5 +1956,128 @@ select.adm-campo {
 
   .adm-accesso-scatola {
     padding: 1.75rem 1.4rem;
+  }
+}
+
+/* --- VERIFICA IN DUE PASSAGGI --------------------------------------------- */
+
+/* La finestra è più larga delle altre: dentro stanno il QR e la chiave. */
+.adm-dialogo-2fa {
+  width: min(540px, calc(100vw - 2rem));
+}
+
+.adm-2fa-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.adm-2fa-intro .adm-dialogo-testo {
+  margin-bottom: 0;
+}
+
+.adm-2fa-icona {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--adm-verde-fondo);
+  color: var(--adm-verde);
+}
+
+.adm-2fa-passi {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--adm-testo-2);
+}
+
+.adm-2fa-qr {
+  display: grid;
+  align-items: center;
+  gap: 1rem;
+  grid-template-columns: 156px minmax(0, 1fr);
+  margin-bottom: 1.1rem;
+  border: 1px solid var(--adm-bordo);
+  border-radius: var(--adm-raggio-piccolo);
+  padding: 0.9rem;
+  background: #fff;
+}
+
+/* Il QR resta nero su bianco, con un margine chiaro attorno: un lettore ha
+   bisogno di contrasto e di un bordo, e sfondi o tinte lo confondono. */
+.adm-2fa-qr-immagine {
+  width: 156px;
+  height: 156px;
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+}
+
+.adm-2fa-qr-immagine svg,
+.adm-2fa-qr-immagine img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.adm-2fa-chiave-blocco {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.adm-2fa-chiave {
+  margin: 0;
+  border-radius: var(--adm-raggio-piccolo);
+  padding: 0.55rem 0.7rem;
+  background: var(--adm-taupe-fondo);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  word-break: break-all;
+  user-select: all;
+}
+
+.adm-2fa-copia {
+  justify-self: start;
+}
+
+/* Il codice a sei cifre: grande e spaziato, si controlla con un'occhiata. */
+.adm-2fa-codice .adm-campo {
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.adm-2fa-nota {
+  margin: 1rem 0 0;
+  text-align: center;
+}
+
+/* Nella card dell'accesso: lo scudo, il titolo e l'etichetta di stato. */
+.adm-2fa-stato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+@media (max-width: 560px) {
+  .adm-2fa-qr {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .adm-2fa-chiave-blocco {
+    width: 100%;
   }
 }

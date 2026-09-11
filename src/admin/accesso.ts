@@ -18,6 +18,11 @@
  *  Il permesso vero, lato server, sta comunque nelle policy RLS di Supabase:
  *  questo file evita solo di mostrare una stanza in cui non si può lavorare.
  *
+ *  Terzo passo, facoltativo: chi ha collegato l'app del telefono (la verifica
+ *  in due passaggi, duefattori.ts) deve dare anche il codice a sei cifre.
+ *  Finché non arriva la sessione è "a metà" e le policy rifiutano ogni
+ *  scrittura: qui si chiede il codice nella stessa scatola.
+ *
  *  La schermata è una sola, a due colonne: la foto del cantiere con il marchio
  *  e la frase a sinistra, la scatola bianca a destra. Dentro la scatola si
  *  alternano l'attesa, il modulo di accesso, il recupero della password e la
@@ -25,8 +30,9 @@
  * =============================================================================
  */
 
-import { cambiaPassword, chiediRecupero, collegato, sb } from './dati'
+import { cambiaPassword, chiediRecupero, collegato, sb, statoDueFattori, verificaDueFattori } from './dati'
 import { bottone, campo, el, fascia, scheletro, svuota, toast } from './dom'
+import { campoCodice, codicePulito, messaggioCodice, propostaRimandata } from './duefattori'
 import {
   iconaAttesa,
   iconaAvviso,
@@ -321,6 +327,58 @@ export function disegnaAccesso(radice: HTMLElement, negato = false): void {
   else moduloProva(scatola)
 }
 
+/* ---------------------------------------------------------------------------
+ *  FRENO SUI TENTATIVI SBAGLIATI
+ *  Dopo TENTATIVI_MAX password sbagliate il modulo si ferma per una pausa
+ *  che raddoppia a ogni giro (30 s, 60 s, 120 s... fino a 10 minuti) e
+ *  conta i secondi a voce alta. Lo stato sta nel localStorage, cosi
+ *  ricaricare la pagina non azzera niente. E un freno per chi prova a
+ *  indovinare dal browser e un aiuto per chi sbaglia a digitare: la vera
+ *  protezione resta il limite lato server di Supabase Auth e una password
+ *  lunga. Gli errori di rete non contano.
+ * ------------------------------------------------------------------------ */
+const TENTATIVI_MAX = 3
+const PAUSA_BASE_MS = 30_000
+const PAUSA_MAX_MS = 10 * 60_000
+const CHIAVE_FRENO = 'mda-admin-freno'
+
+type Freno = { errori: number; giro: number; fino: number }
+
+function leggiFreno(): Freno {
+  try {
+    const grezzo = localStorage.getItem(CHIAVE_FRENO)
+    if (grezzo) {
+      const f = JSON.parse(grezzo) as Partial<Freno>
+      return { errori: Number(f.errori) || 0, giro: Number(f.giro) || 0, fino: Number(f.fino) || 0 }
+    }
+  } catch {
+    /* localStorage assente o pieno: si riparte da zero, nessun danno */
+  }
+  return { errori: 0, giro: 0, fino: 0 }
+}
+
+function scriviFreno(f: Freno | null): void {
+  try {
+    if (f) localStorage.setItem(CHIAVE_FRENO, JSON.stringify(f))
+    else localStorage.removeItem(CHIAVE_FRENO)
+  } catch {
+    /* come sopra */
+  }
+}
+
+/** Registra uno sbaglio: la pausa se e scattata, altrimenti i tentativi rimasti. */
+function registraSbaglio(): { pausaMs: number } | { rimasti: number } {
+  const f = leggiFreno()
+  f.errori += 1
+  if (f.errori < TENTATIVI_MAX) {
+    scriviFreno(f)
+    return { rimasti: TENTATIVI_MAX - f.errori }
+  }
+  const pausaMs = Math.min(PAUSA_BASE_MS * 2 ** f.giro, PAUSA_MAX_MS)
+  scriviFreno({ errori: 0, giro: f.giro + 1, fino: Date.now() + pausaMs })
+  return { pausaMs }
+}
+
 /** Modalità collegata: email, password e poi la lista dei permessi. */
 function moduloCollegato(scatola: HTMLElement, radice: HTMLElement, negato: boolean): void {
   const cliente = sb as NonNullable<typeof sb>
@@ -339,9 +397,48 @@ function moduloCollegato(scatola: HTMLElement, radice: HTMLElement, negato: bool
     password.input.disabled = si
   }
 
+  // La pausa: campi e pulsante fermi, il messaggio conta i secondi che
+  // mancano e alla fine il modulo torna com'era, con il fuoco sulla password.
+  let contoAllaRovescia = 0
+  function pausaFino(fino: number): void {
+    clearInterval(contoAllaRovescia)
+    const aggiorna = (): void => {
+      const secondi = Math.ceil((fino - Date.now()) / 1000)
+      if (secondi <= 0) {
+        clearInterval(contoAllaRovescia)
+        blocca(false)
+        segnala(avviso, null)
+        password.input.value = ''
+        password.input.focus()
+        return
+      }
+      blocca(true)
+      segnala(avviso, t('accesso.pausa').replace('{s}', String(secondi)))
+    }
+    aggiorna()
+    contoAllaRovescia = window.setInterval(aggiorna, 1000)
+  }
+
+  function sbagliato(): void {
+    const esito = registraSbaglio()
+    if ('pausaMs' in esito) {
+      pausaFino(Date.now() + esito.pausaMs)
+      return
+    }
+    segnala(
+      avviso,
+      esito.rimasti === 1 ? t('accesso.erroreUltimo') : t('accesso.erroreRestano').replace('{n}', String(esito.rimasti)),
+    )
+  }
+
   async function invia(ev: Event): Promise<void> {
     ev.preventDefault()
     if (inCorso) return
+    const freno = leggiFreno()
+    if (freno.fino > Date.now()) {
+      pausaFino(freno.fino)
+      return
+    }
 
     const indirizzo = email.input.value.trim().toLowerCase()
     const parola = password.input.value
@@ -360,15 +457,25 @@ function moduloCollegato(scatola: HTMLElement, radice: HTMLElement, negato: bool
     try {
       const { error } = await cliente.auth.signInWithPassword({ email: indirizzo, password: parola })
       if (error) {
-        segnala(avviso, t('accesso.errore'))
+        sbagliato()
         return
       }
+      scriviFreno(null)
 
       // Loggati sì, dentro non ancora: senza il permesso la sessione si
       // chiude subito, così non resta in giro un accesso a metà.
       if (!(await interrogaPermesso(indirizzo))) {
         await cliente.auth.signOut()
         segnala(avviso, t('accesso.nonAutorizzato'))
+        return
+      }
+
+      // Password e lista a posto. Se il conto ha l'app del telefono collegata
+      // manca ancora il codice: si chiede qui, nella stessa scatola, senza
+      // ricaricare. La guardia lo richiederebbe comunque.
+      if ((await statoDueFattori()).daVerificare) {
+        entrato = true
+        vistaCodice(radice, () => location.reload())
         return
       }
 
@@ -380,7 +487,8 @@ function moduloCollegato(scatola: HTMLElement, radice: HTMLElement, negato: bool
       // Guasto della rete, non delle credenziali: si può ritentare subito.
       segnala(avviso, t('comune.errore'))
     } finally {
-      if (!entrato) blocca(false)
+      // In pausa il conto alla rovescia tiene il modulo fermo da solo.
+      if (!entrato && leggiFreno().fino <= Date.now()) blocca(false)
     }
   }
 
@@ -393,6 +501,10 @@ function moduloCollegato(scatola: HTMLElement, radice: HTMLElement, negato: bool
 
   scatola.append(modulo, dimenticata)
   if (negato) segnala(avviso, t('accesso.nonAutorizzato'))
+
+  // Pausa ancora in corso da prima del ricaricamento: si riprende da li.
+  const freno = leggiFreno()
+  if (freno.fino > Date.now()) pausaFino(freno.fino)
 }
 
 /** Modalità di prova: nessuna password da chiedere a nessuno. */
@@ -408,6 +520,70 @@ function moduloProva(scatola: HTMLElement): void {
   })
 
   scatola.append(el('div', { class: 'adm-accesso-campi' }, [fascia(t('accesso.locale'), 'info'), entra]))
+}
+
+/* --- CODICE DELL'APP ------------------------------------------------------ */
+
+/**
+ * Il secondo passo, per chi ha collegato l'app del telefono: password giusta
+ * e nome in lista non bastano, serve il codice a sei cifre. `poi` dice cosa
+ * fare quando il codice passa: ricaricare (all'ingresso) o aprire la scelta
+ * della password nuova (nel recupero).
+ *
+ * Un codice sbagliato non conta nel freno dei tentativi: ci pensa Supabase,
+ * che limita le verifiche per indirizzo IP, e su un milione di combinazioni
+ * quel limite basta.
+ */
+function vistaCodice(radice: HTMLElement, poi: () => void): void {
+  const scatola = scatolaIn(radice)
+  testaScatola(scatola, t('accesso.codiceTitolo'), t('accesso.codiceTesto'))
+
+  const codice = campoCodice('adm-codice')
+  const avviso = avvisoErrore()
+  const { pulsante: entra, attesa } = pulsanteInvio(iconaEntra, t('accesso.entra'))
+
+  let inCorso = false
+
+  function blocca(si: boolean): void {
+    inCorso = si
+    attesa(si)
+    codice.input.disabled = si
+  }
+
+  async function verifica(ev: Event): Promise<void> {
+    ev.preventDefault()
+    if (inCorso) return
+
+    const cifre = codicePulito(codice.input)
+    if (!cifre) {
+      segnala(avviso, t('duefattori.codiceCorto'))
+      codice.input.focus()
+      return
+    }
+
+    blocca(true)
+    segnala(avviso, null)
+    try {
+      await verificaDueFattori(cifre)
+      poi()
+    } catch (errore) {
+      segnala(avviso, messaggioCodice(errore))
+      blocca(false)
+      codice.input.select()
+    }
+  }
+
+  const modulo = el('form', { novalidate: true }, [
+    el('div', { class: 'adm-accesso-campi' }, [codice.blocco, avviso, entra]),
+  ])
+  modulo.addEventListener('submit', (ev) => void verifica(ev))
+
+  // Telefono non a portata di mano: si esce, e si rientra con calma o con un
+  // altro account. La sessione a metà non deve restare in giro.
+  const via = bottone(t('accesso.esci'), 'adm-accesso-link', () => void esci())
+
+  scatola.append(modulo, via)
+  codice.input.focus()
 }
 
 /* --- RECUPERO DELLA PASSWORD ---------------------------------------------- */
@@ -494,12 +670,30 @@ function inRecupero(): boolean {
 }
 
 /**
+ * Dopo il collegamento di recupero, prima il codice dell'app se il conto ce
+ * l'ha: Supabase non cambia la password a una sessione che non l'ha dato, e
+ * il modulo fallirebbe con un messaggio poco chiaro. Senza app si va dritti
+ * al modulo. Se la domanda non arriva a destinazione si va al modulo lo
+ * stesso: un eventuale rifiuto del server si legge lì.
+ */
+function vistaNuovaPassword(radice: HTMLElement): void {
+  const scatola = scatolaIn(radice)
+  scatola.append(scheletro(3))
+  statoDueFattori()
+    .then((due) => {
+      if (due.daVerificare) vistaCodice(radice, () => moduloNuovaPassword(radice))
+      else moduloNuovaPassword(radice)
+    })
+    .catch(() => moduloNuovaPassword(radice))
+}
+
+/**
  * La scelta della password nuova, dopo il collegamento di recupero. Il
  * collegamento apre già una sessione vera: senza questo passo il pannello si
  * aprirebbe con la password vecchia ancora in piedi, e chi l'ha persa non
  * l'avrebbe mai cambiata.
  */
-function vistaNuovaPassword(radice: HTMLElement): void {
+function moduloNuovaPassword(radice: HTMLElement): void {
   const scatola = scatolaIn(radice)
   testaScatola(scatola, t('accesso.nuovaPasswordTitolo'), t('accesso.nuovaPasswordTesto'))
 
@@ -583,6 +777,17 @@ function ascoltaRecupero(radice: HTMLElement): { scattato: () => boolean; smetti
 
 /* --- CANCELLO ------------------------------------------------------------- */
 
+/** La guardia lo segna: il conto è dentro ma senza l'app del telefono. */
+let proporreDueFattori = false
+
+/**
+ * true se al conto manca l'app del telefono e il cliente non ha detto "più
+ * tardi" in questa apertura del browser: avvio.ts apre la proposta.
+ */
+export function dueFattoriDaProporre(): boolean {
+  return proporreDueFattori && !propostaRimandata()
+}
+
 /**
  * L'attesa iniziale, e basta: qui la cornice dell'accesso NON va disegnata.
  *
@@ -648,6 +853,18 @@ export async function guardia(radice: HTMLElement): Promise<boolean> {
       disegnaAccesso(radice, true)
       return false
     }
+
+    // Terzo controllo, per chi ha collegato l'app del telefono: la sessione
+    // deve aver dato il codice. Se la domanda non arriva a destinazione si
+    // chiede il codice lo stesso: all'invio la schermata riprova da sola, e
+    // se nel frattempo il fattore è sparito lascia passare.
+    const due = await statoDueFattori().catch(() => ({ attiva: true, daVerificare: true }))
+    if (recupero.scattato()) return false
+    if (due.daVerificare) {
+      vistaCodice(radice, () => location.reload())
+      return false
+    }
+    proporreDueFattori = !due.attiva
   } finally {
     recupero.smetti()
   }

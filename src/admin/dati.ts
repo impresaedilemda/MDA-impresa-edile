@@ -653,3 +653,194 @@ export async function chiediRecupero(email: string): Promise<void> {
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/admin/` })
   if (error) fallisci(error)
 }
+
+/* --- VERIFICA IN DUE PASSAGGI --------------------------------------------- */
+/*
+ *  Il secondo passo dell'accesso: oltre alla password, il codice a sei cifre
+ *  che l'app sul telefono (Google Authenticator o simili) cambia ogni mezzo
+ *  minuto. Lo gestisce Supabase Auth. Qui si chiede se il conto ha un'app
+ *  collegata, si avvia il collegamento (il QR e la chiave da scrivere a mano),
+ *  si conferma il primo codice e si verifica quello di ogni accesso.
+ *
+ *  Il controllo vero sta nelle policy: e_admin() (supabase/aggiornamento-
+ *  2026-09-due-fattori.sql) rifiuta ogni scrittura a una sessione che ha
+ *  l'app collegata ma non ha ancora dato il codice. La schermata del codice
+ *  evita solo di mostrare un pannello in cui non si potrebbe fare niente.
+ *
+ *  In modalità di prova non c'è nessun conto: il collegamento mostra un QR
+ *  di esempio e "attivo" è una riga nel localStorage. Anche il secondo passo
+ *  c'è: con la verifica attiva, la prova chiede il codice all'ingresso e
+ *  accetta sei cifre qualunque. Serve a far vedere tutto il giro senza
+ *  database, come il pulsante che entra senza password.
+ */
+
+/** Messaggio speciale: il codice scritto non corrisponde. Chi lo mostra lo traduce. */
+export const CODICE_ERRATO = 'codice-errato'
+/** Messaggio speciale: la verifica in due passaggi è spenta nel progetto Supabase. */
+export const DUE_FATTORI_SPENTI = 'due-fattori-spenti'
+
+export type StatoDueFattori = {
+  /** Il conto ha un'app collegata e confermata. */
+  attiva: boolean
+  /** L'app c'è ma questa sessione non ha ancora dato il codice: il pannello resta chiuso. */
+  daVerificare: boolean
+  /** L'identificativo del collegamento, per toglierlo. */
+  fattoreId: string | null
+}
+
+export type AvvioDueFattori = {
+  fattoreId: string
+  /** Il QR come SVG: una stringa, con o senza il prefisso data:. */
+  qr: string
+  /** La chiave da scrivere a mano se la fotocamera non collabora. */
+  chiave: string
+}
+
+/** Il nome che compare nell'app accanto al codice. */
+const NOME_FATTORE = 'MDA Impresa Edile'
+
+const CHIAVE_PROVA_2FA = 'mda-admin-prova-2fa'
+/** Il codice già dato in questa apertura del browser, sempre in modalità di prova. */
+const CHIAVE_PROVA_2FA_OK = 'mda-admin-prova-2fa-ok'
+
+/** Il collegamento confermato, se c'è. Rilegge dal server: un fattore tolto da Supabase sparisce subito. */
+async function fattoreConfermato(cliente: SupabaseClient): Promise<{ id: string } | null> {
+  const { data, error } = await cliente.auth.mfa.listFactors()
+  if (error) fallisci(error)
+  const attivo = data.totp.find((f) => f.status === 'verified')
+  return attivo ? { id: attivo.id } : null
+}
+
+/** true se il codice scritto non corrisponde: l'unico errore che si spiega al cliente con parole sue. */
+function codiceRifiutato(errore: { message: string; code?: string }): boolean {
+  return errore.code === 'mfa_verification_failed' || /invalid totp|invalid code/i.test(errore.message)
+}
+
+export async function statoDueFattori(): Promise<StatoDueFattori> {
+  if (!sb) {
+    let attiva = false
+    let dato = false
+    try {
+      attiva = localStorage.getItem(CHIAVE_PROVA_2FA) === '1'
+      dato = sessionStorage.getItem(CHIAVE_PROVA_2FA_OK) === '1'
+    } catch {
+      /* modalità privata: resta spenta */
+    }
+    return { attiva, daVerificare: attiva && !dato, fattoreId: attiva ? 'prova' : null }
+  }
+
+  const fattore = await fattoreConfermato(sb)
+  if (!fattore) return { attiva: false, daVerificare: false, fattoreId: null }
+
+  const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel()
+  if (error) fallisci(error)
+  return { attiva: true, daVerificare: data.currentLevel !== 'aal2', fattoreId: fattore.id }
+}
+
+/**
+ * Avvia il collegamento: Supabase genera il segreto, il QR e la chiave.
+ * Un tentativo lasciato a metà (QR mostrato, codice mai scritto) resta sul
+ * server come fattore non confermato e bloccherebbe il prossimo con lo stesso
+ * nome: prima si ripulisce.
+ */
+export async function iniziaDueFattori(): Promise<AvvioDueFattori> {
+  if (!sb) return { fattoreId: 'prova', qr: qrDiProva(), chiave: 'PROVA2QNJ7XK4HL6MW3YC5DRPROVA2QN' }
+
+  const elenco = await sb.auth.mfa.listFactors()
+  if (elenco.error) fallisci(elenco.error)
+  for (const f of elenco.data.all) {
+    if (f.factor_type === 'totp' && f.status !== 'verified') await sb.auth.mfa.unenroll({ factorId: f.id })
+  }
+
+  const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: NOME_FATTORE })
+  if (error) {
+    const spenta = error.code === 'mfa_totp_enroll_not_enabled' || /not enabled|disabled/i.test(error.message)
+    throw new Error(spenta ? DUE_FATTORI_SPENTI : error.message)
+  }
+  return { fattoreId: data.id, qr: data.totp.qr_code, chiave: data.totp.secret }
+}
+
+/** Conferma il collegamento con il primo codice dell'app. Da qui in poi la sessione è verificata. */
+export async function confermaDueFattori(fattoreId: string, codice: string): Promise<void> {
+  if (!sb) {
+    try {
+      localStorage.setItem(CHIAVE_PROVA_2FA, '1')
+      // Appena collegata, la verifica è già superata: il codice lo si è
+      // appena scritto, non ha senso richiederlo subito.
+      sessionStorage.setItem(CHIAVE_PROVA_2FA_OK, '1')
+    } catch {
+      /* vale per questa pagina */
+    }
+    return
+  }
+  const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: fattoreId, code: codice })
+  if (error) throw new Error(codiceRifiutato(error) ? CODICE_ERRATO : error.message)
+}
+
+/**
+ * Il codice di un accesso: apre e chiude la sfida sul fattore confermato.
+ * Senza fattore (tolto da Supabase nel frattempo) non c'è niente da
+ * verificare e si passa: la schermata del codice non deve diventare una
+ * porta chiusa per sempre.
+ */
+export async function verificaDueFattori(codice: string): Promise<void> {
+  if (!sb) {
+    // In prova non c'è nessun segreto da confrontare: sei cifre qualunque
+    // passano, e il segno vale finché il browser resta aperto.
+    try {
+      sessionStorage.setItem(CHIAVE_PROVA_2FA_OK, '1')
+    } catch {
+      /* il codice verrà richiesto di nuovo, poco male */
+    }
+    return
+  }
+  const fattore = await fattoreConfermato(sb)
+  if (!fattore) return
+  const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: fattore.id, code: codice })
+  if (error) throw new Error(codiceRifiutato(error) ? CODICE_ERRATO : error.message)
+}
+
+/** Toglie il collegamento: da quel momento basta la password. Serve una sessione già verificata. */
+export async function rimuoviDueFattori(fattoreId: string): Promise<void> {
+  if (!sb) {
+    try {
+      localStorage.removeItem(CHIAVE_PROVA_2FA)
+      sessionStorage.removeItem(CHIAVE_PROVA_2FA_OK)
+    } catch {
+      /* pazienza */
+    }
+    return
+  }
+  const { error } = await sb.auth.mfa.unenroll({ factorId: fattoreId })
+  if (error) fallisci(error)
+}
+
+/**
+ * Un QR finto per la modalità di prova: i tre quadrati agli angoli e un po'
+ * di rumore, tanto per far vedere dove sta e quanto è grande. Non si legge.
+ */
+function qrDiProva(): string {
+  const n = 25
+  const celle: string[] = []
+  const angolo = (x: number, y: number): void => {
+    for (let i = 0; i < 7; i++) {
+      for (let j = 0; j < 7; j++) {
+        const bordo = i === 0 || i === 6 || j === 0 || j === 6
+        const centro = i >= 2 && i <= 4 && j >= 2 && j <= 4
+        if (bordo || centro) celle.push(`M${x + j} ${y + i}h1v1h-1z`)
+      }
+    }
+  }
+  angolo(0, 0)
+  angolo(n - 7, 0)
+  angolo(0, n - 7)
+  let seme = 7
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const riservata = (x < 8 && y < 8) || (x >= n - 8 && y < 8) || (x < 8 && y >= n - 8)
+      seme = (seme * 48271) % 2147483647
+      if (!riservata && seme % 5 < 2) celle.push(`M${x} ${y}h1v1h-1z`)
+    }
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><rect width="${n}" height="${n}" fill="#fff"/><path d="${celle.join('')}" fill="#151613"/></svg>`
+}

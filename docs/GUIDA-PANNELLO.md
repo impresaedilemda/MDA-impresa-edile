@@ -28,6 +28,14 @@ Finché non c'è nemmeno un cantiere vero, il sito mostra cinque esempi illustra
 
 Blog e recensioni funzionano allo stesso modo: si scrive, si salva, si preme **Pubblica sul sito**. Richieste e statistiche invece sono in tempo reale, non serve pubblicare.
 
+## La verifica in due passaggi
+
+Alla prima entrata il pannello propone di collegare **Google Authenticator** (gratis, su App Store e Google Play). Si inquadra il codice QR con l'app, si scrive il codice a 6 cifre che compare, e da quel momento per entrare servono la password **e** il codice del telefono. Chi scopre la password resta fuori.
+
+- Il codice si chiede una volta per accesso, non a ogni azione. Sul solito telefono o computer di norma non viene richiesto di nuovo finché non si esce.
+- Si accende e si spegne da **Impostazioni**, **Il tuo accesso**.
+- Telefono perso o cambiato: scrivere a chi ha costruito il sito, che toglie la verifica. Poi si ricollega il telefono nuovo dal pannello.
+
 ## Due regole che contano
 
 - **Solo foto di cantieri vostri e solo recensioni vere.** In Italia foto e recensioni inventate sono pubblicità ingannevole (Codice del Consumo) e Google penalizza il sito.

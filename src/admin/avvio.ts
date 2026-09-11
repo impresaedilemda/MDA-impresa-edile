@@ -11,8 +11,9 @@
  * anche l'editor degli articoli.
  */
 
-import { guardia, sessione } from './accesso'
+import { dueFattoriDaProporre, guardia, sessione } from './accesso'
 import { collegato } from './dati'
+import { attivaDueFattori } from './duefattori'
 import { disegnaTelaio, type Sezione } from './telaio'
 import { statoErrore } from './dom'
 
@@ -138,4 +139,9 @@ export async function avvia(): Promise<void> {
     console.error('Sezione non caricata:', errore)
     statoErrore(lavoro, () => location.reload())
   }
+
+  // Il pannello è disegnato: se il conto non ha ancora l'app del telefono
+  // collegata, la proposta si apre sopra. "Più tardi" la rimanda alla
+  // prossima apertura del browser, non la spegne.
+  if (dueFattoriDaProporre()) void attivaDueFattori('proposta')
 }
