@@ -11,8 +11,11 @@ import BarraMobile from '../../components/BarraMobile.astro'
 import ContattoRapido from '../../components/ContattoRapido.astro'
 import Icona from '../../components/Icona.astro'
 import { anzianitaPubblicabile, site, yearsActive, waLink } from '../../config/site'
-import { services, verniciatura, faqs } from '../../config/content'
+import { services, verniciatura } from '../../config/content'
 import { zoneSecondarie } from '../../config/zone'
+import { articoliBlog } from '../../lib/articoli-blog'
+import { guidaPerSlug } from '../../config/guide'
+import { jsonLd } from '../../lib/blog-cliente'
 
 export function getStaticPaths() {
   return zoneSecondarie.map((zona) => ({ params: { slug: zona.slug }, props: { zona } }))
@@ -20,11 +23,26 @@ export function getStaticPaths() {
 
 const { zona } = Astro.props
 
-const title = `Rifacimento Tetti ${zona.nome} | MDA Edile`
-const description = `Rifacimento, manutenzione, guaine e verniciatura tetti a ${zona.nome}. Sopralluogo e preventivo scritto gratuiti, squadra interna, garanzia ${site.warrantyYears} anni.`
+const title = `Riparazione e rifacimento tetti ${zona.nome} | MDA`
+const description = `Riparazione, rifacimento tetti e grondaie a ${zona.nome}. MDA: sopralluogo gratuito e preventivo per il tuo immobile, con costi e lavorazioni da valutare.`
+const guida = guidaPerSlug(zona.approfondimento.guida)
+const articolo = articoliBlog.find((a) => a.slug === zona.approfondimento.blog)
 
 /* Le tre FAQ piu utili per chi arriva da una ricerca locale */
-const faqLocali = faqs.slice(0, 3)
+const faqLocali = [
+  {
+    q: `Quanto costa riparare un tetto a ${zona.nome}?`,
+    a: 'Il costo dipende dalla causa del problema, dalla superficie interessata, dai materiali e dall’accessibilità. Una riparazione localizzata e un rifacimento completo sono interventi diversi. Il sopralluogo permette di definire le lavorazioni e formulare un preventivo scritto; una cifra al metro quadrato senza questi dati non è un’offerta riferita al vostro immobile.',
+  },
+  {
+    q: `Avete una sede a ${zona.nome}?`,
+    a: `La sede di MDA è a ${site.city}, in ${site.street}. ${zona.nome} è una zona servita, non una sede aggiuntiva. Indicate l’indirizzo dell’immobile per organizzare la visita e verificare la disponibilità.`,
+  },
+  {
+    q: 'Il sopralluogo e il preventivo sono gratuiti?',
+    a: 'Sì, il sopralluogo e il preventivo sono gratuiti e senza impegno. Nella richiesta indicate il comune, il tipo di copertura e il problema osservato. Fotografie disponibili e informazioni sui lavori precedenti aiutano a preparare la visita.',
+  },
+]
 
 const tuttiIServizi = [
   ...services,
@@ -45,7 +63,7 @@ const breadcrumb = {
 
 <Base title={title} description={description}>
   <Fragment slot="head">
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)} />
+    <script type="application/ld+json" is:inline set:html={jsonLd(breadcrumb)} />
   </Fragment>
 
   <Header />
@@ -63,7 +81,7 @@ const breadcrumb = {
         </nav>
 
         <h1 class="mt-6 max-w-[900px] font-display text-4xl font-light leading-[1.1] md:text-[3.5rem]">
-          Rifacimento e manutenzione tetti a
+          Riparazione e rifacimento tetti a
           <em class="font-normal italic text-sabbia">{zona.nome}</em>
         </h1>
 
@@ -122,11 +140,14 @@ const breadcrumb = {
           <p class="occhiello">Come funziona</p>
           <h2 class="titolo-sezione">Sopralluogo gratuito a {zona.nome}</h2>
           <p class="max-w-[520px] font-sans leading-relaxed text-nero/80">
-            Saliamo sulla copertura, la fotografiamo e vi mostriamo qual è il problema reale. Entro
-            pochi giorni ricevete un preventivo scritto voce per voce, con prezzo bloccato: quello
-            firmato è quello finale. Sopralluogo e preventivo non vi costano nulla, anche se poi
-            scegliete un’altra impresa.
+            Valutiamo condizioni e accessibilità della copertura per individuare le verifiche e
+            le lavorazioni necessarie. La proposta distingue materiali, interventi ed eventuali
+            esclusioni. Sopralluogo e preventivo sono gratuiti e senza impegno; tempi e disponibilità
+            vengono concordati per il vostro immobile.
           </p>
+          <a href="/guide/costo-rifacimento-tetto/" class="font-sans text-sm font-bold text-taupe underline underline-offset-4">
+            Da cosa dipende il costo del tetto
+          </a>
           <div class="flex flex-col gap-3 sm:flex-row">
             <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Richiedi il sopralluogo</a>
             <a href={waLink(`Buongiorno, vorrei un sopralluogo a ${zona.nome}.`)} target="_blank" rel="noopener" class="btn !px-7 !py-4 bg-whatsapp text-white hover:opacity-90">
@@ -153,6 +174,19 @@ const breadcrumb = {
             Leggi le guide tecniche
           </a>
         </div>
+      </div>
+    </section>
+
+    <section class="bg-carta py-14 md:py-20">
+      <div class="contenitore flex max-w-[900px] flex-col gap-5">
+        <p class="occhiello">Preparare i lavori</p>
+        <h2 class="titolo-sezione">{zona.approfondimento.titolo}</h2>
+        {zona.approfondimento.paragrafi.map((testo) => <p class="font-sans text-[15px] leading-[1.8] text-nero/80">{testo}</p>)}
+        <nav aria-label="Approfondimenti per questa zona" class="flex flex-col gap-3 border-t border-nero/10 pt-6 font-sans text-sm font-semibold text-taupe">
+          {guida && <a class="underline underline-offset-4" href={`/guide/${guida.slug}/`}>{guida.h1}</a>}
+          {articolo && <a class="underline underline-offset-4" href={`/blog/${articolo.slug}/`}>{articolo.titolo}</a>}
+          <a class="underline underline-offset-4" href="/zone/">Consulta tutte le zone servite</a>
+        </nav>
       </div>
     </section>
   </main>

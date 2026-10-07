@@ -9,6 +9,8 @@ import type { PaginaSEO } from '../config/guide'
 import { guidaPerSlug } from '../config/guide'
 import { servizioPerSlug } from '../config/servizi-pagine'
 import Icona from './Icona.astro'
+import { articoliBlog } from '../lib/articoli-blog'
+import { zoneSecondarie } from '../config/zone'
 
 interface Props {
   pagina: PaginaSEO
@@ -23,6 +25,9 @@ const correlatiServizi = pagina.correlati.servizi
   .map((s) => servizioPerSlug(s))
   .filter(Boolean)
 const correlatiGuide = pagina.correlati.guide.map((g) => guidaPerSlug(g)).filter(Boolean)
+const correlatiBlog = (pagina.correlati.blog ?? [])
+  .map((slug) => articoliBlog.find((articolo) => articolo.slug === slug))
+  .filter(Boolean)
 ---
 
 <main id="contenuto">
@@ -64,6 +69,23 @@ const correlatiGuide = pagina.correlati.guide.map((g) => guidaPerSlug(g)).filter
             </section>
           ))
         }
+
+        {(radice === 'servizi' || pagina.slug === 'costo-rifacimento-tetto') && (
+          <section class="rivela flex flex-col gap-5 rounded-lg bg-carta p-6 md:p-8">
+            <h2 class="font-display text-[1.75rem] font-normal leading-snug text-nero">Sopralluogo e preventivo nelle zone servite</h2>
+            <p class="font-sans text-[15px] leading-[1.8] text-nero/80">
+              La sede di MDA è a {site.city}. Per organizzare la visita indicate il comune,
+              il tipo di copertura, il problema osservato e le condizioni di accesso.
+              Il costo viene definito in base alle lavorazioni: materiali, quantità ed eventuali
+              esclusioni devono essere chiari nella proposta scritta.
+            </p>
+            <nav aria-label="Comuni serviti" class="flex flex-wrap gap-x-5 gap-y-3 font-sans text-sm font-semibold text-taupe">
+              <a href="/" class="underline underline-offset-4">{site.city}</a>
+              {zoneSecondarie.map((zona) => <a href={`/zone/${zona.slug}/`} class="underline underline-offset-4">{zona.nome}</a>)}
+            </nav>
+            <a href="/#preventivo" class="btn btn-nero self-start !px-6 !py-3">Richiedi un preventivo gratuito</a>
+          </section>
+        )}
 
         <!-- FAQ della pagina -->
         <section class="rivela flex flex-col gap-5 border-t border-nero/12 pt-10">
@@ -140,6 +162,17 @@ const correlatiGuide = pagina.correlati.guide.map((g) => guidaPerSlug(g)).filter
             </div>
           )
         }
+
+        {correlatiBlog.length > 0 && (
+          <nav aria-label="Articoli consigliati" class="rounded-lg border border-nero/8 bg-carta p-7">
+            <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">Dal blog</h2>
+            <ul class="mt-4 flex flex-col gap-4">
+              {correlatiBlog.map((articolo) => (
+                <li><a class="font-sans text-[15px] font-semibold leading-snug text-nero underline-offset-4 hover:text-taupe hover:underline" href={`/blog/${articolo!.slug}/`}>{articolo!.titolo}</a></li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         <div class="rounded-lg bg-nero p-7 text-white">
           <p class="font-display text-xl font-normal leading-snug">Un dubbio sul vostro tetto?</p>

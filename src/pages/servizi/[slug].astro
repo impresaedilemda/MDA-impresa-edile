@@ -1,6 +1,6 @@
 ---
 /**
- * Pagina servizio: schema Service, FAQPage e BreadcrumbList propri.
+ * Pagina servizio: schema Service e BreadcrumbList. Le FAQ sono visibili.
  */
 import Base from '../../layouts/Base.astro'
 import Header from '../../components/Header.astro'
@@ -11,6 +11,7 @@ import PaginaEditoriale from '../../components/PaginaEditoriale.astro'
 import { site } from '../../config/site'
 import { serviziPagine } from '../../config/servizi-pagine'
 import { services, verniciatura } from '../../config/content'
+import { jsonLd } from '../../lib/blog-cliente'
 
 export function getStaticPaths() {
   return serviziPagine.map((pagina) => ({ params: { slug: pagina.slug }, props: { pagina } }))
@@ -41,6 +42,7 @@ const schema = {
   '@graph': [
     {
       '@type': 'Service',
+      '@id': `${site.url}/servizi/${pagina.slug}/#servizio`,
       name: pagina.h1,
       description: pagina.metaDescription,
       serviceType: tipoServizio,
@@ -52,17 +54,12 @@ const schema = {
         '@type': ['RoofingContractor', 'GeneralContractor'],
         name: site.name,
       },
-      areaServed: site.regions.map((r) => ({ '@type': 'AdministrativeArea', name: r })),
+      areaServed: [
+        ...site.regions.map((r) => ({ '@type': 'AdministrativeArea', name: r })),
+        ...site.areaServed.map((comune) => ({ '@type': 'City', name: comune })),
+      ],
       url: `${site.url}/servizi/${pagina.slug}/`,
       ...(immagine ? { image: new URL(immagine, site.url).href } : {}),
-    },
-    {
-      '@type': 'FAQPage',
-      mainEntity: pagina.faq.map((f) => ({
-        '@type': 'Question',
-        name: f.q,
-        acceptedAnswer: { '@type': 'Answer', text: f.a },
-      })),
     },
     {
       '@type': 'BreadcrumbList',
@@ -78,7 +75,7 @@ const schema = {
 
 <Base title={pagina.metaTitle} description={pagina.metaDescription}>
   <Fragment slot="head">
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+    <script type="application/ld+json" is:inline set:html={jsonLd(schema)} />
   </Fragment>
 
   <Header />

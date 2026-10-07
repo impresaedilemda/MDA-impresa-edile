@@ -1,8 +1,7 @@
 User-agent: *
 Allow: /
 
-# Crawler dei sistemi di risposta AI: lasciarli passare significa comparire
-# nelle risposte generate, dove oggi i concorrenti locali sono assenti.
+# Accesso ai crawler: non equivale a una garanzia di indicizzazione.
 User-agent: GPTBot
 Allow: /
 

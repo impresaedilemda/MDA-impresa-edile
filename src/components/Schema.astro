@@ -1,8 +1,7 @@
 ---
 import { anzianitaPubblicabile, site } from '../config/site'
-import { services, verniciatura, faqs, reviews, reviewsArePlaceholder } from '../config/content'
+import { services, verniciatura, faqs } from '../config/content'
 import { verificheLegali, problemiLegali } from '../config/legale'
-import { remoto } from '../lib/remoto'
 
 interface Props {
   /** FAQPage della home: va dichiarata solo dove le domande sono visibili */
@@ -44,36 +43,6 @@ const datiLegaliCompleti = problemiLegali.length === 0
 /** Include le chiavi solo se il dato e confermato, altrimenti le omette. */
 const soloSe = (confermato: boolean, campi: Record<string, unknown>) => (confermato ? campi : {})
 
-/* Le valutazioni si pubblicano solo quando ogni recensione porta un voto
-   reale: cosi nemmeno cambiando il solo flag reviewsArePlaceholder si
-   possono emettere stelle inventate. */
-const recensioniConVoto = reviews.filter(
-  (r): r is (typeof reviews)[number] & { rating: number } =>
-    typeof (r as { rating?: unknown }).rating === 'number',
-)
-const valutazioniPubblicabili =
-  !reviewsArePlaceholder && reviews.length > 0 && recensioniConVoto.length === reviews.length
-
-/** Una recensione come la vuole lo schema: chi l'ha scritta, il voto, il testo. */
-type RecensioneSchema = { autore: string; voto: number; testo: string }
-
-/** Il voto resta fra 1 e 5 qualunque cosa arrivi dal database. */
-const votoValido = (voto: number) => Math.min(5, Math.max(1, Math.round(Number(voto) || 5)))
-
-/* Le recensioni scritte dal titolare nel pannello sono vere per definizione:
-   se ce n'è almeno una visibile, lo schema pubblica quelle e il loro
-   AggregateRating, e gli esempi non contano più. Una riga senza nome o senza
-   testo non è una recensione che Google possa leggere: resta fuori. Solo se
-   il pannello è vuoto vale la regola degli esempi qui sopra. */
-const recensioniSchema: RecensioneSchema[] =
-  remoto.recensioni.length > 0
-    ? remoto.recensioni
-        .filter((r) => r.nome.trim() !== '' && r.testo.trim() !== '')
-        .map((r) => ({ autore: r.nome.trim(), voto: votoValido(r.voto), testo: r.testo.trim() }))
-    : valutazioniPubblicabili
-      ? recensioniConVoto.map((r) => ({ autore: r.name, voto: r.rating, testo: r.text }))
-      : []
-
 /** JSON.stringify non escapa "<": un "</script>" nei testi chiuderebbe il
  *  blocco in anticipo. U+2028 e U+2029 spezzano invece il parsing. */
 const jsonLd = (dati: unknown) =>
@@ -84,8 +53,8 @@ const jsonLd = (dati: unknown) =>
 
 /**
  * RoofingContractor e il tipo più specifico disponibile per un'impresa
- * di coperture ed eredita da LocalBusiness: è ciò che serve per comparire
- * nei risultati locali e nelle mappe.
+ * di coperture ed eredita da LocalBusiness. Descrive l'attività;
+ * la presenza nei risultati locali dipende anche dal profilo dell'impresa.
  */
 const azienda = {
   '@type': ['RoofingContractor', 'GeneralContractor'],
@@ -97,7 +66,7 @@ const azienda = {
   /* foundingDate ha una condizione in piu: la visura puo essere completa e
      l'anno di fondazione restare quello scritto a mano. */
   ...soloSe(datiLegaliCompleti && anzianitaPubblicabile, { foundingDate: String(site.foundedYear) }),
-  description: `Impresa edile specializzata in rifacimento, manutenzione, impermeabilizzazione e verniciatura di tetti a ${site.city} e provincia di ${site.province}.`,
+  description: `Impresa edile specializzata in rifacimento, manutenzione, impermeabilizzazione e verniciatura di tetti a ${site.city}, in Veneto e Friuli-Venezia Giulia.`,
   url: base,
   telephone: site.phoneHref,
   email: site.email,
@@ -139,12 +108,8 @@ const azienda = {
     ...site.regions.map((regione) => ({ '@type': 'AdministrativeArea', name: regione })),
     ...site.areaServed.map((comune) => ({ '@type': 'City', name: comune })),
   ],
-  openingHoursSpecification: site.hours.schema.map((fascia) => ({
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: fascia.days,
-    opens: fascia.opens,
-    closes: fascia.closes,
-  })),
+  // Gli orari del pannello sono testo libero: non dichiariamo uno schema
+  // fisso che potrebbe contraddire gli orari visibili nel footer.
   sameAs: [site.social.instagram, site.social.facebook],
   slogan: site.tagline,
   knowsAbout: tuttiIServizi.map((s) => s.keyword),
@@ -164,29 +129,7 @@ const azienda = {
       },
     })),
   },
-  // NOTA: aggregateRating e review vengono dichiarati solo quando le
-  // recensioni sono reali: quelle scritte dal titolare nel pannello, oppure
-  // gli esempi quando ognuno porta il proprio voto e il flag lo permette.
-  // Dichiarare valutazioni inventate viola le linee guida di Google e può
-  // portare a una penalizzazione manuale.
-  ...(recensioniSchema.length > 0
-    ? {
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: (
-            recensioniSchema.reduce((somma, r) => somma + r.voto, 0) / recensioniSchema.length
-          ).toFixed(1),
-          reviewCount: String(recensioniSchema.length),
-          bestRating: '5',
-        },
-        review: recensioniSchema.map((r) => ({
-          '@type': 'Review',
-          author: { '@type': 'Person', name: r.autore },
-          reviewRating: { '@type': 'Rating', ratingValue: String(r.voto), bestRating: '5' },
-          reviewBody: r.testo,
-        })),
-      }
-    : {}),
+
 }
 
 const sitoWeb = {

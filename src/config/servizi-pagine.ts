@@ -10,13 +10,13 @@ import type { PaginaSEO } from './guide'
 export const serviziPagine: PaginaSEO[] = [
   {
     slug: 'rifacimento-tetto',
-    metaTitle: 'Rifacimento Tetto in Veneto e Friuli | MDA',
+    metaTitle: 'Rifacimento tetto a Pordenone: preventivo | MDA',
     metaDescription:
-      'Rifacimento tetto completo con squadra interna: smontaggio, verifica della struttura, isolamento, ventilazione e nuovo manto. Preventivo scritto gratuito.',
+      'Rifacimento tetto a Pordenone, in Veneto e Friuli: manto, isolamento e lattonerie. Sopralluogo gratuito e preventivo con materiali e lavorazioni descritti.',
     eyebrow: 'Il servizio',
-    h1: 'Rifacimento tetto completo, dalla struttura al manto finito',
+    h1: 'Rifacimento del tetto a Pordenone, Veneto e Friuli',
     intro:
-      'Quando le riparazioni non bastano più, il rifacimento è l’intervento che chiude la partita per trent’anni. Lo eseguiamo con squadra interna dal primo smontaggio all’ultimo colmo, fra Veneto e Friuli-Venezia Giulia, con computo metrico analitico e prezzo bloccato alla firma.',
+      'Per rifare il tetto partiamo dalle condizioni della copertura e dalle parti da conservare. MDA ha sede a Pordenone e opera nelle zone servite fra Veneto e Friuli-Venezia Giulia: il sopralluogo permette di definire rimozioni, isolamento, nuovo manto e raccordi, con una proposta scritta per il vostro immobile.',
     sezioni: [
       {
         h2: 'Cosa comprende il rifacimento completo',
@@ -40,7 +40,7 @@ export const serviziPagine: PaginaSEO[] = [
         ],
       },
       {
-        h2: 'Tempi di cantiere e cosa determina davvero il costo',
+        h2: 'Costo del rifacimento tetto: le voci del preventivo',
         paragrafi: [
           'Una villetta media dai 120 ai 160 metri quadri di falda si chiude fra gli 8 e i 15 giorni lavorativi, ponteggio compreso, meteo permettendo. Sul costo pesano cinque fattori: lo stato dell’orditura portante, che si scopre davvero solo a manto smontato, il tipo di manto scelto, lo spessore e la qualità del pacchetto isolante, l’accessibilità del cantiere per ponteggio e mezzi, e le lattonerie, che i preventivi bassi alleggeriscono per prime ed è quasi sempre lì che le sorprese arrivano dopo.',
           'Per questo il prezzo del vostro tetto esce dal sopralluogo, che è gratuito e senza impegno: saliamo, misuriamo, fotografiamo, e il preventivo arriva per iscritto, voce per voce, con computo metrico analitico, così lo potete confrontare riga per riga.',
@@ -73,6 +73,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['preventivo-rifacimento-tetto-pordenone-veneto'],
       servizi: ['manutenzione-tetto', 'verniciatura-tetto'],
       guide: ['costo-rifacimento-tetto', 'tetto-ventilato-coibentazione', 'tegole-coppi-lamiera'],
     },
@@ -80,13 +81,13 @@ export const serviziPagine: PaginaSEO[] = [
 
   {
     slug: 'manutenzione-tetto',
-    metaTitle: 'Manutenzione Tetto e Riparazioni | MDA',
+    metaTitle: 'Riparazione e manutenzione tetti Pordenone | MDA',
     metaDescription:
-      'Manutenzione tetto e riparazioni mirate: sostituzione tegole, ricerca infiltrazioni, sigillature e pulizia del manto. Sopralluogo gratuito in Veneto e Friuli.',
+      'Riparazione e manutenzione tetti a Pordenone, Veneto e Friuli: tegole, infiltrazioni e grondaie. Richiedi un sopralluogo e un preventivo per il tuo immobile.',
     eyebrow: 'Il servizio',
-    h1: 'Manutenzione tetto: riparazioni mirate prima che diventino cantieri',
+    h1: 'Riparazione e manutenzione tetti a Pordenone',
     intro:
-      'La manutenzione è l’intervento più redditizio che esista per una copertura: una tegola crepata oggi si sostituisce in mezza giornata, la stessa tegola lasciata dov’è diventa una porzione di tavolato da rifare dopo due inverni. Interveniamo su tutta l’area fra Veneto e Friuli-Venezia Giulia con riparazioni rapide e documentate.',
+      'Tegole danneggiate, infiltrazioni e grondaie che perdono non richiedono sempre un rifacimento completo. Valutiamo il problema per individuare le parti da riparare e le condizioni del resto della copertura. Dalla sede di Pordenone organizziamo sopralluoghi nelle zone servite in Veneto e Friuli-Venezia Giulia.',
     sezioni: [
       {
         h2: 'Cosa ripariamo ogni settimana',
@@ -110,7 +111,7 @@ export const serviziPagine: PaginaSEO[] = [
         ],
       },
       {
-        h2: 'In quanto tempo interveniamo e da cosa dipende la spesa',
+        h2: 'Quanto costa riparare il tetto: sopralluogo e preventivo',
         paragrafi: [
           'Una riparazione puntuale si chiude quasi sempre in mezza giornata o in una giornata di lavoro, con un impegno economico minimo rispetto a un rifacimento completo: è la ragione per cui conviene chiamarci alla prima tegola scivolata e non alla terza macchia sul soffitto. Per le urgenze con acqua in casa diamo priorità al sopralluogo e, dove serve, mettiamo subito in sicurezza con copertura provvisoria.',
           'Il preventivo è scritto anche per i lavori piccoli: cifra chiara prima di iniziare, fattura regolare dopo. La serietà non dipende dalla dimensione del cantiere.',
@@ -136,6 +137,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone'],
       servizi: ['rifacimento-tetto', 'grondaie-lattonerie'],
       guide: ['infiltrazioni-tetto', 'manutenzione-programmata-tetto'],
     },
@@ -143,13 +145,13 @@ export const serviziPagine: PaginaSEO[] = [
 
   {
     slug: 'impermeabilizzazione-guaine',
-    metaTitle: 'Impermeabilizzazione Tetti e Guaine | MDA',
+    metaTitle: 'Impermeabilizzazione tetti e terrazzi Pordenone | MDA',
     metaDescription:
-      'Impermeabilizzazione di tetti piani, terrazzi e lastrici solari: guaine bituminose e membrane PVC o TPO, risvolti e scarichi curati. Preventivo gratuito.',
+      'Impermeabilizzazione di tetti piani, terrazzi e lastrici a Pordenone, Veneto e Friuli. Verifica di guaine, raccordi e scarichi con sopralluogo gratuito.',
     eyebrow: 'Il servizio',
-    h1: 'Impermeabilizzazione di tetti piani, terrazzi e lastrici solari',
+    h1: 'Impermeabilizzazione tetti e terrazzi a Pordenone',
     intro:
-      'Su una copertura piana l’impermeabilizzazione è tutto: è l’unico strato fra il cielo e l’appartamento di sotto. Nove infiltrazioni su dieci nascono nei dettagli, cioè risvolti, scarichi e giunzioni, ed è esattamente lì che si concentra il nostro lavoro.',
+      'Per affrontare infiltrazioni su tetti piani, terrazzi e lastrici valutiamo supporto, raccordi, scarichi e sistema impermeabile esistente. MDA propone interventi a Pordenone e nelle zone servite fra Veneto e Friuli-Venezia Giulia, scegliendo materiali e lavorazioni in funzione della copertura.',
     sezioni: [
       {
         h2: 'Guaina bituminosa o membrana sintetica',
@@ -199,6 +201,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['infiltrazioni-tetto-pioggia-portogruaro-latisana'],
       servizi: ['rifacimento-tetto', 'manutenzione-tetto'],
       guide: ['infiltrazioni-tetto', 'costo-rifacimento-tetto'],
     },
@@ -206,13 +209,13 @@ export const serviziPagine: PaginaSEO[] = [
 
   {
     slug: 'grondaie-lattonerie',
-    metaTitle: 'Grondaie e Lattoneria su Misura | MDA',
+    metaTitle: 'Grondaie e lattoneria a Pordenone: preventivo | MDA',
     metaDescription:
-      'Grondaie, pluviali, scossaline e converse piegate su misura in cantiere: rame, alluminio e zinco titanio. Installazione e sostituzione in Veneto e Friuli.',
+      'Grondaie, pluviali, scossaline e lattoneria a Pordenone, Veneto e Friuli. Valutiamo riparazione o sostituzione con sopralluogo e preventivo gratuiti.',
     eyebrow: 'Il servizio',
-    h1: 'Grondaie e lattoneria su misura, piegate in cantiere',
+    h1: 'Grondaie e lattoneria su misura a Pordenone',
     intro:
-      'La lattoneria è la difesa perimetrale della casa: canali, pluviali, scossaline e converse decidono dove va l’acqua quando lascia il manto. Le pieghiamo su misura in cantiere, in rame, alluminio o zinco titanio: meno giunti, pezzi che calzano al millimetro, impianti che durano decenni.',
+      'Canali di gronda, pluviali e raccordi devono accompagnare l’acqua lontano dai punti vulnerabili dell’edificio. A Pordenone e nelle zone servite in Veneto e Friuli valutiamo riparazione e sostituzione delle lattonerie, con dimensioni, materiali e lavorazioni definiti per il vostro tetto.',
     sezioni: [
       {
         h2: 'Perché su misura e non a catalogo',
@@ -262,6 +265,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone'],
       servizi: ['manutenzione-tetto', 'rifacimento-tetto'],
       guide: ['grondaie-rame-guida', 'manutenzione-programmata-tetto'],
     },
@@ -269,13 +273,13 @@ export const serviziPagine: PaginaSEO[] = [
 
   {
     slug: 'verniciatura-tetto',
-    metaTitle: 'Verniciatura Tetto in 4 Fasi | MDA',
+    metaTitle: 'Verniciatura tetto a Pordenone: costi e intervento | MDA',
     metaDescription:
-      'Verniciatura e protezione del tetto in 4 fasi: lavaggio e biocida, ripristino, primer consolidante e doppia finitura. Il ciclo completo, non una mano di colore.',
+      'Verniciatura e trattamento del tetto a Pordenone, Veneto e Friuli. Verifica del manto, preparazione e finitura: chiedi un sopralluogo e un preventivo.',
     eyebrow: 'Il servizio',
-    h1: 'Verniciatura tetto in 4 fasi: protezione vera, non una mano di colore',
+    h1: 'Verniciatura e trattamento del tetto a Pordenone',
     intro:
-      'Un manto in tegole che si è opacizzato e ha iniziato ad assorbire acqua non è da rifare: è da proteggere, adesso. Il nostro ciclo in quattro fasi ferma il degrado, blocca il muschio e restituisce alla copertura idrorepellenza e colore per un altro decennio abbondante.',
+      'La verniciatura si valuta su un manto recuperabile, dopo aver verificato le condizioni delle tegole e l’eventuale presenza di infiltrazioni. Per gli immobili a Pordenone e nelle zone servite in Veneto e Friuli definiamo preparazione, ripristini e finitura compatibile con la copertura.',
     sezioni: [
       {
         h2: 'Le quattro fasi del ciclo',
@@ -325,6 +329,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['preventivo-rifacimento-tetto-pordenone-veneto'],
       servizi: ['manutenzione-tetto', 'rifacimento-tetto'],
       guide: ['verniciatura-tetto-guida', 'manutenzione-programmata-tetto'],
     },

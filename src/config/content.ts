@@ -24,7 +24,7 @@ export const hero = {
   /* Il sottotitolo porta le parole chiave della pagina (rifacimento, tetti,
      citta) che il titolo di design non contiene. Nessun anno di fondazione:
      va pubblicato solo dopo la conferma del cliente. */
-  sub: `Rifacimento e manutenzione tetti a ${site.city} e provincia con squadra interna specializzata. Nessun subappalto, preventivi bloccati e ${site.warrantyYears} anni di garanzia scritta.`,
+  sub: `Rifacimento, riparazione e manutenzione tetti a ${site.city} e provincia con squadra interna specializzata. Sopralluogo gratuito e preventivo scritto per il tuo immobile.`,
   cta: 'Richiedi Sopralluogo Gratuito',
   /* La riga "Squadra disponibile questa settimana fra Veneto e Friuli" con
      il pallino verde e stata tolta dal cliente (10/09/2026). */
@@ -116,7 +116,7 @@ export const services: Service[] = [
     title: 'Manutenzione Tetto',
     text: 'Localizzazione infiltrazioni d’acqua, riparazione guaine compromesse, sostituzione di tegole rotte o canali ostruiti per proteggere subito la tua casa.',
     image: '/images/servizio-manutenzione.webp',
-    alt: `Manutenzione tetto a ${site.city}: tegole in ardesia dopo la pioggia`,
+    alt: 'Illustrazione di una copertura in ardesia dopo la pioggia',
   },
   {
     id: 'rifacimento-tetto',
@@ -124,7 +124,7 @@ export const services: Service[] = [
     title: 'Rifacimento Tetto',
     text: 'Intervento completo: rimozione del vecchio manto, consolidamento strutturale in legno, isolamento termico moderno ad alte prestazioni e posa nuove coperture.',
     image: '/images/servizio-rifacimento.webp',
-    alt: `Rifacimento tetto a ${site.city}: nuova orditura in legno con squadra al lavoro`,
+    alt: 'Illustrazione del rifacimento di una copertura con orditura in legno',
   },
   {
     id: 'impermeabilizzazione-guaine',
@@ -132,7 +132,7 @@ export const services: Service[] = [
     title: 'Impermeabilizzazione',
     text: 'Sistemi all’avanguardia per tetti piani, terrazzi e garage. Posa professionale di membrane bituminose (guaine) certificate resistenti all’usura.',
     image: '/images/servizio-guaine.webp',
-    alt: `Impermeabilizzazione con guaina su terrazzo piano a ${site.city}`,
+    alt: 'Illustrazione dell’impermeabilizzazione con guaina di un terrazzo piano',
   },
   {
     id: 'grondaie-lattonerie',
@@ -140,7 +140,7 @@ export const services: Service[] = [
     title: 'Grondaie e Lattoneria',
     text: 'Installazione e piegatura in cantiere di canali di gronda, pluviali e scossaline in rame, alluminio o zinco titanio, per un deflusso perfetto.',
     image: '/images/servizio-grondaie.webp',
-    alt: `Grondaie e pluviali in rame installati a ${site.city}`,
+    alt: 'Illustrazione di grondaie e pluviali in rame',
   },
 ]
 
@@ -153,7 +153,7 @@ export const verniciatura = {
   intro:
     'Non è una semplice rinfrescata estetica. Trattiamo le tue tegole con un ciclo protettivo completo in quattro fasi, con finitura silossanica che respinge l’acqua e lascia uscire il vapore.',
   image: '/images/servizio-verniciatura.webp',
-  alt: `Verniciatura tetto a ${site.city}: applicazione a spruzzo su tegole`,
+  alt: 'Illustrazione dell’applicazione di una finitura a spruzzo sulle tegole',
   steps: [
     { n: '01', title: 'Lavaggio e Biocida', text: 'Idropulizia profonda a 250 bar e applicazione di principio attivo anti-muschio.' },
     { n: '02', title: 'Ripristino Substrato', text: 'Sostituzione manuale delle parti rotte e stuccatura crepe strutturali.' },

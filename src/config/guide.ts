@@ -15,17 +15,17 @@ export type PaginaSEO = {
   intro: string
   sezioni: { h2: string; paragrafi: string[] }[]
   faq: { q: string; a: string }[]
-  correlati: { servizi: string[]; guide: string[] }
+  correlati: { servizi: string[]; guide: string[]; blog?: string[] }
 }
 
 export const guide: PaginaSEO[] = [
   {
     slug: 'costo-rifacimento-tetto',
-    metaTitle: 'Costo Rifacimento Tetto: da Cosa Dipende Davvero',
+    metaTitle: 'Quanto costa rifare il tetto a Pordenone? | MDA',
     metaDescription:
-      'Quanto costa rifare un tetto: cosa incide davvero sul prezzo al metro quadro fra tegole, coppi e lamiera, quali voci deve contenere il computo metrico e come leggere un preventivo serio.',
+      'Costo del rifacimento tetto a Pordenone, Veneto e Friuli: materiali, isolamento, superficie e accessi. Come leggere le voci di un preventivo su misura.',
     eyebrow: 'Guida ai costi',
-    h1: 'Quanto costa rifare un tetto: i fattori che decidono il preventivo',
+    h1: 'Quanto costa rifare un tetto a Pordenone e nelle zone servite?',
     intro:
       'Due tetti della stessa metratura possono avere preventivi molto distanti, e la differenza quasi mai sta nel margine dell’impresa: sta in cinque voci che si misurano solo salendo sulla copertura. Lo stato della struttura portante, il tipo di manto, il pacchetto isolante, l’accessibilità del cantiere e le lattonerie. Un preventivo serio le mette nero su bianco una per una.',
     sezioni: [
@@ -88,6 +88,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['preventivo-rifacimento-tetto-pordenone-veneto'],
       servizi: ['rifacimento-tetto', 'impermeabilizzazione-guaine'],
       guide: ['tegole-coppi-lamiera', 'tetto-ventilato-coibentazione'],
     },
@@ -158,6 +159,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['infiltrazioni-tetto-pioggia-portogruaro-latisana'],
       servizi: ['manutenzione-tetto', 'impermeabilizzazione-guaine'],
       guide: ['manutenzione-programmata-tetto', 'grondaie-rame-guida'],
     },
@@ -441,6 +443,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone'],
       servizi: ['manutenzione-tetto', 'grondaie-lattonerie'],
       guide: ['infiltrazioni-tetto', 'verniciatura-tetto-guida'],
     },

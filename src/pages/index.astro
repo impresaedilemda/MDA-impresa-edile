@@ -22,11 +22,15 @@ avvisaSeIncompleto()
 
 /* Title sotto i 60 caratteri, description fra 140 e 158: è la finestra
    in cui Google non tronca il risultato. La città e in entrambi. */
-const title = `Rifacimento Tetti ${site.city} | Impresa Edile ${site.name.split(' ')[0]}`
-const description = `Rifacimento, manutenzione e impermeabilizzazione tetti a ${site.city} e provincia. Sopralluogo e preventivo scritto gratuiti.`
+const title = `Impresa tetti ${site.city}: riparazioni e coperture | MDA`
+const description = `MDA: riparazione, rifacimento e manutenzione tetti a ${site.city}, in Veneto e Friuli. Grondaie e impermeabilizzazioni. Chiedi un sopralluogo gratuito.`
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    {/* Proprietà Search Console verificata per il conto Google dell’impresa. */}
+    <meta name="google-site-verification" content="V-77aRy18hXrUea0wFtYfU5zDQVuUP0AvJZ02RXKuME" />
+  </Fragment>
   <Header />
 
   <main id="contenuto">
