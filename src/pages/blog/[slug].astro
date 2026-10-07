@@ -18,29 +18,34 @@ import BarraMobile from '../../components/BarraMobile.astro'
 import ContattoRapido from '../../components/ContattoRapido.astro'
 import Icona from '../../components/Icona.astro'
 import { site } from '../../config/site'
-import { remoto } from '../../lib/remoto'
+import { articoliBlog } from '../../lib/articoli-blog'
 import { inHtml } from '../../lib/testo'
-import type { Articolo } from '../../lib/tipi'
+import type { ArticoloBlog } from '../../config/blog'
 import { dataIso, dataItaliana, indirizzoArticolo, jsonLd, schedaDi, slugValido } from '../../lib/blog-cliente'
 
 export function getStaticPaths() {
   /* "articolo" è riservato alla pagina guscio: slugValido lo tiene fuori. */
-  return remoto.articoli
+  return articoliBlog
     .filter((a) => slugValido(a.slug))
     .map((articolo) => ({ params: { slug: articolo.slug }, props: { articolo } }))
 }
 
-const { articolo } = Astro.props as { articolo: Articolo }
+const { articolo } = Astro.props as { articolo: ArticoloBlog }
 const scheda = schedaDi(articolo)
-const html = inHtml(articolo.contenuto)
+const indice = [...articolo.contenuto.matchAll(/^#{2,3}\s+(.+)$/gm)].map((titolo, i) => ({
+  id: `sezione-${i + 1}`,
+  titolo: titolo[1].replace(/\*+/g, ''),
+}))
+let numeroSezione = 0
+const html = inHtml(articolo.contenuto).replace(/<h2>/g, () => `<h2 id="sezione-${++numeroSezione}">`)
 
 /* Gli ultimi tre articoli oltre a questo, per la colonna laterale. */
-const altri = remoto.articoli
+const altri = articoliBlog
   .filter((a) => a.slug !== articolo.slug && slugValido(a.slug))
   .slice(0, 3)
   .map(schedaDi)
 
-const title = `${articolo.titolo} | ${site.name}`
+const title = articolo.metaTitle ?? `${articolo.titolo} | ${site.name}`
 const description = scheda.estratto
 const indirizzo = `${site.url}${indirizzoArticolo(articolo.slug)}`
 /* La copertina può essere un file del deposito (indirizzo assoluto) o un
@@ -90,7 +95,9 @@ const schema = {
   description={description}
   ogType="article"
   articleDate={articolo.creato}
+  articleModified={articolo.aggiornato}
   image={scheda.copertina ?? undefined}
+  imageAlt={articolo.copertinaAlt}
 >
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={jsonLd(schema)} />
@@ -105,7 +112,7 @@ const schema = {
       <div class="absolute inset-0 -z-10 overflow-hidden">
         {
           scheda.copertina ? (
-            <img src={scheda.copertina} alt="" fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover object-center" />
+            <img src={scheda.copertina} alt="" width={articolo.illustrazione ? 1200 : undefined} height={articolo.illustrazione ? 630 : undefined} fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover object-center" />
           ) : (
             <picture>
               <source media="(max-width: 767px)" srcset="/images/blog/copertina-blog-mobile.webp" width="900" height="1170" />
@@ -126,10 +133,13 @@ const schema = {
         <p class="occhiello !text-sabbia">Blog</p>
         <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">{articolo.titolo}</h1>
         <p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[15px] text-sabbia/75">
+          <span>Redazione {site.name}</span>
+          <span aria-hidden="true">·</span>
           <time datetime={dataIso(articolo.creato)}>Pubblicato il {dataItaliana(articolo.creato)}</time>
           <span aria-hidden="true">·</span>
           <span>{scheda.minuti} min di lettura</span>
         </p>
+        {articolo.illustrazione && <p class="font-sans text-xs text-sabbia/75">Immagine illustrativa generata con AI.</p>}
       </div>
     </section>
 
@@ -137,7 +147,15 @@ const schema = {
     <section class="bg-crema py-14 md:py-20">
       <div class="contenitore grid gap-14 lg:grid-cols-[minmax(0,760px)_1fr] lg:gap-20">
         <div class="flex flex-col gap-10">
-          <article class="prosa rivela" set:html={html} />
+          {indice.length > 0 && (
+            <nav aria-label="Indice dell’articolo" class="rounded-lg border border-nero/8 bg-carta p-6 md:p-8">
+              <p class="occhiello">In questo articolo</p>
+              <ul class="mt-4 grid gap-3 font-sans text-[15px] leading-relaxed sm:grid-cols-2">
+                {indice.map((voce) => <li><a href={`#${voce.id}`} class="text-nero underline decoration-nero/20 underline-offset-4 hover:text-taupe">{voce.titolo}</a></li>)}
+              </ul>
+            </nav>
+          )}
+          <article class:list={['prosa rivela', { 'prosa-editoriale': articolo.illustrazione }]} set:html={html} />
 
           <!-- Chiusura: il sopralluogo -->
           <aside class="rivela rounded-lg border border-nero/8 bg-carta p-7 md:p-9">

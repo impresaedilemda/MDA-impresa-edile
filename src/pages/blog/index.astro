@@ -22,15 +22,16 @@ import ContattoRapido from '../../components/ContattoRapido.astro'
 import Icona from '../../components/Icona.astro'
 import Logo from '../../components/Logo.astro'
 import { site } from '../../config/site'
-import { remoto } from '../../lib/remoto'
+import { articoliBlog } from '../../lib/articoli-blog'
 import { dataIso, dataItaliana, indirizzoArticolo, jsonLd, schedaDi, slugValido } from '../../lib/blog-cliente'
 
 /* Solo gli articoli con uno slug che può diventare un indirizzo: gli altri
    non hanno una pagina, e una card senza destinazione confonderebbe. */
-const schede = remoto.articoli.filter((a) => slugValido(a.slug)).map(schedaDi)
+const schede = articoliBlog.filter((a) => slugValido(a.slug)).map(schedaDi)
+const slugEditoriali = new Set(articoliBlog.filter((a) => a.id.startsWith('editoriale-')).map((a) => a.slug))
 
-const title = `Blog su tetti, coperture e manutenzione | ${site.name}`
-const description = `Articoli dal cantiere di ${site.name}: casi reali, manutenzione del tetto, materiali a confronto e consigli pratici per chi ha una copertura da tenere in ordine.`
+const title = 'Blog tetti a Pordenone, Veneto e Friuli | MDA'
+const description = 'Manutenzione, infiltrazioni e preventivi per il tetto: il blog MDA per Pordenone, Veneto e Friuli-Venezia Giulia. Checklist e consigli per preparare i lavori.'
 
 const assoluto = (indirizzo: string) => new URL(indirizzo, site.url).href
 
@@ -114,14 +115,14 @@ const schema = {
         <nav aria-label="Percorso" class="font-sans text-[13px] text-sabbia/60">
           <a href="/" class="transition-colors hover:text-white">Home</a>
         </nav>
-        <p class="occhiello !text-sabbia">Dal cantiere</p>
+        <p class="occhiello !text-sabbia">Il blog di MDA</p>
         <h1 class="font-display text-4xl font-light leading-[1.1] md:text-5xl">
-          Il blog di MDA: tetti, coperture e manutenzione spiegati bene
+          Tetti e manutenzione a Pordenone, in Veneto e Friuli
         </h1>
         <p class="max-w-[720px] font-sans text-lg leading-relaxed text-sabbia/85">
-          Quello che vediamo ogni settimana sui tetti fra {site.regions[0]} e {site.regions[1]},
-          raccontato senza giri di parole: casi reali, errori da evitare e le piccole manutenzioni
-          che allungano la vita di una copertura.
+          Cosa controllare, come riconoscere un problema e quali domande fare prima dei lavori.
+          Consigli per proprietari e amministratori nelle zone servite fra {site.regions[0]}
+          e {site.regions[1]}, con sede a {site.city}.
         </p>
       </div>
     </section>
@@ -133,7 +134,7 @@ const schema = {
           {
             schede.length > 0 ? (
               schede.map((s) => (
-                <li class="solleva overflow-hidden rounded-lg border border-nero/8 bg-white" data-slug={s.slug}>
+                <li class="solleva overflow-hidden rounded-lg border border-nero/8 bg-white" data-slug={s.slug} data-editoriale={slugEditoriali.has(s.slug) ? 'true' : undefined} data-creato={s.creato}>
                   <a href={indirizzoArticolo(s.slug)} class="group flex h-full flex-col">
                     <div class="zoom-foto aspect-video bg-carta">
                       {s.copertina ? (
@@ -243,6 +244,7 @@ const schema = {
       if (!(nodo instanceof HTMLElement)) return null
 
       nodo.setAttribute('data-slug', scheda.slug)
+      nodo.setAttribute('data-creato', scheda.creato)
       nodo.querySelector('a')?.setAttribute('href', indirizzoArticolo(scheda.slug))
 
       const immagine = nodo.querySelector<HTMLImageElement>('[data-immagine]')
@@ -280,11 +282,19 @@ const schema = {
       if (!articoli || articoli.length === 0) return
 
       const freschi = articoli.filter((a) => slugValido(a.slug))
-      const nuovi = freschi.map((a) => a.slug)
+      // Gli editoriali del repository non sono nel database: il suo
+      // aggiornamento non deve farli sparire dalla griglia.
+      const slugRemoti = new Set(freschi.map((a) => a.slug))
+      const editoriali = [...radice.querySelectorAll<HTMLElement>('[data-editoriale]')]
+        .filter((nodo) => !slugRemoti.has(nodo.dataset.slug ?? ''))
+      const ordine = [...editoriali.map((nodo) => ({ slug: nodo.dataset.slug ?? '', creato: nodo.dataset.creato ?? '' })), ...freschi]
+        .sort((a, b) => b.creato.localeCompare(a.creato))
+      const nuovi = ordine.map((a) => a.slug)
       const resi = slugResi(radice)
       if (nuovi.length === resi.length && nuovi.every((slug, i) => slug === resi[i])) return
 
-      const carte = freschi.map((a) => card(modello, schedaDi(a))).filter((c): c is HTMLElement => c !== null)
+      const carte = [...editoriali, ...freschi.map((a) => card(modello, schedaDi(a))).filter((c): c is HTMLElement => c !== null)]
+        .sort((a, b) => (b.dataset.creato ?? '').localeCompare(a.dataset.creato ?? ''))
       if (carte.length === 0) return
 
       while (radice.firstChild) radice.removeChild(radice.firstChild)

@@ -23,13 +23,13 @@ import BarraMobile from '../../components/BarraMobile.astro'
 import ContattoRapido from '../../components/ContattoRapido.astro'
 import Icona from '../../components/Icona.astro'
 import { site } from '../../config/site'
-import { remoto } from '../../lib/remoto'
+import { articoliBlog } from '../../lib/articoli-blog'
 import { dataIso, dataItaliana, indirizzoArticolo, schedaDi, slugValido } from '../../lib/blog-cliente'
 
 /* La colonna laterale mostra gli ultimi articoli della build: sono veri e
    hanno già la loro pagina statica. Lo script toglie l'eventuale doppione
    dell'articolo che si sta leggendo. */
-const altri = remoto.articoli
+const altri = articoliBlog
   .filter((a) => slugValido(a.slug))
   .slice(0, 3)
   .map(schedaDi)

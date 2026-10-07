@@ -9,12 +9,14 @@ interface Props {
   title: string
   description: string
   image?: string
+  imageAlt?: string
   /** true solo sulla homepage, dove le FAQ dello schema sono visibili */
   schemaFaq?: boolean
   /** 'article' sulle pagine editoriali (guide) */
   ogType?: 'website' | 'article'
   /** data ISO di pubblicazione, usata solo con ogType 'article' */
   articleDate?: string
+  articleModified?: string
   /** forza il preload del corsivo; se omesso si deduce dalla rotta */
   corsivo?: boolean
   /** forza il preload del serif 600; se omesso si deduce dalla rotta */
@@ -25,9 +27,11 @@ const {
   title,
   description,
   image = '/images/og-image.jpg',
+  imageAlt,
   schemaFaq = false,
   ogType = 'website',
   articleDate,
+  articleModified,
   corsivo,
   serifSemi,
 } = Astro.props
@@ -44,7 +48,7 @@ const preloadSerifSemi = serifSemi ?? (dettaglioDi('guide') || dettaglioDi('serv
 
 // Testo neutro: le foto del sito sono ancora segnaposto, quindi l'alt non
 // può descrivere un lavoro come se fosse già realizzato.
-const testoImmagine = `${site.name}, specialisti in tetti e coperture`
+const testoImmagine = imageAlt ?? `${site.name}, specialisti in tetti e coperture`
 ---
 
 <!doctype html>
@@ -98,7 +102,7 @@ const testoImmagine = `${site.name}, specialisti in tetti e coperture`
       ogType === 'article' && articleDate && (
         <>
           <meta property="article:published_time" content={articleDate} />
-          <meta property="article:modified_time" content={articleDate} />
+          <meta property="article:modified_time" content={articleModified || articleDate} />
         </>
       )
     }

@@ -424,6 +424,7 @@
  * ======================================================================== */
 @layer components {
   .prosa h2 {
+    scroll-margin-top: 7rem;
     font-family: var(--font-display);
     font-size: 1.75rem;
     font-weight: 400;
@@ -473,6 +474,10 @@
 
   .prosa figure {
     margin: 1.5rem 0;
+  }
+
+  .prosa-editoriale img {
+    aspect-ratio: 1200 / 630;
   }
 
   .prosa figcaption {
