@@ -65,6 +65,7 @@ import Icona from './Icona.astro'
       link.addEventListener('click', () => {
         window.dataLayer = window.dataLayer || []
         window.dataLayer.push({ event: 'contatto_diretto', canale: link.dataset.azione })
+        if (typeof window.gtag === 'function') window.gtag('event', 'contatto_diretto', { canale: link.dataset.azione })
       })
     })
   }

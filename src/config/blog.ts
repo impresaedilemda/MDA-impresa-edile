@@ -2,6 +2,7 @@ import type { Articolo } from '../lib/tipi'
 import manutenzione from '../editorial/blog/manutenzione-tetto-autunno-pordenone.md?raw'
 import infiltrazioni from '../editorial/blog/infiltrazioni-tetto-pioggia-portogruaro-latisana.md?raw'
 import preventivo from '../editorial/blog/preventivo-rifacimento-tetto-pordenone-veneto.md?raw'
+import neve from '../editorial/blog/neve-ghiaccio-tetto-quattro-punti-deboli.md?raw'
 
 export type ArticoloBlog = Articolo & {
   metaTitle?: string
@@ -40,13 +41,26 @@ const articoli = [
     copertinaAlt: 'Illustrazione AI di un tetto in tegole con raccordo al camino',
     contenuto: preventivo,
   },
+  {
+    /* Pubblicato dal pannello l'11/09/2026 e recuperato qui il 06/11/2026:
+       il database non rispondeva più e l'articolo sarebbe sparito alla
+       build successiva. Stesso slug, stessa data, stesse immagini. */
+    slug: 'neve-ghiaccio-tetto-quattro-punti-deboli',
+    titolo: 'Neve e ghiaccio sul tetto: i quattro punti che cedono per primi',
+    metaTitle: 'Neve e ghiaccio sul tetto: i 4 punti deboli | MDA',
+    estratto: 'La neve rompe un tetto molto raramente per il peso. I danni arrivano quando si scioglie di giorno e rigela di notte, e trova un punto già debole.',
+    copertina: '/images/blog/neve-ghiaccio-copertina.webp',
+    copertinaAlt: 'Illustrazione AI di ghiaccioli lungo la gronda di un tetto innevato',
+    contenuto: neve,
+    creato: '2026-09-11T00:30:00.000Z',
+  },
 ]
 
 export const editorialiBlog: ArticoloBlog[] = articoli.map((articolo) => ({
   ...articolo,
   id: `editoriale-${articolo.slug}`,
   bozza: false,
-  creato: pubblicazione,
-  aggiornato: pubblicazione,
+  creato: articolo.creato ?? pubblicazione,
+  aggiornato: articolo.creato ?? pubblicazione,
   illustrazione: true,
 }))

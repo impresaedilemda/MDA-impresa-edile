@@ -120,7 +120,7 @@ const correlatiBlog = (pagina.correlati.blog ?? [])
         {
           correlatiServizi.length > 0 && (
             <div class="rounded-lg border border-nero/8 bg-carta p-7">
-              <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">
+              <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe-testo">
                 Servizi collegati
               </h2>
               <ul class="mt-4 flex flex-col gap-3">
@@ -143,7 +143,7 @@ const correlatiBlog = (pagina.correlati.blog ?? [])
         {
           correlatiGuide.length > 0 && (
             <div class="rounded-lg border border-nero/8 bg-carta p-7">
-              <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">
+              <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe-testo">
                 Guide utili
               </h2>
               <ul class="mt-4 flex flex-col gap-3">
@@ -165,7 +165,7 @@ const correlatiBlog = (pagina.correlati.blog ?? [])
 
         {correlatiBlog.length > 0 && (
           <nav aria-label="Articoli consigliati" class="rounded-lg border border-nero/8 bg-carta p-7">
-            <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">Dal blog</h2>
+            <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe-testo">Dal blog</h2>
             <ul class="mt-4 flex flex-col gap-4">
               {correlatiBlog.map((articolo) => (
                 <li><a class="font-sans text-[15px] font-semibold leading-snug text-nero underline-offset-4 hover:text-taupe hover:underline" href={`/blog/${articolo!.slug}/`}>{articolo!.titolo}</a></li>

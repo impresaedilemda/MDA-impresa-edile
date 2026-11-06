@@ -15,3 +15,8 @@ dist/
 
 # Foto generate per il pannello: si caricano da /admin, non stanno nel sito
 foto-cantieri/
+
+# Note interne, nu stau in repo-ul pubblico
+MESAJ-CLIENT.md
+DE-FACUT.md
+docs/AUDIT-*.md

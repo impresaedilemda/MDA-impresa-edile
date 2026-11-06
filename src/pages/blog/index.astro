@@ -146,7 +146,7 @@ const schema = {
                       )}
                     </div>
                     <div class="flex flex-1 flex-col gap-4 p-8 md:p-9">
-                      <p class="font-sans text-[13px] font-semibold text-nero/55">
+                      <p class="font-sans text-[13px] font-semibold text-nero/70">
                         <time datetime={dataIso(s.creato)}>{dataItaliana(s.creato)}</time>
                         <span aria-hidden="true" class="mx-1.5">·</span>
                         <span>{s.minuti} min di lettura</span>
@@ -155,7 +155,7 @@ const schema = {
                         {s.titolo}
                       </h2>
                       <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75">{s.estratto}</p>
-                      <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+                      <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe-testo">
                         Leggi l’articolo
                         <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
                       </span>
@@ -195,7 +195,7 @@ const schema = {
           </div>
         </div>
         <div class="flex flex-1 flex-col gap-4 p-8 md:p-9">
-          <p class="font-sans text-[13px] font-semibold text-nero/55">
+          <p class="font-sans text-[13px] font-semibold text-nero/70">
             <time data-data></time>
             <span aria-hidden="true" class="mx-1.5">·</span>
             <span data-minuti></span>
@@ -206,7 +206,7 @@ const schema = {
           >
           </h2>
           <p class="flex-1 font-sans text-[15px] leading-relaxed text-nero/75" data-estratto></p>
-          <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe">
+          <span class="inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe-testo">
             Leggi l’articolo
             <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
           </span>

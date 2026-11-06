@@ -23,8 +23,11 @@ export function getStaticPaths() {
 
 const { zona } = Astro.props
 
-const title = `Riparazione e rifacimento tetti ${zona.nome} | MDA`
-const description = `Riparazione, rifacimento tetti e grondaie a ${zona.nome}. MDA: sopralluogo gratuito e preventivo per il tuo immobile, con costi e lavorazioni da valutare.`
+/* I nomi lunghi (San Vito al Tagliamento) sforano i 60 caratteri del titolo e
+   i 160 della descrizione: per quelli la formula è più corta. */
+const titoloLungo = `Riparazione e rifacimento tetti ${zona.nome} | MDA`
+const title = titoloLungo.length <= 60 ? titoloLungo : `Rifacimento tetti ${zona.nome} | MDA`
+const description = `Riparazione, rifacimento tetti e grondaie a ${zona.nome}. MDA: sopralluogo gratuito e preventivo scritto per il tuo immobile, voce per voce.`
 const guida = guidaPerSlug(zona.approfondimento.guida)
 const articolo = articoliBlog.find((a) => a.slug === zona.approfondimento.blog)
 

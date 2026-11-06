@@ -159,7 +159,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
-      blog: ['infiltrazioni-tetto-pioggia-portogruaro-latisana'],
+      blog: ['infiltrazioni-tetto-pioggia-portogruaro-latisana', 'neve-ghiaccio-tetto-quattro-punti-deboli'],
       servizi: ['manutenzione-tetto', 'impermeabilizzazione-guaine'],
       guide: ['manutenzione-programmata-tetto', 'grondaie-rame-guida'],
     },
@@ -230,6 +230,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone'],
       servizi: ['rifacimento-tetto'],
       guide: ['costo-rifacimento-tetto', 'tegole-coppi-lamiera'],
     },
@@ -303,8 +304,9 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['preventivo-rifacimento-tetto-pordenone-veneto'],
       servizi: ['rifacimento-tetto', 'impermeabilizzazione-guaine'],
-      guide: ['costo-rifacimento-tetto', 'manutenzione-programmata-tetto'],
+      guide: ['costo-rifacimento-tetto', 'tegole-coppi-lamiera'],
     },
   },
 
@@ -373,8 +375,9 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['preventivo-rifacimento-tetto-pordenone-veneto'],
       servizi: ['rifacimento-tetto', 'grondaie-lattonerie'],
-      guide: ['costo-rifacimento-tetto', 'tetto-ventilato-coibentazione'],
+      guide: ['costo-rifacimento-tetto', 'verniciatura-tetto-guida'],
     },
   },
 
@@ -443,9 +446,9 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
-      blog: ['manutenzione-tetto-autunno-pordenone'],
+      blog: ['manutenzione-tetto-autunno-pordenone', 'neve-ghiaccio-tetto-quattro-punti-deboli'],
       servizi: ['manutenzione-tetto', 'grondaie-lattonerie'],
-      guide: ['infiltrazioni-tetto', 'verniciatura-tetto-guida'],
+      guide: ['grondaie-rame-guida', 'verniciatura-tetto-guida'],
     },
   },
 
@@ -514,6 +517,7 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone', 'neve-ghiaccio-tetto-quattro-punti-deboli'],
       servizi: ['grondaie-lattonerie', 'manutenzione-tetto'],
       guide: ['manutenzione-programmata-tetto', 'infiltrazioni-tetto'],
     },
@@ -584,8 +588,9 @@ export const guide: PaginaSEO[] = [
       },
     ],
     correlati: {
+      blog: ['manutenzione-tetto-autunno-pordenone'],
       servizi: ['verniciatura-tetto', 'manutenzione-tetto'],
-      guide: ['manutenzione-programmata-tetto', 'costo-rifacimento-tetto'],
+      guide: ['manutenzione-programmata-tetto', 'tegole-coppi-lamiera'],
     },
   },
 ]

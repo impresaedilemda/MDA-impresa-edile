@@ -134,7 +134,7 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
           {
             altri.length > 0 && (
               <div class="rounded-lg border border-nero/8 bg-carta p-7">
-                <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe">
+                <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-taupe-testo">
                   Altri articoli
                 </h2>
                 <ul class="mt-4 flex flex-col gap-4">
@@ -146,7 +146,7 @@ const description = `Un articolo dal blog di ${site.name}: tetti, coperture e ma
                       >
                         <span>
                           {a.titolo}
-                          <time datetime={dataIso(a.creato)} class="mt-1 block text-[13px] font-normal text-nero/55">
+                          <time datetime={dataIso(a.creato)} class="mt-1 block text-[13px] font-normal text-nero/70">
                             {dataItaliana(a.creato)}
                           </time>
                         </span>

@@ -137,7 +137,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
-      blog: ['manutenzione-tetto-autunno-pordenone'],
+      blog: ['manutenzione-tetto-autunno-pordenone', 'neve-ghiaccio-tetto-quattro-punti-deboli'],
       servizi: ['rifacimento-tetto', 'grondaie-lattonerie'],
       guide: ['infiltrazioni-tetto', 'manutenzione-programmata-tetto'],
     },
@@ -265,7 +265,7 @@ export const serviziPagine: PaginaSEO[] = [
       },
     ],
     correlati: {
-      blog: ['manutenzione-tetto-autunno-pordenone'],
+      blog: ['manutenzione-tetto-autunno-pordenone', 'neve-ghiaccio-tetto-quattro-punti-deboli'],
       servizi: ['manutenzione-tetto', 'rifacimento-tetto'],
       guide: ['grondaie-rame-guida', 'manutenzione-programmata-tetto'],
     },

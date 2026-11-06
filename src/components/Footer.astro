@@ -118,7 +118,7 @@ const datiSocietari = [
           <h2 class="font-sans text-xs font-extrabold uppercase tracking-[0.1em] text-white">Guide</h2>
           <ul class="flex flex-col gap-3">
             {
-              guide.slice(0, 4).map((g) => (
+              guide.map((g) => (
                 <li>
                   <a href={`/guide/${g.slug}/`} class="font-sans text-[15px] text-sabbia/80 transition-colors hover:text-white">
                     {g.h1.split(':')[0]}
