@@ -23,11 +23,17 @@ const sedeCompleta = vero(site.street) && vero(site.postalCode)
 
 const voci: { etichetta: string; valore: string }[] = [
   { etichetta: 'Denominazione', valore: vero(denominazione) ? denominazione : '' },
+  { etichetta: 'Forma giuridica', valore: site.formaGiuridica === 'ditta-individuale' ? 'Impresa individuale' : '' },
   {
     etichetta: 'Sede legale',
     valore: sedeCompleta ? `${site.street}, ${site.postalCode} ${site.city} (${site.province})` : '',
   },
-  { etichetta: 'Partita IVA e codice fiscale', valore: vero(site.vat) ? site.vat.replace(/^IT/, '') : '' },
+  {
+    /* In una ditta individuale il codice fiscale e quello personale del
+       titolare, diverso dalla partita IVA: non si pubblica e non si dichiara uguale. */
+    etichetta: site.formaGiuridica === 'ditta-individuale' ? 'Partita IVA' : 'Partita IVA e codice fiscale',
+    valore: vero(site.vat) ? site.vat.replace(/^IT/, '') : '',
+  },
   { etichetta: 'Registro delle imprese', valore: vero(site.registroImprese) ? site.registroImprese : '' },
   { etichetta: 'Numero REA', valore: vero(site.rea) ? site.rea : '' },
   { etichetta: 'Capitale sociale', valore: vero(site.capitaleSociale) ? site.capitaleSociale : '' },

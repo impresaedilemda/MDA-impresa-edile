@@ -22,7 +22,8 @@ const blogAttivo = true
 
 /**
  * Dati societari dell'art. 2250 c.c. (esteso allo spazio elettronico dal
- * comma 7): sede legale, P.IVA e C.F., registro delle imprese con numero REA,
+ * comma 7): sede legale, P.IVA (e C.F., che per una societa coincide), registro
+ * delle imprese con numero REA,
  * capitale sociale, piu la PEC.
  *
  * Regola: un valore ancora segnaposto NON si pubblica come dato di fatto,
@@ -43,7 +44,11 @@ const datiSocietari = [
   !eSegnaposto(site.street) && !eSegnaposto(site.postalCode)
     ? `Sede legale: ${site.street}, ${site.postalCode} ${site.city} (${site.province})`
     : '',
-  !eSegnaposto(site.vat) ? `P.IVA e C.F. ${site.vat.replace('IT', '')}` : '',
+  /* Per una ditta individuale il codice fiscale e quello personale del
+     titolare, diverso dalla partita IVA: scrivere "P.IVA e C.F." sarebbe falso. */
+  !eSegnaposto(site.vat)
+    ? `${site.formaGiuridica === 'ditta-individuale' ? 'P.IVA' : 'P.IVA e C.F.'} ${site.vat.replace('IT', '')}`
+    : '',
   !eSegnaposto(site.rea)
     ? registroImprese
       ? `Iscritta al ${registroImprese}, REA ${site.rea}`

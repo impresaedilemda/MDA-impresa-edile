@@ -19,18 +19,26 @@ import { remoto } from '../lib/remoto'
 const statico = {
   /* --- Identita -------------------------------------------------------- */
   name: 'MDA Impresa Edile',
-  legalName: 'MDA Impresa Edile S.r.l.', // TODO CLIENTE: ragione sociale esatta
+  /* Dalla visura camerale mandata dal cliente il 14/11/2026: impresa
+     individuale, titolare Masnic Dumitru. Per una ditta individuale la
+     denominazione corretta e il nome commerciale seguito dal titolare. */
+  legalName: 'MDA Impresa Edile di Masnic Dumitru',
   tagline: 'Specialisti in tetti e coperture',
-  foundedYear: 2009, // TODO CLIENTE: anno di fondazione
+  foundedYear: 2025, // iscrizione al Registro Imprese: 12/06/2025 (visura)
   /**
    * Finche il cliente non conferma l'anno di fondazione, la cifra NON deve
    * uscire in pagina ne nei dati strutturati: l'anzianita dichiarata e una
    * affermazione di fatto e va pubblicata solo se vera.
    * Mettere a true SOLO insieme all'anno reale in foundedYear.
+   *
+   * 14/11/2026: l'anno e quello della visura (2025), ma resta false di
+   * proposito. "Dal 2025" e "da 1 anni" non aiutano nessuno e la seconda e
+   * pure sgrammaticata. L'esperienza del titolare prima della ditta e un
+   * dato diverso: si pubblica solo se il cliente lo conferma.
    */
   foundedYearConfermato: false,
-  vat: 'IT00000000000', // TODO CLIENTE: partita IVA
-  rea: 'BS-000000', // TODO CLIENTE: numero REA (opzionale, togliere se assente)
+  vat: 'IT01982700930', // dalla visura, 14/11/2026
+  rea: 'PN-377071', // dalla visura, 14/11/2026
 
   /* --- Dati societari dell'art. 2250 c.c. -------------------------------
    * Vanno pubblicati SOLO se veri: un dato identificativo inventato e piu
@@ -43,7 +51,7 @@ const statico = {
    * -------------------------------------------------------------------- */
   registroImprese: '', // TODO CLIENTE: es. "Registro delle Imprese di Pordenone-Udine"
   capitaleSociale: '', // TODO CLIENTE: es. "10.000,00 EUR i.v." (solo societa di capitali)
-  pec: '', // TODO CLIENTE: indirizzo PEC iscritto al registro delle imprese
+  pec: 'masnic.dumitru@pec.it', // domicilio digitale dalla visura, 14/11/2026
   assicurazione: '', // TODO CLIENTE: compagnia e numero della polizza RC verso terzi
 
   /**
@@ -51,7 +59,7 @@ const statico = {
    * una societa di capitali deve indicare anche il capitale sociale versato,
    * una ditta individuale no. 'da-confermare' finche non arriva la visura.
    */
-  formaGiuridica: 'da-confermare' as 'societa-di-capitali' | 'societa-di-persone' | 'ditta-individuale' | 'da-confermare',
+  formaGiuridica: 'ditta-individuale' as 'societa-di-capitali' | 'societa-di-persone' | 'ditta-individuale' | 'da-confermare',
 
   /* --- Localizzazione (CRITICO PER LA SEO LOCALE) -----------------------
    * L'impresa opera fra Veneto e Friuli-Venezia Giulia. La sede e a
@@ -142,7 +150,7 @@ const statico = {
    * NON si usa la data di build: farebbe risultare "aggiornata oggi" una
    * informativa che nessuno ha riletto da mesi.
    */
-  dataInformative: '2026-09-09',
+  dataInformative: '2026-11-14',
 
   /* I moduli non parlano piu con un servizio esterno: mandano a
      /api/richiesta, la funzione server che spedisce l'email con Resend.
