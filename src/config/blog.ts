@@ -3,6 +3,7 @@ import manutenzione from '../editorial/blog/manutenzione-tetto-autunno-pordenone
 import infiltrazioni from '../editorial/blog/infiltrazioni-tetto-pioggia-portogruaro-latisana.md?raw'
 import preventivo from '../editorial/blog/preventivo-rifacimento-tetto-pordenone-veneto.md?raw'
 import neve from '../editorial/blog/neve-ghiaccio-tetto-quattro-punti-deboli.md?raw'
+import condensa from '../editorial/blog/condensa-muffa-sottotetto-inverno.md?raw'
 
 export type ArticoloBlog = Articolo & {
   metaTitle?: string
@@ -53,6 +54,16 @@ const articoli = [
     copertinaAlt: 'Illustrazione AI di ghiaccioli lungo la gronda di un tetto innevato',
     contenuto: neve,
     creato: '2026-09-11T00:30:00.000Z',
+  },
+  {
+    slug: 'condensa-muffa-sottotetto-inverno',
+    titolo: 'Condensa e muffa nel sottotetto d’inverno: da dove viene e cosa fare',
+    metaTitle: 'Condensa e muffa nel sottotetto d’inverno | MDA',
+    estratto: 'Gocce sulle travi e muffa che compaiono col freddo, non con la pioggia: come distinguere condensa e infiltrazione e cosa chiedere nel sopralluogo.',
+    copertina: '/images/blog/condensa-sottotetto-copertina.webp',
+    copertinaAlt: 'Illustrazione AI di un sottotetto in legno con gocce di condensa sulle travi',
+    contenuto: condensa,
+    creato: '2026-11-15T08:00:00.000Z',
   },
 ]
 
