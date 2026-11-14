@@ -27,18 +27,18 @@ const { zona } = Astro.props
    i 160 della descrizione: per quelli la formula è più corta. */
 const titoloLungo = `Riparazione e rifacimento tetti ${zona.nome} | MDA`
 const title = titoloLungo.length <= 60 ? titoloLungo : `Rifacimento tetti ${zona.nome} | MDA`
-const description = `Riparazione, rifacimento tetti e grondaie a ${zona.nome}. MDA: sopralluogo gratuito e preventivo scritto per il tuo immobile, voce per voce.`
+const description = `Riparazione, rifacimento tetti e grondaie ${zona.aNome}. MDA: sopralluogo gratuito e preventivo scritto per il tuo immobile, voce per voce.`
 const guida = guidaPerSlug(zona.approfondimento.guida)
 const articolo = articoliBlog.find((a) => a.slug === zona.approfondimento.blog)
 
 /* Le tre FAQ piu utili per chi arriva da una ricerca locale */
 const faqLocali = [
   {
-    q: `Quanto costa riparare un tetto a ${zona.nome}?`,
+    q: `Quanto costa riparare un tetto ${zona.aNome}?`,
     a: 'Il costo dipende dalla causa del problema, dalla superficie interessata, dai materiali e dall’accessibilità. Una riparazione localizzata e un rifacimento completo sono interventi diversi. Il sopralluogo permette di definire le lavorazioni e formulare un preventivo scritto; una cifra al metro quadrato senza questi dati non è un’offerta riferita al vostro immobile.',
   },
   {
-    q: `Avete una sede a ${zona.nome}?`,
+    q: `Avete una sede ${zona.aNome}?`,
     a: `La sede di MDA è a ${site.city}, in ${site.street}. ${zona.nome} è una zona servita, non una sede aggiuntiva. Indicate l’indirizzo dell’immobile per organizzare la visita e verificare la disponibilità.`,
   },
   {
@@ -84,13 +84,12 @@ const breadcrumb = {
         </nav>
 
         <h1 class="mt-6 max-w-[900px] font-display text-4xl font-light leading-[1.1] md:text-[3.5rem]">
-          Riparazione e rifacimento tetti a
-          <em class="font-normal italic text-sabbia">{zona.nome}</em>
+          {`Riparazione e rifacimento tetti ${zona.prep} `}<em class="font-normal italic text-sabbia">{zona.nome}</em>
         </h1>
 
         <p class="mt-6 max-w-[720px] font-sans text-lg leading-relaxed text-crema">
           {anzianitaPubblicabile ? `Da ${yearsActive} anni la` : 'La'} nostra squadra interna interviene
-          anche a {zona.nome} e nei comuni vicini: rifacimenti completi, riparazioni,
+          anche {zona.aNome} e nei comuni vicini: rifacimenti completi, riparazioni,
           impermeabilizzazioni, lattonerie e verniciature.
           {zona.taglio}
         </p>
@@ -109,7 +108,7 @@ const breadcrumb = {
     <section class="bg-crema py-16 md:py-24">
       <div class="contenitore flex flex-col gap-10">
         <div class="flex max-w-[800px] flex-col gap-4">
-          <p class="occhiello">Cosa facciamo a {zona.nome}</p>
+          <p class="occhiello">Cosa facciamo {zona.aNome}</p>
           <h2 class="titolo-sezione">Tutti gli interventi sulle coperture</h2>
         </div>
 
@@ -126,7 +125,7 @@ const breadcrumb = {
                   href={`/servizi/${s.id}/`}
                   class="group inline-flex items-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.04em] text-taupe transition-colors hover:text-nero"
                 >
-                  {s.title} a {zona.nome}
+                  {`${s.title} ${zona.aNome}`}
                   <Icona nome="services-arrow-right" class="size-3.5 transition-transform group-hover:translate-x-1" />
                 </a>
               </li>
@@ -141,7 +140,7 @@ const breadcrumb = {
       <div class="contenitore grid gap-12 lg:grid-cols-2 lg:gap-16">
         <div class="flex flex-col gap-6">
           <p class="occhiello">Come funziona</p>
-          <h2 class="titolo-sezione">Sopralluogo gratuito a {zona.nome}</h2>
+          <h2 class="titolo-sezione">Sopralluogo gratuito {zona.aNome}</h2>
           <p class="max-w-[520px] font-sans leading-relaxed text-nero/80">
             Valutiamo condizioni e accessibilità della copertura per individuare le verifiche e
             le lavorazioni necessarie. La proposta distingue materiali, interventi ed eventuali
@@ -153,7 +152,7 @@ const breadcrumb = {
           </a>
           <div class="flex flex-col gap-3 sm:flex-row">
             <a href="/#preventivo" class="btn btn-nero !px-7 !py-4">Richiedi il sopralluogo</a>
-            <a href={waLink(`Buongiorno, vorrei un sopralluogo a ${zona.nome}.`)} target="_blank" rel="noopener" class="btn !px-7 !py-4 bg-whatsapp text-white hover:opacity-90">
+            <a href={waLink(`Buongiorno, vorrei un sopralluogo ${zona.aNome}.`)} target="_blank" rel="noopener" class="btn !px-7 !py-4 bg-whatsapp text-white hover:opacity-90">
               WhatsApp
             </a>
           </div>

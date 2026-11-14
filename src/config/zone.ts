@@ -30,6 +30,11 @@ export function slugify(nome: string): string {
 export type Zona = {
   nome: string
   slug: string
+  /** "a" oppure "ad" davanti ai nomi che iniziano per A: "ad Azzano Decimo". */
+  prep: string
+  /** Preposizione e nome insieme, in una stringa sola: Astro mangia lo
+   *  spazio fra due espressioni affiancate. */
+  aNome: string
   provincia: string
   regione: string
   taglio: string
@@ -38,7 +43,82 @@ export type Zona = {
 
 // Contesto editoriale esplicito: nessuna sede, opera o prestazione locale
 // viene inventata. Per un nuovo comune vanno prima verificati zona e contenuto.
-const contesti: Record<string, Omit<Zona, 'nome' | 'slug'>> = {
+const contesti: Record<string, Omit<Zona, 'nome' | 'slug' | 'prep' | 'aNome'>> = {
+  /* Comuni della provincia di Pordenone attorno alla sede, aggiunti il
+     14/11/2026: il cliente ha confermato che lavora in tutto il Friuli
+     e il Veneto. Ogni pagina ha un argomento diverso dalle altre. */
+  Cordenons: {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Cordenons è in provincia di Pordenone, a pochi chilometri dalla nostra sede. Se state valutando il rifacimento, indicate il materiale attuale del manto e quello che vorreste, anche se non siete ancora sicuri.',
+    approfondimento: {
+      titolo: 'Tegole, coppi o lamiera a Cordenons: scegliere il nuovo manto',
+      paragrafi: [
+        'Quando il manto va rifatto, la scelta del materiale non riguarda solo l’aspetto. Coppi, tegole e lamiera richiedono pendenze minime, pesi e dettagli di posa diversi, e devono essere compatibili con la struttura esistente e con le eventuali prescrizioni urbanistiche della zona. Per questo la scelta si fa dopo aver visto il tetto, non sul catalogo.',
+        'Per il sopralluogo a Cordenons sono utili fotografie del tetto scattate da terra, l’anno approssimativo dell’ultimo intervento e le parti da conservare, come comignoli, finestre per tetti o pannelli. Chiedete che il preventivo indichi materiale, colore, accessori e lattonerie previste: solo così due offerte diventano davvero confrontabili.',
+      ],
+      guida: 'tegole-coppi-lamiera', blog: 'preventivo-rifacimento-tetto-pordenone-veneto',
+    },
+  },
+  Porcia: {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Porcia è in provincia di Pordenone, a pochi minuti dalla nostra sede. Per un tetto con muschio, tegole sbiadite o lamiere ossidate indicate da quanto tempo notate il problema e se l’acqua entra già in casa.',
+    approfondimento: {
+      titolo: 'Muschio e manto sbiadito a Porcia: pulire, verniciare o sostituire?',
+      paragrafi: [
+        'Muschio, licheni e colore spento sono segnali diversi da una tegola rotta. La pulizia rimuove i depositi, la verniciatura protegge e rinnova un manto ancora integro, mentre gli elementi fessurati, deformati o porosi vanno sostituiti prima di qualsiasi finitura. Verniciare sopra un difetto lo nasconde per una stagione, non lo risolve.',
+        'Per una richiesta a Porcia indicate il materiale del manto, l’esposizione delle falde e la presenza di alberi vicini. Nel preventivo chiedete come verrà eseguita la pulizia, quale prodotto è previsto, quante mani e in quali condizioni meteo si può lavorare: la verniciatura ha bisogno di superfici asciutte e di temperature adatte.',
+      ],
+      guida: 'verniciatura-tetto-guida', blog: 'manutenzione-tetto-autunno-pordenone',
+    },
+  },
+  'Fiume Veneto': {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Fiume Veneto è in provincia di Pordenone, vicino alla nostra sede. Dopo neve, vento forte o grandine indicate cosa avete notato e da quando: è il primo passo per capire quanto è urgente l’intervento.',
+    approfondimento: {
+      titolo: 'Dopo neve, vento o grandine a Fiume Veneto: cosa osservare in sicurezza',
+      paragrafi: [
+        'Dopo una nevicata abbondante, una raffica forte o una grandinata il controllo si fa da terra e dall’interno, mai salendo sul tetto. Guardate se ci sono tegole spostate o cadute, lattonerie piegate, grondaie staccate e macchie nuove sul soffitto dell’ultimo piano o nel sottotetto. Fotografate tutto con la data: aiuta a descrivere il danno al sopralluogo.',
+        'Se l’acqua entra già, scrivetelo subito nella richiesta per l’immobile a Fiume Veneto: una protezione provvisoria e la riparazione definitiva sono due lavori diversi, e conviene che il preventivo li distingua. Segnalate anche come si accede al cortile o al giardino e se sul tetto ci sono pannelli o antenne da considerare nell’organizzazione del cantiere.',
+      ],
+      guida: 'manutenzione-programmata-tetto', blog: 'neve-ghiaccio-tetto-quattro-punti-deboli',
+    },
+  },
+  'Azzano Decimo': {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Azzano Decimo è in provincia di Pordenone, a sud della città. Per grondaie che traboccano o pluviali che perdono, indicate il lato dell’edificio e se il problema compare a ogni pioggia o solo con i temporali.',
+    approfondimento: {
+      titolo: 'Grondaie e pluviali ad Azzano Decimo: riparare o sostituire?',
+      paragrafi: [
+        'Una grondaia che trabocca può essere ostruita, avere una pendenza sbagliata o essere troppo piccola per la falda che raccoglie. Un giunto che gocciola, un sostegno piegato o un pluviale staccato sono invece difetti puntuali. Capire quale sia il caso evita di sostituire tutto quando basta una riparazione, o di riparare più volte un sistema che non riesce a smaltire l’acqua.',
+        'Per la richiesta ad Azzano Decimo sono utili fotografie da terra dei punti in cui l’acqua esce, il materiale attuale, se lo conoscete, e la presenza di alberi vicino al tetto. Se valutate la sostituzione, chiedete che il preventivo indichi materiale, spessore, sviluppo del canale, numero dei pluviali e tipo di sostegni: sono le voci che distinguono due offerte.',
+      ],
+      guida: 'grondaie-rame-guida', blog: 'manutenzione-tetto-autunno-pordenone',
+    },
+  },
+  'Roveredo in Piano': {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Roveredo in Piano è in provincia di Pordenone, a nord della città. Se l’immobile è affittato, indicate nella richiesta chi è il proprietario e chi può aprire per il sopralluogo.',
+    approfondimento: {
+      titolo: 'Il tetto di una casa in affitto a Roveredo: organizzare il sopralluogo',
+      paragrafi: [
+        'Quando chi abita la casa non è il proprietario, le segnalazioni arrivano spesso in ritardo o incomplete. Chiedete a chi vive nell’immobile di annotare dove compare l’umidità, dopo quale tipo di pioggia e da quanto tempo, con qualche fotografia dall’interno. Così il sopralluogo parte da informazioni precise e non da una descrizione riportata a voce.',
+        'Per l’immobile a Roveredo in Piano concordate prima chi sarà presente alla visita e a chi va inviato il preventivo. Se serve liberare una stanza o il sottotetto per l’accesso, avvisate l’inquilino con anticipo. Nel preventivo chiedete di distinguere la ricerca della causa dalla riparazione: aiuta anche a pianificare tempi e disagi per chi abita la casa.',
+      ],
+      guida: 'infiltrazioni-tetto', blog: 'infiltrazioni-tetto-pioggia-portogruaro-latisana',
+    },
+  },
+  Fontanafredda: {
+    provincia: 'Pordenone', regione: 'Friuli-Venezia Giulia',
+    taglio: 'Fontanafredda è in provincia di Pordenone, sulla strada verso Sacile. Se d’inverno il sottotetto è molto freddo o compare condensa, scrivetelo già nella prima richiesta.',
+    approfondimento: {
+      titolo: 'Condensa e sottotetto freddo a Fontanafredda: cosa verificare',
+      paragrafi: [
+        'Gocce sulle travi, muffa negli angoli o un sottotetto gelido d’inverno non indicano per forza un’infiltrazione dal manto. Possono dipendere da un isolamento insufficiente, da una ventilazione assente o ostruita, o dall’umidità che sale dagli ambienti abitati. Per questo il sopralluogo guarda sia la copertura sia il sottotetto, prima di proporre una soluzione.',
+        'Prima della visita all’immobile di Fontanafredda annotate quando compare il fenomeno, se peggiora con il freddo o dopo la pioggia, e come vengono riscaldati e arieggiati gli ambienti sotto il tetto. Se valutate la coibentazione, chiedete che il preventivo indichi materiale isolante, spessore, barriera al vapore e soluzione per la ventilazione: sono gli elementi che decidono il risultato.',
+      ],
+      guida: 'tetto-ventilato-coibentazione', blog: 'neve-ghiaccio-tetto-quattro-punti-deboli',
+    },
+  },
   Portogruaro: {
     provincia: 'Venezia', regione: 'Veneto',
     taglio: 'Portogruaro è nella Città metropolitana di Venezia. La nostra sede resta a Pordenone: nel contatto indicate l’indirizzo del cantiere per organizzare il sopralluogo.',
@@ -128,7 +208,9 @@ const contesti: Record<string, Omit<Zona, 'nome' | 'slug'>> = {
 export const zone: Zona[] = site.areaServed.slice(1).map((nome) => {
   const contesto = contesti[nome]
   if (!contesto) throw new Error(`Completare il contenuto locale prima di pubblicare la zona: ${nome}`)
-  return { nome, slug: slugify(nome), ...contesto }
+  /* Davanti a una A l'italiano scrive "ad": "ad Azzano Decimo", non "a Azzano". */
+  const prep = /^a/i.test(nome) ? 'ad' : 'a'
+  return { nome, slug: slugify(nome), prep, aNome: `${prep} ${nome}`, ...contesto }
 })
 
 /** La zona principale (la citta) resta coperta dalla home. */

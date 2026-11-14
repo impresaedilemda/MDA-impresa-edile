@@ -83,9 +83,16 @@ const statico = {
   /** Comuni serviti fra Veneto e Friuli. Alimentano la SEO locale,
    *  le pagine /zone/ e il footer. */
   areaServed: [
-    // TODO CLIENTE: sostituire con i comuni realmente serviti.
     // Il PRIMO e la citta della sede: lo copre la home, non ha pagina /zone/.
+    // 14/11/2026: il cliente lavora in tutto il Friuli-Venezia Giulia e il
+    // Veneto. Prima i comuni attorno alla sede, poi quelli piu lontani.
     'Pordenone',
+    'Cordenons',
+    'Porcia',
+    'Fiume Veneto',
+    'Azzano Decimo',
+    'Roveredo in Piano',
+    'Fontanafredda',
     'Portogruaro',
     'San Donà di Piave',
     'Latisana',
