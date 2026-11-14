@@ -110,7 +110,8 @@ const statico = {
 
   /* --- Orari (usati anche nello schema JSON-LD) ------------------------- */
   hours: {
-    label: 'Lun - Sab, 08:00 - 18:00', // TODO CLIENTE
+    /* Come i giorni dello schema e del profilo Google: il sabato chiude alle 13. */
+    label: 'Lun - Ven 08:00 - 18:00, Sab 08:00 - 13:00',
     schema: [
       { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '08:00', closes: '18:00' },
       { days: ['Saturday'], opens: '08:00', closes: '13:00' },

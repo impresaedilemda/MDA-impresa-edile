@@ -107,9 +107,16 @@ declare global {
 
 let gaCaricato = false
 
-function gtag(...argomenti: unknown[]): void {
+/* gtag.js legge dalla coda SOLO l'oggetto `arguments`, non un array: con
+   `push(argomenti)` (un array vero, dal parametro rest) lo script si caricava
+   ma ignorava consent, config ed eventi, quindi dal 7 ottobre 2026 GA non ha
+   ricevuto nessuna visita. Trovato e corretto il 14/11/2026. Per questo qui
+   c'e `arguments` e la funzione non puo diventare una freccia. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function gtag(..._argomenti: unknown[]): void {
   window.dataLayer = window.dataLayer || []
-  window.dataLayer.push(argomenti)
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments)
 }
 
 /** Consent Mode v2 su "negato". Va chiamato prima di qualunque altra cosa. */

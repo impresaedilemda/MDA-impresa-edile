@@ -39,7 +39,16 @@ export const prerender = false
 /** Una riga della email: etichetta a sinistra, valore a destra. */
 type Riga = { etichetta: string; valore: string }
 
-const EMAIL_VALIDA = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+/**
+ * La stessa regola del campo <input type="email"> dei browser (specifica
+ * WHATWG), con in piu un dominio di almeno due livelli. La regola di prima
+ * escludeva solo spazi e chiocciole: lasciava passare virgolette e parentesi
+ * angolari, e un indirizzo come x"><a href=...>@a.it usciva dall'attributo
+ * href del pulsante "Rispondi via email" e infilava un link a piacere nella
+ * email che arriva all'impresa. Corretto il 14/11/2026.
+ */
+const EMAIL_VALIDA =
+  /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i
 
 /** Caratteri di controllo: in un campo di una riga sola diventano spazi. */
 const CONTROLLO = /[\x00-\x1f\x7f]/g
@@ -52,7 +61,10 @@ const CONTROLLO = /[\x00-\x1f\x7f]/g
  */
 const ORIGINI = [
   /^https:\/\/(www\.)?mdaimpresaedile\.it$/,
-  /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
+  /* Solo le anteprime di QUESTO progetto: con un qualsiasi *.vercel.app
+     chiunque poteva mettere il modulo su un suo sito e farlo inviare dai
+     browser dei suoi visitatori. */
+  /^https:\/\/mda-impresa-edile[a-z0-9-]*\.vercel\.app$/,
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
 ]
@@ -214,7 +226,7 @@ function corpoHtml(opzioni: {
 
   const pulsante = (indirizzo: string, testo: string, sfondo: string, colore: string) => `
     <td style="padding:0 8px 8px 0">
-      <a href="${indirizzo}" style="display:inline-block;padding:13px 20px;background:${sfondo};color:${colore};font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;white-space:nowrap">${scappa(testo)}</a>
+      <a href="${scappa(indirizzo)}" style="display:inline-block;padding:13px 20px;background:${sfondo};color:${colore};font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;white-space:nowrap">${scappa(testo)}</a>
     </td>`
 
   const pulsanti = [
